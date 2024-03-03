@@ -1,7 +1,11 @@
+GENERATOR = "MSYS Makefiles"
+CMAKE_CONFIG = -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -G$(GENERATOR) -DCMAKE_TOOLCHAIN_FILE=cmake/conan_toolchain.cmake 
+
+###############################
 all: 
 
 ###############################
-##### Build Targets #########
+##### Build Targets ###########
 release: clean config-release
 	cmake --build build
 
@@ -13,6 +17,12 @@ build-verbose: clean config-debug
 
 build-test: clean config-test
 	cmake --build build
+
+msvc-release:
+	cmake --build build --config Release
+
+msvc-debug:
+	cmake --build build --config Debug
 
 ###############################
 ##### Quick Build Targets #####
@@ -36,21 +46,24 @@ graph: config-debug
 ###############################
 ##### Config Targets ##########
 config-release:
-	cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 
+	cmake $(CMAKE_CONFIG) -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 
 
 config-debug:
-	cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF
+	cmake $(CMAKE_CONFIG) -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF
 
 config-test:
-	cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+	cmake $(CMAKE_CONFIG) -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
 
-###############################
+config-msvc:
+	cmake -S . -B build -G "Visual Studio 17 2022" -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_TOOLCHAIN_FILE=cmake/conan_toolchain.cmake 
+
+#################################
 ##### Conan Install Command #####
-conan-install:
-	conan install conanfile.txt --output-folder=build --build=missing --profile=debug
+conan-debug:
+	conan install conanfile.py --build=missing --profile=debug
 
 conan-release:
-	conan install conanfile.txt --output-folder=build --build=missing --profile=debug
+	conan install conanfile.py --build=missing --profile=release
 
 ###############################
 ##### Clean Command ###########

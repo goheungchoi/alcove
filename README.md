@@ -11,6 +11,15 @@ Must-be-installed Programs for Dev
 
 ## Current Build Environment
 
+- Windows 
+- Scripting Tool: Python
+- Dependency manager: Conan
+- Build Generator: CMake
+- Build Tool: Microsoft Visual Studio 2019
+- Compiler: MSVC
+
+## Possible Build Environment
+
 - Windows MinGW
 - Scripting Tool: Unix Makefile 
 - Dependency manager: Conan
@@ -26,3 +35,8 @@ Must-be-installed Programs for Dev
 - Build Generator: CMake
 - Build Tool: Ninja
 - Compiler: Clang
+
+## TODO List
+
+- Shader Compiler Tests: Need to figure out how to test the shader compiler.
+
