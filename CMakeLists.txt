@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(alcove  VERSION     0.1.0
-                LANGUAGES   C CXX
                 DESCRIPTION "Vulkan Real-time Rendering Engine"
+                LANGUAGES   C CXX
 )
 
 ### CMake Debugging Packages  ###

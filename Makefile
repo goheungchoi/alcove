@@ -55,5 +55,5 @@ conan-release:
 ###############################
 ##### Clean Command ###########
 clean:
-	rm -rf build
-	mkdir build
+	rm -rf ./build
+	mkdir ./build
