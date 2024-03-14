@@ -36,6 +36,10 @@ Must-be-installed Programs for Dev
 - Build Tool: Ninja
 - Compiler: Clang
 
+## How to init
+Windows
+- `py pymake.py `
+
 ## TODO List
 
 - Shader Compiler Tests: Need to figure out how to test the shader compiler.

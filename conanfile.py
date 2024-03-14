@@ -23,6 +23,8 @@ class AlcoveRecipe(ConanFile):
     self.requires("sdl/2.28.5")
     self.requires("catch2/3.5.0")
     self.requires("imgui/1.90")
+    self.requires("vulkan-memory-allocator/3.0.1")
+    self.requires("fmt/10.2.1")
 
   def layout(self):
     self.folders.source = "src"

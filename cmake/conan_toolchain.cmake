@@ -80,8 +80,8 @@ list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 list(PREPEND CMAKE_PREFIX_PATH "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/lib/cmake/Catch2")
 # The Conan local "generators" folder, where this toolchain is saved.
 list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR} )
-list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/lib" "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/lib" "C:/Users/ga1ox/.conan2/p/imgui45a0c533cc365/p/lib")
-list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p/include" "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/include" "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/include/SDL2" "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/include" "C:/Users/ga1ox/.conan2/p/imgui45a0c533cc365/p/include")
+list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/lib" "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/lib" "C:/Users/ga1ox/.conan2/p/imgui45a0c533cc365/p/lib" "C:/Users/ga1ox/.conan2/p/fmtb9171ef78b3a6/p/lib")
+list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p/include" "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/include" "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/include/SDL2" "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/include" "C:/Users/ga1ox/.conan2/p/imgui45a0c533cc365/p/include" "C:/Users/ga1ox/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/ga1ox/.conan2/p/fmtb9171ef78b3a6/p/include")
 
 
 

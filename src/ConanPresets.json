@@ -4,6 +4,6 @@
         "conan": {}
     },
     "include": [
-        "C:\\Users\\ga1ox\\Desktop\\study\\conan\\clone_project\\cmake\\CMakePresets.json"
+        "C:\\Users\\ga1ox\\Desktop\\github-repos\\alcove\\cmake\\CMakePresets.json"
     ]
 }
