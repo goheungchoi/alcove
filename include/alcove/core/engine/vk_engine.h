@@ -23,5 +23,18 @@ public:
 
   // Run the main loop
   void run();
+
+public:
+  VkInstance                _instance;        // Vulkan library handle
+  VkDebugUtilsMessengerEXT  _debug_messenger; // Vulkan debug output handle
+  VkPhysicalDevice          _selectedGPU;     // GPU chosen as the default device
+  VkDevice                  _device;          // Vulakn device for commands
+  VkSurfaceKHR              _surface;         // Vulkan window surface
+
+private:
+  void init_vulkan();
+  void init_swapchain();
+  void init_commands();
+  void init_sync_structures();
 };
 

@@ -21,7 +21,7 @@ void VulkanEngine::init() {
   assert(loadedEngine == nullptr);
   loadedEngine = this;
 
-  // Initialize SDL and create a window with it.
+  ///// Initialize SDL and create a window with it.
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_VULKAN);
@@ -35,7 +35,17 @@ void VulkanEngine::init() {
     window_flags
   );
 
-  // Notify that everything went fine.
+  ///// Initialize Vulkan
+  init_vulkan();
+
+  init_swapchain();
+
+  init_commands();
+
+  init_sync_structures();
+
+
+  // Notify that every initialization step went fine.
   _isInitialized = true;
 }
 
@@ -87,4 +97,58 @@ void VulkanEngine::run() {
     draw();
 
   }
+}
+
+void VulkanEngine::init_vulkan()
+{
+  // Set the application information
+  VkApplicationInfo app_info = {
+    .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+    .pNext = nullptr,
+    .pApplicationName = "Alcove",
+    .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+    .pEngineName = "No Engine",
+    .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+    .apiVersion = VK_API_VERSION_1_3,
+  };
+
+  // Get instance extensions from SDL library.
+  // If the SDL window is not set, throw an error.
+  if (!_window) throw std::runtime_error("SDL Window is not created!");
+  unsigned int ext_count = 0;
+  SDL_Vulkan_GetInstanceExtensions(_window, &ext_count, nullptr);
+  std::vector<const char*> exts(ext_count);
+  SDL_Vulkan_GetInstanceExtensions(_window, &ext_count, exts.data());
+
+  // Need a validation layer.
+  const std::vector<const char*> layers = {
+    "VK_LAYER_KHRONOS_validation"
+  };
+
+  VkInstanceCreateInfo instance_info = {
+    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+    .pNext = nullptr,
+    .flags = 0,
+    .pApplicationInfo = &app_info,
+    .enabledLayerCount = static_cast<uint32_t>(layers.size()),
+    .ppEnabledLayerNames = layers.data(),
+    .enabledExtensionCount = static_cast<uint32_t>(exts.size()),
+    .ppEnabledExtensionNames = exts.data(),
+  };
+
+  VK_CHECK(vkCreateInstance(&instance_info, nullptr, &_instance));
+
+  // TODO: Debug messenger is required
+}
+
+void VulkanEngine::init_swapchain()
+{
+}
+
+void VulkanEngine::init_commands()
+{
+}
+
+void VulkanEngine::init_sync_structures()
+{
 }
