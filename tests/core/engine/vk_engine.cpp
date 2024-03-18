@@ -1,3 +1,4 @@
+// vk_engine.cpp
 #include "vk_engine.h"
 
 #include <SDL.h>        // The main SDL library data for opening a window and input
@@ -8,6 +9,14 @@
 
 #include <chrono>
 #include <thread>
+
+#ifdef NDEBUG /* RELEASE MODE */
+using debug_t = std::integral_constant<bool, false>;
+
+#else /*** DEBUG MODE IS ON ***/
+#include <vk_debug_utils.h>
+using debug_t = std::integral_constant<bool, true>;
+#endif // NDEBUG
 
 constexpr bool bUseValidationLayers = false;
 
@@ -52,6 +61,10 @@ void VulkanEngine::init() {
 
 void VulkanEngine::cleanup() {
   if (_isInitialized) {
+/*** DEBUG: Destroy the debug messenger ***/
+if constexpr (debug_t::value)
+  DebugUtils::cleanupDebugMessenger(_instance);
+/************************************************************************/
     SDL_DestroyWindow(_window); // Destory the window
   }
 
@@ -101,7 +114,7 @@ void VulkanEngine::run() {
 
 void VulkanEngine::init_vulkan()
 {
-  // Set the application information
+  ///// Set the application information
   VkApplicationInfo app_info = {
     .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
     .pNext = nullptr,
@@ -112,7 +125,7 @@ void VulkanEngine::init_vulkan()
     .apiVersion = VK_API_VERSION_1_3,
   };
 
-  // Get instance extensions from SDL library.
+  ///// Get instance extensions from SDL library.
   // If the SDL window is not set, throw an error.
   if (!_window) throw std::runtime_error("SDL Window is not created!");
   unsigned int ext_count = 0;
@@ -120,25 +133,76 @@ void VulkanEngine::init_vulkan()
   std::vector<const char*> exts(ext_count);
   SDL_Vulkan_GetInstanceExtensions(_window, &ext_count, exts.data());
 
-  // Need a validation layer.
-  const std::vector<const char*> layers = {
-    "VK_LAYER_KHRONOS_validation"
-  };
 
+
+/*** DEBUG: Set up a debug messenger with a callback ********************/
+if constexpr (debug_t::value) exts.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+/************************************************************************/
+/*** DEBUG: Check if the necessary instance extensions are available. ***/
+if (debug_t::value && !DebugUtils::checkInstanceExtensionSupport(exts)) {
+  throw std::runtime_error("Instance extensions required, but not available!");
+}
+/************************************************************************/
+
+
+
+  ///// Get a validation layer.
+  std::vector<const char*> layers = []{ // Compile-time assignment
+    if constexpr (debug_t::value) /*** DEBUG: ***/
+      return std::initializer_list{"VK_LAYER_KHRONOS_validation"};
+    else 
+      return;
+  }();
+
+
+
+/*** DEBUG: Check if the requested validation layer is available. ***/ 
+if (debug_t::value && !DebugUtils::checkValidationLayerSupport(layers)) {
+  throw std::runtime_error("Validation layers requested, but not available!");
+}
+/********************************************************************/
+
+
+
+  ///// Set the instance create info
+  VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info;
   VkInstanceCreateInfo instance_info = {
     .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-    .pNext = nullptr,
+    .pNext = [&debug_messenger_create_info] { // Compile-time assignment
+        if constexpr (debug_t::value) { /*** DEBUG: ***/
+          DebugUtils::populateDebugMessengerCreateInfo(debug_messenger_create_info);
+          return (VkDebugUtilsMessengerCreateInfoEXT*) &debug_messenger_create_info;
+        } else {
+          return nullptr;
+        }
+      }(),
     .flags = 0,
     .pApplicationInfo = &app_info,
-    .enabledLayerCount = static_cast<uint32_t>(layers.size()),
-    .ppEnabledLayerNames = layers.data(),
+    .enabledLayerCount = [&layers] {    // Compile-time assignment
+        if constexpr (debug_t::value) /*** DEBUG: ***/
+          return static_cast<uint32_t>(layers.size());
+        else 
+          return 0;
+      }(),
+    .ppEnabledLayerNames = [&layers] {  // Compile-time assignment
+        if constexpr (debug_t::value) /*** DEBUG: ***/
+          return layers.data();
+        else 
+          return;
+      }(),
     .enabledExtensionCount = static_cast<uint32_t>(exts.size()),
     .ppEnabledExtensionNames = exts.data(),
   };
 
+  ///// Create the instance
   VK_CHECK(vkCreateInstance(&instance_info, nullptr, &_instance));
 
-  // TODO: Debug messenger is required
+
+
+
+/*** DEBUG: Set up a debug messenger when debug mode. **************/ 
+if constexpr (debug_t::value) DebugUtils::setupDebugMessenger(_instance);
+/********************************************************************/
 }
 
 void VulkanEngine::init_swapchain()

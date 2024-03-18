@@ -1,3 +1,4 @@
+// vk_engine.h
 #pragma once
 #include <vk_common.h>
 
@@ -36,5 +37,9 @@ private:
   void init_swapchain();
   void init_commands();
   void init_sync_structures();
+
+#ifndef NDEBUG
+  friend class DebugUtils;
+#endif
 };
 
