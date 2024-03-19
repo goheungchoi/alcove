@@ -44,3 +44,13 @@ Windows
 
 - Shader Compiler Tests: Need to figure out how to test the shader compiler.
 
+## BUG REPORT
+
+1. CMake `Vulkan_INCLUDE_DIRS` Overriding
+- What happened?
+During the CMake configuration stage, the `Vulkan_INCLUDE_DIRS` variable keeps
+being overridden as "{USER_DIR}/.conan2/p/vulkaa955012f78a68/p/include".
+- What should have happened?
+If the `FindVulkan()` function operated normally, the value of `Vulkan_INCLUDE_DIRS` must've been "$ENV{VULKAN_SDK}/Include".
+- What might be causing this issue?
+It seems that the `vulkan-headers` conan package is modifying the vulkan include path.

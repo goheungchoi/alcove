@@ -31,16 +31,16 @@
     ],
     "buildPresets": [
         {
-            "name": "conan-release",
+            "name": "conan-debug",
             "configurePreset": "conan-default",
-            "configuration": "Release"
+            "configuration": "Debug"
         }
     ],
     "testPresets": [
         {
-            "name": "conan-release",
+            "name": "conan-debug",
             "configurePreset": "conan-default",
-            "configuration": "Release"
+            "configuration": "Debug"
         }
     ]
 }

@@ -82,14 +82,20 @@ set(Vulkan_SPIRV-Tools-opt
 cmake_print_variables(Vulkan_VERSION)
 cmake_print_variables(Vulkan_glslang_FOUND)
 cmake_print_variables(Vulkan_SPIRV-Tools_FOUND)
-find_package(SDL2 REQUIRED CONFIG)
-cmake_print_variables(SDL2_VERSION)
+cmake_print_variables(Vulkan_INCLUDE_DIRS)
+
 
 # Conan Provided
+find_package(SDL2 REQUIRED CONFIG)
+cmake_print_variables(SDL2_VERSION)
+find_package(fmt REQUIRED)
+cmake_print_variables(fmt_VERSION)
 find_package(glm REQUIRED)
 cmake_print_variables(glm_VERSION)
 find_package(imgui REQUIRED)
 cmake_print_variables(imgui_VERSION)
+find_package(vulkan-memory-allocator REQUIRED)
+cmake_print_variables(vulkan-memory-allocator_VERSION)
 
 ######## Testing Option  ########
 
@@ -105,6 +111,9 @@ endif()
 if (IS_ROOT_PROJECT) 
   include(CTest)
 endif()
+
+set(Vulkan_INCLUDE_DIR "$ENV{VULKAN_SDK}/Include")
+set(Vulkan_INCLUDE_DIRS "$ENV{VULKAN_SDK}/Include")
 
 # Add Source Directory
 add_subdirectory(src)

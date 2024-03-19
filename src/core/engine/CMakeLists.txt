@@ -7,16 +7,27 @@ target_include_directories(
   PRIVATE 
   ${Alcove_INCLUDE_DIR}
   ${Vulkan_INCLUDE_DIRS}
+  ${vulkan-memory-allocator_INCLUDE_DIRS}
+  ${fmt_INCLUDE_DIRS}
+  ${glm_INCLUDE_DIRS}
+  ${SDL2_INCLUDE_DIRS}
 )
 target_link_libraries(
   vk_engine_lib 
   PRIVATE 
-  Vulkan::Vulkan
+  debug vk_debug_utils_lib
+  general Vulkan::Vulkan
+  general vulkan-memory-allocator::vulkan-memory-allocator
+  general fmt::fmt
+  general glm::glm
+  general SDL2::SDL2
+  general SDL2::SDL2main 
 )
 
 ##########################################
 ###### Add Subdirectories ################
 ##########################################
 add_subdirectory(compiler)
+add_subdirectory(debug_utils)
 ##########################################
 ##########################################

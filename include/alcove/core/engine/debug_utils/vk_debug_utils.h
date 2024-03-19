@@ -1,7 +1,7 @@
 // vk_debug_msg.h
 #pragma once
 
-#include <vk_common.h>
+#include <core/engine/vk_common.h>
 
 class DebugUtils {
   DebugUtils() = delete;
@@ -14,10 +14,10 @@ public:
   static bool checkInstanceExtensionSupport(std::vector<const char*> exts);
   static bool checkValidationLayerSupport(std::vector<const char*> layers);
 
-private:
+public:
   static bool _is_init;
   static VkDebugUtilsMessengerEXT debugMessenger;
-public:
+
   static VKAPI_ATTR VkBool32 VKAPI_CALL  debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -38,7 +38,7 @@ public:
         VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | 
         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | 
         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-      .pfnUserCallback = debugCallback,
+      .pfnUserCallback = DebugUtils::debugCallback,
       .pUserData = nullptr, // Optional
     };
   }
@@ -47,6 +47,9 @@ public:
     // Make sure this setup function is called only once in the program.
     assert(_is_init == false);
     
+    fmt::print("Debug Mode is On!\n");
+    fmt::print("Set up the debug messenger...");
+
     VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info;
     populateDebugMessengerCreateInfo(debug_messenger_create_info);
 
@@ -55,7 +58,9 @@ public:
       &debug_messenger_create_info, 
       nullptr, 
       &debugMessenger
-    ));
+    )); fmt::print("done\n");
+
+    fmt::print("\n");
 
     _is_init = true;
   }
@@ -63,7 +68,12 @@ public:
   static inline void cleanupDebugMessenger(VkInstance& _instance) {
     assert(_is_init == true);
 
+    fmt::print("Clean up a debug messenger...");
+
     DestroyDebugUtilsMessengerEXT(_instance, debugMessenger, nullptr);
+    fmt::print("done\n");
+
+    fmt::print("\n");
 
     _is_init = false;
   }

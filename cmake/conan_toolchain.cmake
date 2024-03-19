@@ -36,7 +36,7 @@ cmake_policy(GET CMP0091 POLICY_CMP0091)
 if(NOT "${POLICY_CMP0091}" STREQUAL NEW)
     message(FATAL_ERROR "The CMake policy CMP0091 must be NEW, but is '${POLICY_CMP0091}'")
 endif()
-set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Release>:MultiThreadedDLL>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDebugDLL>")
 
 message(STATUS "Conan toolchain: C++ Standard 20 with extensions OFF")
 set(CMAKE_CXX_STANDARD 20)
@@ -71,17 +71,17 @@ endif()
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 
 # Definition of CMAKE_MODULE_PATH
-list(PREPEND CMAKE_MODULE_PATH "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_MODULE_PATH "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib/cmake/Catch2")
 # the generators folder (where conan generates files, like this toolchain)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # Definition of CMAKE_PREFIX_PATH, CMAKE_XXXXX_PATH
 # The explicitly defined "builddirs" of "host" context dependencies must be in PREFIX_PATH
-list(PREPEND CMAKE_PREFIX_PATH "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_PREFIX_PATH "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib/cmake/Catch2")
 # The Conan local "generators" folder, where this toolchain is saved.
 list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR} )
-list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/lib" "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/lib" "C:/Users/ga1ox/.conan2/p/imgui45a0c533cc365/p/lib" "C:/Users/ga1ox/.conan2/p/fmtb9171ef78b3a6/p/lib")
-list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p/include" "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/include" "C:/Users/ga1ox/.conan2/p/sdl07ad2b4717b5c/p/include/SDL2" "C:/Users/ga1ox/.conan2/p/catchda912a0eea505/p/include" "C:/Users/ga1ox/.conan2/p/imgui45a0c533cc365/p/include" "C:/Users/ga1ox/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/ga1ox/.conan2/p/fmtb9171ef78b3a6/p/include")
+list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p/lib" "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib" "C:/Users/ga1ox/.conan2/p/b/imguidf1ab3c6ce6b1/p/lib" "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p/lib")
+list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p/include" "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p/include" "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p/include/SDL2" "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/include" "C:/Users/ga1ox/.conan2/p/b/imguidf1ab3c6ce6b1/p/include" "C:/Users/ga1ox/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p/include")
 
 
 

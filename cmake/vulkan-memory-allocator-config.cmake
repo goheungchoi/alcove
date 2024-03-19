@@ -26,13 +26,13 @@ foreach(_DEPENDENCY ${vulkan-memory-allocator_FIND_DEPENDENCY_NAMES} )
 endforeach()
 
 set(vulkan-memory-allocator_VERSION_STRING "3.0.1")
-set(vulkan-memory-allocator_INCLUDE_DIRS ${vulkan-memory-allocator_INCLUDE_DIRS_RELEASE} )
-set(vulkan-memory-allocator_INCLUDE_DIR ${vulkan-memory-allocator_INCLUDE_DIRS_RELEASE} )
-set(vulkan-memory-allocator_LIBRARIES ${vulkan-memory-allocator_LIBRARIES_RELEASE} )
-set(vulkan-memory-allocator_DEFINITIONS ${vulkan-memory-allocator_DEFINITIONS_RELEASE} )
+set(vulkan-memory-allocator_INCLUDE_DIRS ${vulkan-memory-allocator_INCLUDE_DIRS_DEBUG} )
+set(vulkan-memory-allocator_INCLUDE_DIR ${vulkan-memory-allocator_INCLUDE_DIRS_DEBUG} )
+set(vulkan-memory-allocator_LIBRARIES ${vulkan-memory-allocator_LIBRARIES_DEBUG} )
+set(vulkan-memory-allocator_DEFINITIONS ${vulkan-memory-allocator_DEFINITIONS_DEBUG} )
 
 # Only the first installed configuration is included to avoid the collision
-foreach(_BUILD_MODULE ${vulkan-memory-allocator_BUILD_MODULES_PATHS_RELEASE} )
+foreach(_BUILD_MODULE ${vulkan-memory-allocator_BUILD_MODULES_PATHS_DEBUG} )
     message(${vulkan-memory-allocator_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})
 endforeach()

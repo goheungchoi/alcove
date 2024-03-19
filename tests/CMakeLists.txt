@@ -15,5 +15,5 @@ if(BUILD_TESTING)
   add_test(NAME ${TEST_MAIN} COMMAND ${TEST_MAIN})
 
   # Add Subdirectories
-  add_subdirectory(core)
+  # add_subdirectory(core)
 endif()

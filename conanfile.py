@@ -33,9 +33,9 @@ class AlcoveRecipe(ConanFile):
     self.folders.root = "."
 
     # CPP_INFO Directories
-    self.cpp_info.includedirs = ['include']  # Ordered list of include paths
-    self.cpp_info.libdirs = ['lib']  # Directories where libraries can be found
-    self.cpp_info.bindirs = ['bin']  # Directories where executables and shared libs can be found
+    # self.cpp_info.includedirs = ['include']  # Ordered list of include paths
+    # self.cpp_info.libdirs = ['lib']  # Directories where libraries can be found
+    # self.cpp_info.bindirs = ['bin']  # Directories where executables and shared libs can be found
 
   def generate(self):
     # GENERATION PROCESS

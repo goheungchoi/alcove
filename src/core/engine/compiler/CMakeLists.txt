@@ -6,7 +6,7 @@ target_include_directories(
   shader_compiler_lib 
   PRIVATE 
   ${Alcove_INCLUDE_DIR} 
-  ${Vulkan_INCLUDE_DIR}
+  ${Vulkan_INCLUDE_DIRS}
 )
 target_link_libraries(
   shader_compiler_lib 
