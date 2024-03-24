@@ -43,6 +43,7 @@ Windows
 ## TODO List
 
 - Shader Compiler Tests: Need to figure out how to test the shader compiler.
+- Seems that debugMessenger must be placed in the vk_engine class.
 
 ## BUG REPORT
 

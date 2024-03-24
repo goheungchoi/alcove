@@ -36,7 +36,7 @@ void VulkanEngine::init() {
   SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_VULKAN);
 
   _window = SDL_CreateWindow(   // Create a window and store on the `_window` member var
-    "Vulkan Engine",
+    "Alcove",
     SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED,
     _windowExtent.width,
@@ -200,6 +200,56 @@ if (debug_t::value && !DebugUtils::checkValidationLayerSupport(layers)) {
 /*** DEBUG: Set up a debug messenger when debug mode. **************/ 
 if constexpr (debug_t::value) DebugUtils::setupDebugMessenger(_instance);
 /********************************************************************/
+
+
+
+  ///// Create a VkSurfaceKHR object from the SDL window
+  // The actual window we will be rendering to
+  SDL_Vulkan_CreateSurface(_window, _instance, &_surface);
+
+  ///// Select a GPU with certain features
+  uint32_t gpus_count = 0;
+  VK_CHECK(vkEnumeratePhysicalDevices(_instance, &gpus_count, nullptr));
+  if (!gpus_count) {
+    throw std::runtime_error("GPUs supporting Vulkan not found!");
+  }
+
+  std::vector<VkPhysicalDevice> gpus(gpus_count);
+  VK_CHECK(vkEnumeratePhysicalDevices(_instance, &gpus_count, gpus.data()));
+
+  /* TODO: Find a physical device that supports required Vulkan features.*/
+  auto physical_device_selector = [](const auto& gpu) {
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(gpu, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(gpu, &deviceFeatures);
+
+    if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+
+    }
+
+    ///// Find queue families
+    uint32_t family_count = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(gpu, &family_count, nullptr);
+
+    std::vector<VkQueueFamilyProperties> families(family_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(gpu, &family_count, families.data());
+
+    for (const auto& family : families) {
+      if ( family.queueCount &&
+          (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) && 
+          (family.queueFlags & VK_QUEUE_COMPUTE_BIT)  ) {
+
+      }
+    }
+    return true;
+  };
+
+  for (const auto& gpu : gpus) {
+  }
+
+  
+
 }
 
 void VulkanEngine::init_swapchain()
