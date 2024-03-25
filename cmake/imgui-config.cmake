@@ -26,13 +26,13 @@ foreach(_DEPENDENCY ${imgui_FIND_DEPENDENCY_NAMES} )
 endforeach()
 
 set(imgui_VERSION_STRING "1.90")
-set(imgui_INCLUDE_DIRS ${imgui_INCLUDE_DIRS_DEBUG} )
-set(imgui_INCLUDE_DIR ${imgui_INCLUDE_DIRS_DEBUG} )
-set(imgui_LIBRARIES ${imgui_LIBRARIES_DEBUG} )
-set(imgui_DEFINITIONS ${imgui_DEFINITIONS_DEBUG} )
+set(imgui_INCLUDE_DIRS ${imgui_INCLUDE_DIRS_RELEASE} )
+set(imgui_INCLUDE_DIR ${imgui_INCLUDE_DIRS_RELEASE} )
+set(imgui_LIBRARIES ${imgui_LIBRARIES_RELEASE} )
+set(imgui_DEFINITIONS ${imgui_DEFINITIONS_RELEASE} )
 
 # Only the first installed configuration is included to avoid the collision
-foreach(_BUILD_MODULE ${imgui_BUILD_MODULES_PATHS_DEBUG} )
+foreach(_BUILD_MODULE ${imgui_BUILD_MODULES_PATHS_RELEASE} )
     message(${imgui_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})
 endforeach()

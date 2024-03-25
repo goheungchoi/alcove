@@ -26,13 +26,13 @@ foreach(_DEPENDENCY ${catch2_FIND_DEPENDENCY_NAMES} )
 endforeach()
 
 set(Catch2_VERSION_STRING "3.5.0")
-set(Catch2_INCLUDE_DIRS ${catch2_INCLUDE_DIRS_DEBUG} )
-set(Catch2_INCLUDE_DIR ${catch2_INCLUDE_DIRS_DEBUG} )
-set(Catch2_LIBRARIES ${catch2_LIBRARIES_DEBUG} )
-set(Catch2_DEFINITIONS ${catch2_DEFINITIONS_DEBUG} )
+set(Catch2_INCLUDE_DIRS ${catch2_INCLUDE_DIRS_RELEASE} )
+set(Catch2_INCLUDE_DIR ${catch2_INCLUDE_DIRS_RELEASE} )
+set(Catch2_LIBRARIES ${catch2_LIBRARIES_RELEASE} )
+set(Catch2_DEFINITIONS ${catch2_DEFINITIONS_RELEASE} )
 
 # Only the first installed configuration is included to avoid the collision
-foreach(_BUILD_MODULE ${catch2_BUILD_MODULES_PATHS_DEBUG} )
+foreach(_BUILD_MODULE ${catch2_BUILD_MODULES_PATHS_RELEASE} )
     message(${Catch2_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})
 endforeach()

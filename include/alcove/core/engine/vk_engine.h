@@ -39,7 +39,46 @@ private:
   void init_sync_structures();
 
 #ifndef NDEBUG
-  friend class DebugUtils;
-#endif
+private:
+  static VKAPI_ATTR VkBool32 VKAPI_CALL  debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData
+  );
+
+  inline bool checkInstanceExtensionSupport(std::vector<const char*> exts);
+  inline bool checkValidationLayerSupport(std::vector<const char*> layers);
+
+  inline void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&);
+
+  inline void setupDebugMessenger();
+  inline void cleanupDebugMessenger();
+
+  inline VkResult CreateDebugUtilsMessengerEXT(
+    VkInstance instance, 
+    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, 
+    const VkAllocationCallbacks* pAllocator, 
+    VkDebugUtilsMessengerEXT* pDebugMessenger
+  ) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+      return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    } else {
+      return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+  }
+  
+  inline void DestroyDebugUtilsMessengerEXT(
+    VkInstance instance, 
+    VkDebugUtilsMessengerEXT debugMessenger, 
+    const VkAllocationCallbacks* pAllocator
+  ) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+      func(instance, debugMessenger, pAllocator);
+    }
+  }
+#endif  // !NDEBUG
 };
 

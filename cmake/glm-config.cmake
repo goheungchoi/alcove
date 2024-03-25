@@ -26,13 +26,13 @@ foreach(_DEPENDENCY ${glm_FIND_DEPENDENCY_NAMES} )
 endforeach()
 
 set(glm_VERSION_STRING "0.9.9.8")
-set(glm_INCLUDE_DIRS ${glm_INCLUDE_DIRS_DEBUG} )
-set(glm_INCLUDE_DIR ${glm_INCLUDE_DIRS_DEBUG} )
-set(glm_LIBRARIES ${glm_LIBRARIES_DEBUG} )
-set(glm_DEFINITIONS ${glm_DEFINITIONS_DEBUG} )
+set(glm_INCLUDE_DIRS ${glm_INCLUDE_DIRS_RELEASE} )
+set(glm_INCLUDE_DIR ${glm_INCLUDE_DIRS_RELEASE} )
+set(glm_LIBRARIES ${glm_LIBRARIES_RELEASE} )
+set(glm_DEFINITIONS ${glm_DEFINITIONS_RELEASE} )
 
 # Only the first installed configuration is included to avoid the collision
-foreach(_BUILD_MODULE ${glm_BUILD_MODULES_PATHS_DEBUG} )
+foreach(_BUILD_MODULE ${glm_BUILD_MODULES_PATHS_RELEASE} )
     message(${glm_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})
 endforeach()

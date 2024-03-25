@@ -26,13 +26,13 @@ foreach(_DEPENDENCY ${fmt_FIND_DEPENDENCY_NAMES} )
 endforeach()
 
 set(fmt_VERSION_STRING "10.2.1")
-set(fmt_INCLUDE_DIRS ${fmt_INCLUDE_DIRS_DEBUG} )
-set(fmt_INCLUDE_DIR ${fmt_INCLUDE_DIRS_DEBUG} )
-set(fmt_LIBRARIES ${fmt_LIBRARIES_DEBUG} )
-set(fmt_DEFINITIONS ${fmt_DEFINITIONS_DEBUG} )
+set(fmt_INCLUDE_DIRS ${fmt_INCLUDE_DIRS_RELEASE} )
+set(fmt_INCLUDE_DIR ${fmt_INCLUDE_DIRS_RELEASE} )
+set(fmt_LIBRARIES ${fmt_LIBRARIES_RELEASE} )
+set(fmt_DEFINITIONS ${fmt_DEFINITIONS_RELEASE} )
 
 # Only the first installed configuration is included to avoid the collision
-foreach(_BUILD_MODULE ${fmt_BUILD_MODULES_PATHS_DEBUG} )
+foreach(_BUILD_MODULE ${fmt_BUILD_MODULES_PATHS_RELEASE} )
     message(${fmt_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})
 endforeach()

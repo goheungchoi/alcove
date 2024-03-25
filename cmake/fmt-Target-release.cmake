@@ -1,8 +1,8 @@
 # Avoid multiple calls to find_package to append duplicated properties to the targets
 include_guard()########### VARIABLES #######################################################################
 #############################################################################################
-set(fmt_FRAMEWORKS_FOUND_DEBUG "") # Will be filled later
-conan_find_apple_frameworks(fmt_FRAMEWORKS_FOUND_DEBUG "${fmt_FRAMEWORKS_DEBUG}" "${fmt_FRAMEWORK_DIRS_DEBUG}")
+set(fmt_FRAMEWORKS_FOUND_RELEASE "") # Will be filled later
+conan_find_apple_frameworks(fmt_FRAMEWORKS_FOUND_RELEASE "${fmt_FRAMEWORKS_RELEASE}" "${fmt_FRAMEWORK_DIRS_RELEASE}")
 
 set(fmt_LIBRARIES_TARGETS "") # Will be filled later
 
@@ -14,33 +14,33 @@ endif()
 
 set_property(TARGET fmt_DEPS_TARGET
              PROPERTY INTERFACE_LINK_LIBRARIES
-             $<$<CONFIG:Debug>:${fmt_FRAMEWORKS_FOUND_DEBUG}>
-             $<$<CONFIG:Debug>:${fmt_SYSTEM_LIBS_DEBUG}>
-             $<$<CONFIG:Debug>:>
+             $<$<CONFIG:Release>:${fmt_FRAMEWORKS_FOUND_RELEASE}>
+             $<$<CONFIG:Release>:${fmt_SYSTEM_LIBS_RELEASE}>
+             $<$<CONFIG:Release>:>
              APPEND)
 
 ####### Find the libraries declared in cpp_info.libs, create an IMPORTED target for each one and link the
 ####### fmt_DEPS_TARGET to all of them
-conan_package_library_targets("${fmt_LIBS_DEBUG}"    # libraries
-                              "${fmt_LIB_DIRS_DEBUG}" # package_libdir
-                              "${fmt_BIN_DIRS_DEBUG}" # package_bindir
-                              "${fmt_LIBRARY_TYPE_DEBUG}"
-                              "${fmt_IS_HOST_WINDOWS_DEBUG}"
+conan_package_library_targets("${fmt_LIBS_RELEASE}"    # libraries
+                              "${fmt_LIB_DIRS_RELEASE}" # package_libdir
+                              "${fmt_BIN_DIRS_RELEASE}" # package_bindir
+                              "${fmt_LIBRARY_TYPE_RELEASE}"
+                              "${fmt_IS_HOST_WINDOWS_RELEASE}"
                               fmt_DEPS_TARGET
                               fmt_LIBRARIES_TARGETS  # out_libraries_targets
-                              "_DEBUG"
+                              "_RELEASE"
                               "fmt"    # package_name
-                              "${fmt_NO_SONAME_MODE_DEBUG}")  # soname
+                              "${fmt_NO_SONAME_MODE_RELEASE}")  # soname
 
 # FIXME: What is the result of this for multi-config? All configs adding themselves to path?
-set(CMAKE_MODULE_PATH ${fmt_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${fmt_BUILD_DIRS_RELEASE} ${CMAKE_MODULE_PATH})
 
-########## COMPONENTS TARGET PROPERTIES Debug ########################################
+########## COMPONENTS TARGET PROPERTIES Release ########################################
 
     ########## COMPONENT fmt::fmt #############
 
-        set(fmt_fmt_fmt_FRAMEWORKS_FOUND_DEBUG "")
-        conan_find_apple_frameworks(fmt_fmt_fmt_FRAMEWORKS_FOUND_DEBUG "${fmt_fmt_fmt_FRAMEWORKS_DEBUG}" "${fmt_fmt_fmt_FRAMEWORK_DIRS_DEBUG}")
+        set(fmt_fmt_fmt_FRAMEWORKS_FOUND_RELEASE "")
+        conan_find_apple_frameworks(fmt_fmt_fmt_FRAMEWORKS_FOUND_RELEASE "${fmt_fmt_fmt_FRAMEWORKS_RELEASE}" "${fmt_fmt_fmt_FRAMEWORK_DIRS_RELEASE}")
 
         set(fmt_fmt_fmt_LIBRARIES_TARGETS "")
 
@@ -51,33 +51,33 @@ set(CMAKE_MODULE_PATH ${fmt_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
         set_property(TARGET fmt_fmt_fmt_DEPS_TARGET
                      PROPERTY INTERFACE_LINK_LIBRARIES
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_FRAMEWORKS_FOUND_DEBUG}>
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_SYSTEM_LIBS_DEBUG}>
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_DEPENDENCIES_DEBUG}>
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_FRAMEWORKS_FOUND_RELEASE}>
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_SYSTEM_LIBS_RELEASE}>
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_DEPENDENCIES_RELEASE}>
                      APPEND)
 
         ####### Find the libraries declared in cpp_info.component["xxx"].libs,
         ####### create an IMPORTED target for each one and link the 'fmt_fmt_fmt_DEPS_TARGET' to all of them
-        conan_package_library_targets("${fmt_fmt_fmt_LIBS_DEBUG}"
-                              "${fmt_fmt_fmt_LIB_DIRS_DEBUG}"
-                              "${fmt_fmt_fmt_BIN_DIRS_DEBUG}" # package_bindir
-                              "${fmt_fmt_fmt_LIBRARY_TYPE_DEBUG}"
-                              "${fmt_fmt_fmt_IS_HOST_WINDOWS_DEBUG}"
+        conan_package_library_targets("${fmt_fmt_fmt_LIBS_RELEASE}"
+                              "${fmt_fmt_fmt_LIB_DIRS_RELEASE}"
+                              "${fmt_fmt_fmt_BIN_DIRS_RELEASE}" # package_bindir
+                              "${fmt_fmt_fmt_LIBRARY_TYPE_RELEASE}"
+                              "${fmt_fmt_fmt_IS_HOST_WINDOWS_RELEASE}"
                               fmt_fmt_fmt_DEPS_TARGET
                               fmt_fmt_fmt_LIBRARIES_TARGETS
-                              "_DEBUG"
+                              "_RELEASE"
                               "fmt_fmt_fmt"
-                              "${fmt_fmt_fmt_NO_SONAME_MODE_DEBUG}")
+                              "${fmt_fmt_fmt_NO_SONAME_MODE_RELEASE}")
 
 
         ########## TARGET PROPERTIES #####################################
         set_property(TARGET fmt::fmt
                      PROPERTY INTERFACE_LINK_LIBRARIES
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_OBJECTS_DEBUG}>
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LIBRARIES_TARGETS}>
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_OBJECTS_RELEASE}>
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_LIBRARIES_TARGETS}>
                      APPEND)
 
-        if("${fmt_fmt_fmt_LIBS_DEBUG}" STREQUAL "")
+        if("${fmt_fmt_fmt_LIBS_RELEASE}" STREQUAL "")
             # If the component is not declaring any "cpp_info.components['foo'].libs" the system, frameworks etc are not
             # linked to the imported targets and we need to do it to the global target
             set_property(TARGET fmt::fmt
@@ -87,18 +87,18 @@ set(CMAKE_MODULE_PATH ${fmt_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
         endif()
 
         set_property(TARGET fmt::fmt PROPERTY INTERFACE_LINK_OPTIONS
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LINKER_FLAGS_DEBUG}> APPEND)
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_LINKER_FLAGS_RELEASE}> APPEND)
         set_property(TARGET fmt::fmt PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_INCLUDE_DIRS_DEBUG}> APPEND)
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_INCLUDE_DIRS_RELEASE}> APPEND)
         set_property(TARGET fmt::fmt PROPERTY INTERFACE_LINK_DIRECTORIES
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LIB_DIRS_DEBUG}> APPEND)
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_LIB_DIRS_RELEASE}> APPEND)
         set_property(TARGET fmt::fmt PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_COMPILE_DEFINITIONS_DEBUG}> APPEND)
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_COMPILE_DEFINITIONS_RELEASE}> APPEND)
         set_property(TARGET fmt::fmt PROPERTY INTERFACE_COMPILE_OPTIONS
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_COMPILE_OPTIONS_DEBUG}> APPEND)
+                     $<$<CONFIG:Release>:${fmt_fmt_fmt_COMPILE_OPTIONS_RELEASE}> APPEND)
 
     ########## AGGREGATED GLOBAL TARGET WITH THE COMPONENTS #####################
     set_property(TARGET fmt::fmt PROPERTY INTERFACE_LINK_LIBRARIES fmt::fmt APPEND)
 
 ########## For the modules (FindXXX)
-set(fmt_LIBRARIES_DEBUG fmt::fmt)
+set(fmt_LIBRARIES_RELEASE fmt::fmt)

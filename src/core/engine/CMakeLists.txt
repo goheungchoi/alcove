@@ -15,7 +15,6 @@ target_include_directories(
 target_link_libraries(
   vk_engine_lib 
   PRIVATE 
-  debug vk_debug_utils_lib
   general Vulkan::Vulkan
   general vulkan-memory-allocator::vulkan-memory-allocator
   general fmt::fmt
@@ -28,6 +27,5 @@ target_link_libraries(
 ###### Add Subdirectories ################
 ##########################################
 add_subdirectory(compiler)
-add_subdirectory(debug_utils)
 ##########################################
 ##########################################

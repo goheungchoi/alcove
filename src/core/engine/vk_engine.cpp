@@ -12,9 +12,7 @@
 
 #ifdef NDEBUG /* RELEASE MODE */
 using debug_t = std::integral_constant<bool, false>;
-
 #else /*** DEBUG MODE IS ON ***/
-#include <core/engine/debug_utils/vk_debug_utils.h>
 using debug_t = std::integral_constant<bool, true>;
 #endif // NDEBUG
 
@@ -62,7 +60,7 @@ void VulkanEngine::init() {
 void VulkanEngine::cleanup() {
   if (_isInitialized) {
 /*** DEBUG: Destroy the debug messenger ***/
-if constexpr (debug_t::value) DebugUtils::cleanupDebugMessenger(_instance);
+if constexpr (debug_t::value) cleanupDebugMessenger();
 /************************************************************************/
     SDL_DestroyWindow(_window); // Destory the window
   }
@@ -138,7 +136,7 @@ void VulkanEngine::init_vulkan()
 if constexpr (debug_t::value) exts.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 /************************************************************************/
 /*** DEBUG: Check if the necessary instance extensions are available. ***/
-if (debug_t::value && !DebugUtils::checkInstanceExtensionSupport(exts)) {
+if (debug_t::value && !checkInstanceExtensionSupport(exts)) {
   throw std::runtime_error("Instance extensions required, but not available!");
 }
 /************************************************************************/
@@ -155,7 +153,7 @@ if (debug_t::value && !DebugUtils::checkInstanceExtensionSupport(exts)) {
 
 
 /*** DEBUG: Check if the requested validation layer is available. ***/ 
-if (debug_t::value && !DebugUtils::checkValidationLayerSupport(layers)) {
+if (debug_t::value && !checkValidationLayerSupport(layers)) {
   throw std::runtime_error("Validation layers requested, but not available!");
 }
 /********************************************************************/
@@ -166,9 +164,9 @@ if (debug_t::value && !DebugUtils::checkValidationLayerSupport(layers)) {
   VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info;
   VkInstanceCreateInfo instance_info = {
     .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-    .pNext = [&debug_messenger_create_info] { // Compile-time assignment
+    .pNext = [this, &debug_messenger_create_info] { // Compile-time assignment
         if constexpr (debug_t::value) { /*** DEBUG: ***/
-          DebugUtils::populateDebugMessengerCreateInfo(debug_messenger_create_info);
+          populateDebugMessengerCreateInfo(debug_messenger_create_info);
           return (VkDebugUtilsMessengerCreateInfoEXT*) &debug_messenger_create_info;
         } else {
           return nullptr;
@@ -198,7 +196,7 @@ if (debug_t::value && !DebugUtils::checkValidationLayerSupport(layers)) {
 
 
 /*** DEBUG: Set up a debug messenger when debug mode. **************/ 
-if constexpr (debug_t::value) DebugUtils::setupDebugMessenger(_instance);
+if constexpr (debug_t::value) setupDebugMessenger();
 /********************************************************************/
 }
 
@@ -213,3 +211,158 @@ void VulkanEngine::init_commands()
 void VulkanEngine::init_sync_structures()
 {
 }
+
+/////////////////////////////////////////////////////
+///////// Debug Messenger Setup Functions ///////////
+/////////////////////////////////////////////////////
+#ifndef NDEBUG  /* Debug Mode On */
+
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+// VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: Diagnostic message
+// VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: Informational message like the creation of a resource
+// VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: Message about behavior that is not necessarily an error, but very likely a bug in your application
+// VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: Message about behavior that is invalid and may cause crashes
+  VkDebugUtilsMessageTypeFlagsEXT messageType,
+// VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: Some event has happened that is unrelated to the specification or performance
+// VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: Something has happened that violates the specification or indicates a possible mistake
+// VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: Potential non-optimal use of Vulkan
+  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+// pCallbackData->pMessage: The debug message as a null-terminated string
+// pCallbackData->pObjects: Array of Vulkan object handles related to the message
+// pCallbackData->objectCount: Number of objects in array
+  void* pUserData
+// a pointer that was specified during the setup of the callback and allows you to pass your own data to it.  
+) {
+
+  fmt::println("Validation Layer: {}", pCallbackData->pMessage);
+
+  // The callback returns a boolean that indicates 
+  // if the Vulkan call that triggered the validation layer message 
+  // should be aborted. 
+  // If the callback returns true, 
+  // then the call is aborted with the VK_ERROR_VALIDATION_FAILED_EXT error. 
+  // This is normally only used to test the validation layers themselves, 
+  // so it should always return VK_FALSE.
+  return VK_FALSE;
+}
+
+inline bool VulkanEngine::checkInstanceExtensionSupport(std::vector<const char*> exts) {
+  uint32_t extension_count = 0;
+  vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
+  std::vector<VkExtensionProperties> extensions(extension_count);
+  vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, extensions.data());
+
+  fmt::print("Available Extensions:\n");
+  for (const auto& extension : extensions) {
+    fmt::print("\t{}\n", extension.extensionName);
+  }
+
+  fmt::print("\n");
+
+  fmt::print("Check Extension Support:\n");
+  for (const char* ext_name : exts) {
+    fmt::print("\t{}...", ext_name);
+    bool extension_found = false;
+
+    for (const auto& extension : extensions) {
+      if (strcmp(ext_name, extension.extensionName) == 0) {
+        fmt::print("found\n");
+        extension_found = true;
+        break;
+      }
+    }
+
+    if (!extension_found) {
+      fmt::print("not found!\n");
+      return false;
+    }
+  }
+
+  fmt::print("\n");
+
+  return true;
+}
+
+inline bool VulkanEngine::checkValidationLayerSupport(std::vector<const char*> layers) {
+  uint32_t layer_count = 0;
+  vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+  std::vector<VkLayerProperties> available_layers(layer_count);
+  vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
+
+  fmt::print("Available Layers:\n");
+  for (const auto& layer_props : available_layers) {
+    fmt::print("\t{}\n", layer_props.layerName);
+  }
+
+  fmt::print("\n");
+
+  fmt::print("Check Layer Support:\n");
+  for (const char* layer_name : layers) {
+    fmt::print("\t{}...", layer_name);
+    bool layer_found = false;
+
+    for (const auto& layer_props : available_layers) {
+      if (strcmp(layer_name, layer_props.layerName) == 0) {
+        fmt::print("found\n");
+        layer_found = true;
+        break;
+      }
+    }
+
+    if (!layer_found) {
+      fmt::print("not found!\n");
+      return false;
+    }
+  }
+  
+  fmt::print("\n");
+
+  return true;
+}
+
+inline void VulkanEngine::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& debug_messenger_create_info) {
+  debug_messenger_create_info = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+    .messageSeverity = 
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+    .messageType = 
+      VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | 
+      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | 
+      VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+    .pfnUserCallback = debugCallback,
+    .pUserData = nullptr, // Optional
+  };
+}
+
+inline void VulkanEngine::setupDebugMessenger() {
+    
+  fmt::print("Debug Mode is On!\n");
+  fmt::print("Set up the debug messenger...");
+
+  VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info;
+  populateDebugMessengerCreateInfo(debug_messenger_create_info);
+
+  VK_CHECK(CreateDebugUtilsMessengerEXT(
+    _instance, 
+    &debug_messenger_create_info, 
+    nullptr, 
+    &_debug_messenger
+  )); fmt::print("done\n");
+
+  fmt::print("\n");
+}
+
+inline void VulkanEngine::cleanupDebugMessenger() {
+
+  fmt::print("Clean up a debug messenger...");
+
+  DestroyDebugUtilsMessengerEXT(_instance, _debug_messenger, nullptr);
+  fmt::print("done\n");
+
+  fmt::print("\n");
+}
+
+#endif  // !NDEBUG
