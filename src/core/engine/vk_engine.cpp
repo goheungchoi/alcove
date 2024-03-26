@@ -63,6 +63,9 @@ void VulkanEngine::cleanup() {
 if constexpr (debug_t::value) cleanupDebugMessenger();
 /************************************************************************/
     SDL_DestroyWindow(_window); // Destory the window
+
+    vkDestroySurfaceKHR(_instance, _surface, nullptr);
+    vkDestroyInstance(_instance, nullptr);
   }
 
   // Clear the engine singleton pointer
@@ -203,7 +206,9 @@ if constexpr (debug_t::value) setupDebugMessenger();
 
   ///// Create a VkSurfaceKHR object from the SDL window
   // The actual window we will be rendering to
-  SDL_Vulkan_CreateSurface(_window, _instance, &_surface);
+  if (SDL_Vulkan_CreateSurface(_window, _instance, &_surface)) {
+    throw std::runtime_error("Failed to create a SDL window surface!");
+  }
 
   ///// Select a GPU with certain features
   uint32_t gpus_count = 0;
@@ -234,8 +239,8 @@ if constexpr (debug_t::value) setupDebugMessenger();
       ///// Get GPU properties
       VkPhysicalDeviceProperties properties;
       vkGetPhysicalDeviceProperties(gpu, &properties);
-      VkPhysicalDeviceFeatures2 features;
-      vkGetPhysicalDeviceFeatures2(gpu, &features);
+      // VkPhysicalDeviceFeatures2 features;
+      // vkGetPhysicalDeviceFeatures2(gpu, &features);
 
       is_suitable &= (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
 
@@ -282,10 +287,12 @@ if constexpr (debug_t::value) setupDebugMessenger();
 
   ///// Create the logical device
   VkPhysicalDeviceVulkan13Features features13{
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
     .synchronization2 = true,
     .dynamicRendering = true,
   };
   VkPhysicalDeviceVulkan12Features features12{
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
     .pNext = &features13,
     .descriptorIndexing = true,
     .bufferDeviceAddress = true,
@@ -294,14 +301,16 @@ if constexpr (debug_t::value) setupDebugMessenger();
     .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
     .pNext = &features12,
   };
-  VkPhysicalDeviceFeatures features{};
+  
+  //If the pNext chain includes a VkPhysicalDeviceFeatures2 structure, 
+  // then pEnabledFeatures must be NULL
+  // VkPhysicalDeviceFeatures features{};
 
   VkDeviceCreateInfo device_info = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
     .pNext = &features2,
     .queueCreateInfoCount = 1,
     .pQueueCreateInfos = &queue_info,
-    .pEnabledFeatures = &features,
   };
   
   VK_CHECK(vkCreateDevice(_selectedGPU, &device_info, nullptr, &_device));
@@ -326,7 +335,7 @@ void VulkanEngine::init_sync_structures()
 /////////////////////////////////////////////////////
 #ifndef NDEBUG  /* Debug Mode On */
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+VKAPI_ATTR VkBool32 VKAPI_CALL VulkanEngine::debugCallback(
   VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 // VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: Diagnostic message
 // VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: Informational message like the creation of a resource

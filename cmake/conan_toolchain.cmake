@@ -43,27 +43,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-string(APPEND CONAN_CXX_FLAGS " /MP32")
-string(APPEND CONAN_C_FLAGS " /MP32")
+string(APPEND CONAN_CXX_FLAGS " /MP24")
+string(APPEND CONAN_C_FLAGS " /MP24")
 
-# Conan conf flags start: Debug
-# Conan conf flags end
+# Extra c, cxx, linkflags and defines
 
-foreach(config ${CMAKE_CONFIGURATION_TYPES})
-    string(TOUPPER ${config} config)
-    if(DEFINED CONAN_CXX_FLAGS_${config})
-      string(APPEND CMAKE_CXX_FLAGS_${config}_INIT " ${CONAN_CXX_FLAGS_${config}}")
-    endif()
-    if(DEFINED CONAN_C_FLAGS_${config})
-      string(APPEND CMAKE_C_FLAGS_${config}_INIT " ${CONAN_C_FLAGS_${config}}")
-    endif()
-    if(DEFINED CONAN_SHARED_LINKER_FLAGS_${config})
-      string(APPEND CMAKE_SHARED_LINKER_FLAGS_${config}_INIT " ${CONAN_SHARED_LINKER_FLAGS_${config}}")
-    endif()
-    if(DEFINED CONAN_EXE_LINKER_FLAGS_${config})
-      string(APPEND CMAKE_EXE_LINKER_FLAGS_${config}_INIT " ${CONAN_EXE_LINKER_FLAGS_${config}}")
-    endif()
-endforeach()
 
 if(DEFINED CONAN_CXX_FLAGS)
   string(APPEND CMAKE_CXX_FLAGS_INIT " ${CONAN_CXX_FLAGS}")
@@ -78,7 +62,6 @@ if(DEFINED CONAN_EXE_LINKER_FLAGS)
   string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT " ${CONAN_EXE_LINKER_FLAGS}")
 endif()
 
-
 get_property( _CMAKE_IN_TRY_COMPILE GLOBAL PROPERTY IN_TRY_COMPILE )
 if(_CMAKE_IN_TRY_COMPILE)
     message(STATUS "Running toolchain IN_TRY_COMPILE")
@@ -88,17 +71,17 @@ endif()
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 
 # Definition of CMAKE_MODULE_PATH
-list(PREPEND CMAKE_MODULE_PATH "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_MODULE_PATH "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib/cmake/Catch2")
 # the generators folder (where conan generates files, like this toolchain)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # Definition of CMAKE_PREFIX_PATH, CMAKE_XXXXX_PATH
 # The explicitly defined "builddirs" of "host" context dependencies must be in PREFIX_PATH
-list(PREPEND CMAKE_PREFIX_PATH "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_PREFIX_PATH "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib/cmake/Catch2")
 # The Conan local "generators" folder, where this toolchain is saved.
 list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR} )
-list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p/lib" "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/lib" "C:/Users/User/.conan2/p/b/imgui3989029fd9a39/p/lib" "C:/Users/User/.conan2/p/b/fmtf13e84554f629/p/lib")
-list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/User/.conan2/p/glm67cb345896424/p/include" "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p/include" "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p/include/SDL2" "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/include" "C:/Users/User/.conan2/p/b/imgui3989029fd9a39/p/include" "C:/Users/User/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/User/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/User/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/User/.conan2/p/b/fmtf13e84554f629/p/include")
+list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p/lib" "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib" "C:/Users/ga1ox/.conan2/p/b/imguidf1ab3c6ce6b1/p/lib" "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p/lib")
+list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p/include" "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p/include" "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p/include/SDL2" "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/include" "C:/Users/ga1ox/.conan2/p/b/imguidf1ab3c6ce6b1/p/include" "C:/Users/ga1ox/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p/include")
 
 
 

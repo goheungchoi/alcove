@@ -52,14 +52,15 @@ private:
   void destroy_swapchain();
 
 #ifndef NDEBUG
-private:
+public:
   static VKAPI_ATTR VkBool32 VKAPI_CALL  debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData
   );
-
+  
+private:
   inline bool checkInstanceExtensionSupport(std::vector<const char*> exts);
   inline bool checkValidationLayerSupport(std::vector<const char*> layers);
 

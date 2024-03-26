@@ -6,7 +6,7 @@ set(imgui_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(imgui_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/imgui3989029fd9a39/p")
+set(imgui_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/imguidf1ab3c6ce6b1/p")
 set(imgui_BUILD_MODULES_PATHS_DEBUG )
 
 

@@ -7,7 +7,7 @@ set(vulkan-headers_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(vulkan-headers_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/vulkaa955012f78a68/p")
+set(vulkan-headers_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/vulkaa955012f78a68/p")
 set(vulkan-headers_BUILD_MODULES_PATHS_DEBUG )
 
 

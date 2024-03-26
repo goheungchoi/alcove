@@ -7,7 +7,7 @@ set(sdl_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(sdl_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p")
+set(sdl_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/sdle876c8b6d7e77/p")
 set(sdl_BUILD_MODULES_PATHS_DEBUG )
 
 

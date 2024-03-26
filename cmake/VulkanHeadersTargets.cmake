@@ -1,5 +1,6 @@
 # Load the debug and release variables
-file(GLOB DATA_FILES "${CMAKE_CURRENT_LIST_DIR}/VulkanHeaders-*-data.cmake")
+get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+file(GLOB DATA_FILES "${_DIR}/VulkanHeaders-*-data.cmake")
 
 foreach(f ${DATA_FILES})
     include(${f})
@@ -18,7 +19,8 @@ if(NOT TARGET vulkan-headers::vulkan-headers)
     message(${VulkanHeaders_MESSAGE_MODE} "Conan: Target declared 'vulkan-headers::vulkan-headers'")
 endif()
 # Load the debug and release library finders
-file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/VulkanHeaders-Target-*.cmake")
+get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+file(GLOB CONFIG_FILES "${_DIR}/VulkanHeaders-Target-*.cmake")
 
 foreach(f ${CONFIG_FILES})
     include(${f})

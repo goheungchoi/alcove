@@ -8,7 +8,7 @@ set(VulkanHeaders_FIND_MODE "NO_MODULE")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(vulkan-memory-allocator_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/vulka1b3693806bfa4/p")
+set(vulkan-memory-allocator_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/vulka1b3693806bfa4/p")
 set(vulkan-memory-allocator_BUILD_MODULES_PATHS_DEBUG )
 
 

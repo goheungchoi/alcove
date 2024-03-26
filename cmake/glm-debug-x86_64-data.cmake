@@ -6,7 +6,7 @@ set(glm_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(glm_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/glm67cb345896424/p")
+set(glm_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p")
 set(glm_BUILD_MODULES_PATHS_DEBUG )
 
 

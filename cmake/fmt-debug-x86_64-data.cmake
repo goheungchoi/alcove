@@ -7,7 +7,7 @@ set(fmt_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(fmt_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/fmtf13e84554f629/p")
+set(fmt_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p")
 set(fmt_BUILD_MODULES_PATHS_DEBUG )
 
 

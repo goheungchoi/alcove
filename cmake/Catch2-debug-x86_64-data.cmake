@@ -7,7 +7,7 @@ set(catch2_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(catch2_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p")
+set(catch2_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p")
 set(catch2_BUILD_MODULES_PATHS_DEBUG )
 
 
