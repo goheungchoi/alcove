@@ -26,13 +26,13 @@ foreach(_DEPENDENCY ${vulkan-headers_FIND_DEPENDENCY_NAMES} )
 endforeach()
 
 set(VulkanHeaders_VERSION_STRING "1.3.243.0")
-set(VulkanHeaders_INCLUDE_DIRS ${vulkan-headers_INCLUDE_DIRS_RELEASE} )
-set(VulkanHeaders_INCLUDE_DIR ${vulkan-headers_INCLUDE_DIRS_RELEASE} )
-set(VulkanHeaders_LIBRARIES ${vulkan-headers_LIBRARIES_RELEASE} )
-set(VulkanHeaders_DEFINITIONS ${vulkan-headers_DEFINITIONS_RELEASE} )
+set(VulkanHeaders_INCLUDE_DIRS ${vulkan-headers_INCLUDE_DIRS_DEBUG} )
+set(VulkanHeaders_INCLUDE_DIR ${vulkan-headers_INCLUDE_DIRS_DEBUG} )
+set(VulkanHeaders_LIBRARIES ${vulkan-headers_LIBRARIES_DEBUG} )
+set(VulkanHeaders_DEFINITIONS ${vulkan-headers_DEFINITIONS_DEBUG} )
 
 # Only the first installed configuration is included to avoid the collision
-foreach(_BUILD_MODULE ${vulkan-headers_BUILD_MODULES_PATHS_RELEASE} )
+foreach(_BUILD_MODULE ${vulkan-headers_BUILD_MODULES_PATHS_DEBUG} )
     message(${VulkanHeaders_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})
 endforeach()

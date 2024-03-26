@@ -30,6 +30,7 @@ public:
   VkDebugUtilsMessengerEXT  _debug_messenger; // Vulkan debug output handle
   VkPhysicalDevice          _selectedGPU;     // GPU chosen as the default device
   VkDevice                  _device;          // Vulakn device for commands
+  VkQueue                   _queue;           // Device queue handle
   VkSurfaceKHR              _surface;         // Vulkan window surface
 
 private:
@@ -37,6 +38,18 @@ private:
   void init_swapchain();
   void init_commands();
   void init_sync_structures();
+
+public:
+  VkSwapchainKHR  _swapchain;
+  VkFormat        _swapchain_image_format;
+
+  std::vector<VkImage> _swapchain_images;
+  std::vector<VkImageView> _swapchain_image_views;
+  VkExtent2D  _swapchain_extent;
+
+private:
+  void create_swapchain(uint32_t width, uint32_t height);
+  void destroy_swapchain();
 
 #ifndef NDEBUG
 private:

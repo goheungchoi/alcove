@@ -36,17 +36,17 @@ cmake_policy(GET CMP0091 POLICY_CMP0091)
 if(NOT "${POLICY_CMP0091}" STREQUAL NEW)
     message(FATAL_ERROR "The CMake policy CMP0091 must be NEW, but is '${POLICY_CMP0091}'")
 endif()
-set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Release>:MultiThreadedDLL>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDebugDLL>")
 
-message(STATUS "Conan toolchain: C++ Standard 14 with extensions OFF")
-set(CMAKE_CXX_STANDARD 14)
+message(STATUS "Conan toolchain: C++ Standard 20 with extensions OFF")
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 string(APPEND CONAN_CXX_FLAGS " /MP32")
 string(APPEND CONAN_C_FLAGS " /MP32")
 
-# Conan conf flags start: Release
+# Conan conf flags start: Debug
 # Conan conf flags end
 
 foreach(config ${CMAKE_CONFIGURATION_TYPES})
@@ -88,17 +88,17 @@ endif()
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 
 # Definition of CMAKE_MODULE_PATH
-list(PREPEND CMAKE_MODULE_PATH "C:/Users/User/.conan2/p/catchda912a0eea505/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_MODULE_PATH "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/lib/cmake/Catch2")
 # the generators folder (where conan generates files, like this toolchain)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # Definition of CMAKE_PREFIX_PATH, CMAKE_XXXXX_PATH
 # The explicitly defined "builddirs" of "host" context dependencies must be in PREFIX_PATH
-list(PREPEND CMAKE_PREFIX_PATH "C:/Users/User/.conan2/p/catchda912a0eea505/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_PREFIX_PATH "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/lib/cmake/Catch2")
 # The Conan local "generators" folder, where this toolchain is saved.
 list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR} )
-list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/User/.conan2/p/sdlb652def9d83cb/p/lib" "C:/Users/User/.conan2/p/catchda912a0eea505/p/lib" "C:/Users/User/.conan2/p/imgui45a0c533cc365/p/lib" "C:/Users/User/.conan2/p/fmtb9171ef78b3a6/p/lib")
-list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/User/.conan2/p/glm67cb345896424/p/include" "C:/Users/User/.conan2/p/sdlb652def9d83cb/p/include" "C:/Users/User/.conan2/p/sdlb652def9d83cb/p/include/SDL2" "C:/Users/User/.conan2/p/catchda912a0eea505/p/include" "C:/Users/User/.conan2/p/imgui45a0c533cc365/p/include" "C:/Users/User/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/User/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/User/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/User/.conan2/p/fmtb9171ef78b3a6/p/include")
+list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p/lib" "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/lib" "C:/Users/User/.conan2/p/b/imgui3989029fd9a39/p/lib" "C:/Users/User/.conan2/p/b/fmtf13e84554f629/p/lib")
+list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/User/.conan2/p/glm67cb345896424/p/include" "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p/include" "C:/Users/User/.conan2/p/b/sdl9e1821e5fa488/p/include/SDL2" "C:/Users/User/.conan2/p/b/catch0b59742e863ff/p/include" "C:/Users/User/.conan2/p/b/imgui3989029fd9a39/p/include" "C:/Users/User/.conan2/p/vulka1b3693806bfa4/p/include" "C:/Users/User/.conan2/p/vulkaa955012f78a68/p/res/vulkan/registry" "C:/Users/User/.conan2/p/vulkaa955012f78a68/p/include" "C:/Users/User/.conan2/p/b/fmtf13e84554f629/p/include")
 
 
 
