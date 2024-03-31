@@ -16,9 +16,11 @@
 #include <vector>
 #include <span>
 #include <array>
+#include <set>
 #include <functional>
 #include <deque>
 #include <type_traits>
+#include <algorithm>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vk_enum_string_helper.h>

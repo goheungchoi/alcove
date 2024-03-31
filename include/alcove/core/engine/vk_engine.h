@@ -29,8 +29,9 @@ public:
   VkInstance                _instance;        // Vulkan library handle
   VkDebugUtilsMessengerEXT  _debug_messenger; // Vulkan debug output handle
   VkPhysicalDevice          _selectedGPU;     // GPU chosen as the default device
-  VkDevice                  _device;          // Vulakn device for commands
+  VkDevice                  _device;          // Vulkan device for commands
   VkQueue                   _queue;           // Device queue handle
+  VkQueue                   _present_queue;   // Device presentation queue handle
   VkSurfaceKHR              _surface;         // Vulkan window surface
 
 private:

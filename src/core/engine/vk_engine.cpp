@@ -42,14 +42,23 @@ void VulkanEngine::init() {
     window_flags
   );
 
+  if (!_window) {
+    fmt::println("{}", SDL_GetError());
+  }
+
   ///// Initialize Vulkan
-  init_vulkan();
+  try {
+    init_vulkan();
 
-  init_swapchain();
+    init_swapchain();
 
-  init_commands();
+    init_commands();
 
-  init_sync_structures();
+    init_sync_structures();
+  } catch (const std::exception& e) {
+    fmt::println("{}", e.what());
+  }
+  
 
 
   // Notify that every initialization step went fine.
@@ -59,13 +68,17 @@ void VulkanEngine::init() {
 
 void VulkanEngine::cleanup() {
   if (_isInitialized) {
+
+    destroy_swapchain();
+
+    vkDestroySurfaceKHR(_instance, _surface, nullptr);
+    vkDestroyDevice(_device, nullptr);
+
 /*** DEBUG: Destroy the debug messenger ***/
 if constexpr (debug_t::value) cleanupDebugMessenger();
 /************************************************************************/
-    SDL_DestroyWindow(_window); // Destory the window
-
-    vkDestroySurfaceKHR(_instance, _surface, nullptr);
     vkDestroyInstance(_instance, nullptr);
+    SDL_DestroyWindow(_window); // Destory the window
   }
 
   // Clear the engine singleton pointer
@@ -206,7 +219,7 @@ if constexpr (debug_t::value) setupDebugMessenger();
 
   ///// Create a VkSurfaceKHR object from the SDL window
   // The actual window we will be rendering to
-  if (SDL_Vulkan_CreateSurface(_window, _instance, &_surface)) {
+  if (!SDL_Vulkan_CreateSurface(_window, _instance, &_surface)) {
     throw std::runtime_error("Failed to create a SDL window surface!");
   }
 
@@ -216,33 +229,69 @@ if constexpr (debug_t::value) setupDebugMessenger();
   if (!gpus_count) {
     throw std::runtime_error("GPUs supporting Vulkan not found!");
   }
-
   std::vector<VkPhysicalDevice> gpus(gpus_count);
   VK_CHECK(vkEnumeratePhysicalDevices(_instance, &gpus_count, gpus.data()));
 
   /* TODO: Find a physical device that supports required Vulkan features.*/
-  std::vector<std::pair<VkPhysicalDevice, std::optional<uint32_t>>> suitable_gpus;
-  auto physical_device_selector = [this, &gpus](auto& suitable_gpus) {
+  const std::vector<const char*> device_extensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
+
+  // Select a GPU from the physical device query
+  struct _device_info {
+    VkPhysicalDevice _gpu;
+    std::optional<uint32_t> _graphics_family_index;
+    std::optional<uint32_t> _present_family_index;
+  };
+  std::vector<_device_info> suitable_gpus;
+  auto physical_device_selector = [this, &gpus, &device_extensions](std::vector<_device_info>& suitable_gpus) {
+    
+    ///// Device extension checker definition
+    auto check_device_extension_support = [&device_extensions](VkPhysicalDevice gpu) {
+      uint32_t extension_count;
+      vkEnumerateDeviceExtensionProperties(gpu, nullptr, &extension_count, nullptr);
+
+      std::vector<VkExtensionProperties> available_extensions(extension_count);
+      vkEnumerateDeviceExtensionProperties(gpu, nullptr, &extension_count, available_extensions.data());
+
+      std::set<std::string> required_extensions(device_extensions.begin(), device_extensions.end());
+      for (const auto& extension : available_extensions) {
+        required_extensions.erase(extension.extensionName);
+      }
+
+      return required_extensions.empty();
+    };
+
+    ///// Check swapchain support
+    
+
+    ///// Required vulkan version features
     VkPhysicalDeviceVulkan13Features features13 {
       .synchronization2 = true,
       .dynamicRendering = true,
     };
-
     VkPhysicalDeviceVulkan12Features features12 {
       .descriptorIndexing = true,
       .bufferDeviceAddress = true,
     };
     
+    ///// Loop through physical devices /////
     for (const auto& gpu : gpus) {
       bool is_suitable = true;
 
       ///// Get GPU properties
       VkPhysicalDeviceProperties properties;
       vkGetPhysicalDeviceProperties(gpu, &properties);
+      fmt::println("GPU Name: {}", properties.deviceName);
       // VkPhysicalDeviceFeatures2 features;
       // vkGetPhysicalDeviceFeatures2(gpu, &features);
-
       is_suitable &= (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
+
+      ///// Enumerate device extensions
+      is_suitable &= check_device_extension_support(gpu);
+
+      ///// Check if the swap chain support is adequate
+      // is_suitable &= check_swapchain_support(gpu);
 
       ///// Find queue families
       uint32_t family_count = 0;
@@ -250,18 +299,30 @@ if constexpr (debug_t::value) setupDebugMessenger();
       std::vector<VkQueueFamilyProperties> families(family_count);
       vkGetPhysicalDeviceQueueFamilyProperties(gpu, &family_count, families.data());
 
-      int index = 0;
+      // See if there is a queue family that has graphics queues
+      int graphics_family_index = 0;
       bool check_adequate_queue_flags = false;
       for (const auto& family : families) {
         if (check_adequate_queue_flags |= ( family.queueCount &&
             (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) && 
             (family.queueFlags & VK_QUEUE_COMPUTE_BIT) )) break;
-        ++index;
+        ++graphics_family_index;
       }
-      
+
       is_suitable &= check_adequate_queue_flags;
 
-      if (is_suitable) suitable_gpus.push_back(std::make_pair(gpu, index));
+      // See if there is a queue family that supports the current surface presentation
+      int present_family_index = 0;
+      VkBool32 check_present_support = false;
+      for (const auto& family : families) {
+        vkGetPhysicalDeviceSurfaceSupportKHR(gpu, present_family_index, _surface, &check_present_support);
+        if (check_present_support) break;
+        ++present_family_index;
+      }
+
+      is_suitable &= static_cast<bool>(check_present_support);
+
+      if (is_suitable) suitable_gpus.push_back({gpu, graphics_family_index, present_family_index});
     }
   }; physical_device_selector(suitable_gpus);
  
@@ -274,16 +335,42 @@ if constexpr (debug_t::value) setupDebugMessenger();
     fmt::println("More than one suitable GPU found.");
   }
   
-  _selectedGPU = suitable_gpus[0].first;  // Select the first GPU for now.
-  
-  ///// Create a queue
-  float queue_priority = 1.0f;
-  VkDeviceQueueCreateInfo queue_info = {
-    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-    .queueFamilyIndex = suitable_gpus[0].second.value(),
-    .queueCount = 1,
-    .pQueuePriorities = &queue_priority,
+  _selectedGPU = suitable_gpus[0]._gpu;  // Select the first GPU for now.
+  ///////////////////////////////////////////////////////////////////////
+
+  ///// Set the queue create infos
+  std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+  std::set<uint32_t> queue_family_set = {
+    suitable_gpus[0]._graphics_family_index.value(),
+    suitable_gpus[0]._present_family_index.value(),
   };
+
+  float queue_priority = 1.0f;
+  for (uint32_t queue_family_index : queue_family_set) {
+    queue_create_infos.push_back({
+      .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+      .queueFamilyIndex = queue_family_index,
+      .queueCount = 1,
+      .pQueuePriorities = &queue_priority,
+    }); 
+  }
+
+  // ///// Create a graphics queue
+  // VkDeviceQueueCreateInfo queue_info = {
+  //   .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+  //   .queueFamilyIndex = suitable_gpus[0]._graphics_family_index.value(),
+  //   .queueCount = 1,
+  //   .pQueuePriorities = &queue_priority,
+  // };
+
+  // ///// Create a presentation queue
+  // float present_queue_priority = 1.0f;
+  // VkDeviceQueueCreateInfo present_queue_info = {
+  //   .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+  //   .queueFamilyIndex = suitable_gpus[0]._present_family_index.value(),
+  //   .queueCount = 1,
+  //   .pQueuePriorities = &queue_priority,
+  // };
 
   ///// Create the logical device
   VkPhysicalDeviceVulkan13Features features13{
@@ -309,17 +396,20 @@ if constexpr (debug_t::value) setupDebugMessenger();
   VkDeviceCreateInfo device_info = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
     .pNext = &features2,
-    .queueCreateInfoCount = 1,
-    .pQueueCreateInfos = &queue_info,
+    .queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size()),
+    .pQueueCreateInfos = queue_create_infos.data(),
+    .enabledExtensionCount = static_cast<uint32_t>(device_extensions.size()),
+    .ppEnabledExtensionNames = device_extensions.data(),
   };
   
   VK_CHECK(vkCreateDevice(_selectedGPU, &device_info, nullptr, &_device));
   
-  vkGetDeviceQueue(_device, suitable_gpus[0].second.value(), 0, &_queue);
+  vkGetDeviceQueue(_device, suitable_gpus[0]._graphics_family_index.value(), 0, &_queue);
+  vkGetDeviceQueue(_device, suitable_gpus[0]._present_family_index.value(), 0, &_present_queue);
 }
 
-void VulkanEngine::init_swapchain()
-{
+void VulkanEngine::init_swapchain() {
+  create_swapchain(_windowExtent.width, _windowExtent.height);
 }
 
 void VulkanEngine::init_commands()
@@ -328,6 +418,158 @@ void VulkanEngine::init_commands()
 
 void VulkanEngine::init_sync_structures()
 {
+}
+
+void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
+  
+  struct _swapchain_support_details {
+    VkSurfaceCapabilitiesKHR _capabilities;
+    std::vector<VkSurfaceFormatKHR> _formats;
+    std::vector<VkPresentModeKHR> _present_modes;
+  };
+  auto query_swapchain_support = [this]() {
+    _swapchain_support_details details;
+
+    // Fetch the basic surface capabilities
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_selectedGPU, _surface, &details._capabilities);
+
+    // Query the supported surface formats
+    uint32_t format_count;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(_selectedGPU, _surface, &format_count, nullptr);
+    if (format_count != 0) {
+      details._formats.resize(format_count);
+      vkGetPhysicalDeviceSurfaceFormatsKHR(_selectedGPU, _surface, &format_count, details._formats.data());
+    }
+
+    // Query the supported presentation modes
+    uint32_t present_mode_count;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(_selectedGPU, _surface, &present_mode_count, nullptr);
+    if (present_mode_count != 0) {
+      details._present_modes.resize(present_mode_count);
+      vkGetPhysicalDeviceSurfacePresentModesKHR(_selectedGPU, _surface, &present_mode_count, details._present_modes.data());
+    }
+
+    return details;
+  };
+
+  auto select_surface_format = [](const std::vector<VkSurfaceFormatKHR>& available_formats) {
+    for (const auto& available_format : available_formats) {
+      if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB &&
+        available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        return available_format;
+    }
+    return available_formats[0];
+  };
+
+  auto select_present_mode = [](const std::vector<VkPresentModeKHR>& available_present_modes) {
+    for (const auto& available_present_mode : available_present_modes) {
+      if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR)
+        return available_present_mode;
+    }
+    return VK_PRESENT_MODE_FIFO_KHR;
+  };
+
+  auto select_swap_extent = [width, height](const VkSurfaceCapabilitiesKHR& capabilities) {
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+      return capabilities.currentExtent;
+    
+    // When the currentExtent.width is the max value of uint32_t,
+    // the current extent can differ.
+
+    VkExtent2D extent = {
+      static_cast<uint32_t>(width),
+      static_cast<uint32_t>(height)
+    };
+
+    extent.width = std::clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+    extent.height = std::clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+  
+    return extent;
+  };
+
+  ///////////////////////////////////////////////////////////////////////
+
+  _swapchain_support_details detail = query_swapchain_support();
+
+  VkSurfaceFormatKHR surface_format = select_surface_format(detail._formats);
+  VkPresentModeKHR present_mode = select_present_mode(detail._present_modes);
+  VkExtent2D extent = select_swap_extent(detail._capabilities);
+
+  uint32_t image_count = detail._capabilities.minImageCount + 1;
+  if (detail._capabilities.maxImageCount > 0 &&
+    image_count > detail._capabilities.maxImageCount) {
+    image_count = detail._capabilities.maxImageCount;
+  }
+
+  VkSwapchainCreateInfoKHR create_info = {
+    .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+    .surface = _surface,
+    .minImageCount = image_count,
+    .imageFormat = surface_format.format,
+    .imageColorSpace = surface_format.colorSpace,
+    .imageExtent = extent,
+    .imageArrayLayers = 1,
+    .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+    // Need to be changed if the graphics queue family index
+    // and the present queue family index are not the same
+    .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    .queueFamilyIndexCount = 0,
+    .pQueueFamilyIndices = nullptr,
+
+    .preTransform = detail._capabilities.currentTransform,
+
+    .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+
+    .presentMode = present_mode,
+    .clipped = VK_TRUE,
+
+    .oldSwapchain = VK_NULL_HANDLE
+  };
+
+  VK_CHECK(vkCreateSwapchainKHR(_device, &create_info, nullptr, &_swapchain));
+
+  ///// Retrieve the swap chain images
+  vkGetSwapchainImagesKHR(_device, _swapchain, &image_count, nullptr);
+  _swapchain_images.resize(image_count);
+  vkGetSwapchainImagesKHR(_device, _swapchain, &image_count, _swapchain_images.data());
+  ///// Retrieve the swap chain image views
+  _swapchain_image_views.resize(image_count);
+
+  for (size_t i=0; i<image_count; ++i) {
+    VkImageViewCreateInfo create_info = {
+      .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+      .image = _swapchain_images[i],
+      .viewType = VK_IMAGE_VIEW_TYPE_2D,
+      .format = surface_format.format,
+      .components = {
+        .r = VK_COMPONENT_SWIZZLE_IDENTITY, 
+        .g = VK_COMPONENT_SWIZZLE_IDENTITY, 
+        .b = VK_COMPONENT_SWIZZLE_IDENTITY, 
+        .a = VK_COMPONENT_SWIZZLE_IDENTITY, 
+      },
+      .subresourceRange = {
+        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .baseMipLevel = 0,
+        .levelCount = 1,
+        .baseArrayLayer = 0,
+        .layerCount = 1,
+      }
+    };
+
+    VK_CHECK(vkCreateImageView(_device, &create_info, nullptr, &_swapchain_image_views[i]));
+  }
+  
+  _swapchain_image_format = surface_format.format;
+  _swapchain_extent = extent;
+}
+
+void VulkanEngine::destroy_swapchain() {
+  vkDestroySwapchainKHR(_device, _swapchain, nullptr);
+
+  // Destroy image views
+  for (auto& _image_view : _swapchain_image_views)
+    vkDestroyImageView(_device, _image_view, nullptr);
 }
 
 /////////////////////////////////////////////////////
@@ -469,8 +711,6 @@ inline void VulkanEngine::setupDebugMessenger() {
     nullptr, 
     &_debug_messenger
   )); fmt::print("done\n");
-
-  fmt::print("\n");
 }
 
 inline void VulkanEngine::cleanupDebugMessenger() {
@@ -479,8 +719,6 @@ inline void VulkanEngine::cleanupDebugMessenger() {
 
   DestroyDebugUtilsMessengerEXT(_instance, _debug_messenger, nullptr);
   fmt::print("done\n");
-
-  fmt::print("\n");
 }
 
 #endif  // !NDEBUG
