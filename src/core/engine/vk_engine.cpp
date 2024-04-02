@@ -404,7 +404,7 @@ if constexpr (debug_t::value) setupDebugMessenger();
   
   VK_CHECK(vkCreateDevice(_selectedGPU, &device_info, nullptr, &_device));
   
-  vkGetDeviceQueue(_device, suitable_gpus[0]._graphics_family_index.value(), 0, &_queue);
+  vkGetDeviceQueue(_device, suitable_gpus[0]._graphics_family_index.value(), 0, &_graphics_queue);
   vkGetDeviceQueue(_device, suitable_gpus[0]._present_family_index.value(), 0, &_present_queue);
 }
 
@@ -722,3 +722,6 @@ inline void VulkanEngine::cleanupDebugMessenger() {
 }
 
 #endif  // !NDEBUG
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
