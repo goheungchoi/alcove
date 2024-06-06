@@ -4,6 +4,7 @@
 #include <SDL.h>        // The main SDL library data for opening a window and input
 #include <SDL_vulkan.h> // Vulkan-specific flags and functionality for opening a Vulkan-compatible window
 
+#include <core/engine/vk_gpu_selector.h>
 #include <core/engine/vk_initializers.h>
 #include <core/engine/vk_common.h>
 
@@ -176,7 +177,7 @@ if (debug_t::value && !checkValidationLayerSupport(layers)) {
 
 
 
-  ///// Set the instance create info
+  ///// Set the instance create info ////////////////////////////////////////
   VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info;
   VkInstanceCreateInfo instance_info = {
     .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -206,7 +207,7 @@ if (debug_t::value && !checkValidationLayerSupport(layers)) {
     .ppEnabledExtensionNames = exts.data(),
   };
 
-  ///// Create the instance
+  ///// Create the instance //////////////////////////////////////////////////
   VK_CHECK(vkCreateInstance(&instance_info, nullptr, &_instance));
 
 
@@ -217,13 +218,13 @@ if constexpr (debug_t::value) setupDebugMessenger();
 
 
 
-  ///// Create a VkSurfaceKHR object from the SDL window
+  ///// Create a VkSurfaceKHR object from the SDL window ///////////////
   // The actual window we will be rendering to
   if (!SDL_Vulkan_CreateSurface(_window, _instance, &_surface)) {
     throw std::runtime_error("Failed to create a SDL window surface!");
   }
 
-  ///// Select a GPU with certain features
+  ///// Select a GPU //////////////////////////////////////////////////
   uint32_t gpus_count = 0;
   VK_CHECK(vkEnumeratePhysicalDevices(_instance, &gpus_count, nullptr));
   if (!gpus_count) {
@@ -237,114 +238,46 @@ if constexpr (debug_t::value) setupDebugMessenger();
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
   };
 
-  // Select a GPU from the physical device query
-  struct _device_info {
-    VkPhysicalDevice _gpu;
-    std::optional<uint32_t> _graphics_family_index;
-    std::optional<uint32_t> _present_family_index;
+  // Required physical device Vulkan features
+  VkPhysicalDeviceVulkan13Features features13 {
+    .synchronization2 = true,
+    .dynamicRendering = true,
   };
-  std::vector<_device_info> suitable_gpus;
-  auto physical_device_selector = [this, &gpus, &device_extensions](std::vector<_device_info>& suitable_gpus) {
-    
-    ///// Device extension checker definition
-    auto check_device_extension_support = [&device_extensions](VkPhysicalDevice gpu) {
-      uint32_t extension_count;
-      vkEnumerateDeviceExtensionProperties(gpu, nullptr, &extension_count, nullptr);
+  VkPhysicalDeviceVulkan12Features features12 {
+    .descriptorIndexing = true,
+    .bufferDeviceAddress = true,
+  };
 
-      std::vector<VkExtensionProperties> available_extensions(extension_count);
-      vkEnumerateDeviceExtensionProperties(gpu, nullptr, &extension_count, available_extensions.data());
-
-      std::set<std::string> required_extensions(device_extensions.begin(), device_extensions.end());
-      for (const auto& extension : available_extensions) {
-        required_extensions.erase(extension.extensionName);
-      }
-
-      return required_extensions.empty();
-    };
-
-    ///// Check swapchain support
-    
-
+  // Select a GPU from the physical device query
+  GPU_Selector gpu_selector;
+  _selectedGPU = gpu_selector
+    .query_physical_device_type(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    .query_device_extensions(device_extensions)
     ///// Required vulkan version features
-    VkPhysicalDeviceVulkan13Features features13 {
-      .synchronization2 = true,
-      .dynamicRendering = true,
-    };
-    VkPhysicalDeviceVulkan12Features features12 {
-      .descriptorIndexing = true,
-      .bufferDeviceAddress = true,
-    };
-    
-    ///// Loop through physical devices /////
-    for (const auto& gpu : gpus) {
-      bool is_suitable = true;
-
-      ///// Get GPU properties
-      VkPhysicalDeviceProperties properties;
-      vkGetPhysicalDeviceProperties(gpu, &properties);
-      fmt::println("GPU Name: {}", properties.deviceName);
-      // VkPhysicalDeviceFeatures2 features;
-      // vkGetPhysicalDeviceFeatures2(gpu, &features);
-      is_suitable &= (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
-
-      ///// Enumerate device extensions
-      is_suitable &= check_device_extension_support(gpu);
-
-      ///// Check if the swap chain support is adequate
-      // is_suitable &= check_swapchain_support(gpu);
-
-      ///// Find queue families
-      uint32_t family_count = 0;
-      vkGetPhysicalDeviceQueueFamilyProperties(gpu, &family_count, nullptr);
-      std::vector<VkQueueFamilyProperties> families(family_count);
-      vkGetPhysicalDeviceQueueFamilyProperties(gpu, &family_count, families.data());
-
-      // See if there is a queue family that has graphics queues
-      int graphics_family_index = 0;
-      bool check_adequate_queue_flags = false;
-      for (const auto& family : families) {
-        if (check_adequate_queue_flags |= ( family.queueCount &&
-            (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) && 
-            (family.queueFlags & VK_QUEUE_COMPUTE_BIT) )) break;
-        ++graphics_family_index;
-      }
-
-      is_suitable &= check_adequate_queue_flags;
-
-      // See if there is a queue family that supports the current surface presentation
-      int present_family_index = 0;
-      VkBool32 check_present_support = false;
-      for (const auto& family : families) {
-        vkGetPhysicalDeviceSurfaceSupportKHR(gpu, present_family_index, _surface, &check_present_support);
-        if (check_present_support) break;
-        ++present_family_index;
-      }
-
-      is_suitable &= static_cast<bool>(check_present_support);
-
-      if (is_suitable) suitable_gpus.push_back({gpu, graphics_family_index, present_family_index});
-    }
-  }; physical_device_selector(suitable_gpus);
- 
-  if (!suitable_gpus.size()) {
-    throw std::runtime_error("Suitable GPUs not found!");
-  }
-
-  if (suitable_gpus.size() > 1) {
-    // Enable user selection
-    fmt::println("More than one suitable GPU found.");
-  }
-  
-  _selectedGPU = suitable_gpus[0]._gpu;  // Select the first GPU for now.
+    ///// Check if the swap chain support is adequate
+    // is_suitable &= check_swapchain_support(gpu);
+    .query_graphics_queue_family(
+      VK_QUEUE_GRAPHICS_BIT, 
+      VK_QUEUE_TRANSFER_BIT, 
+      VK_QUEUE_COMPUTE_BIT
+    )
+    .query_present_queue_family(_surface)
+    .select_GPU(_instance)
+    .get_selected_GPU();
   ///////////////////////////////////////////////////////////////////////
 
-  ///// Set the queue create infos
+  // Retrieve Queue family indices
+  _graphics_queue_family = gpu_selector.get_graphics_queue_family_index().value();
+  _present_queue_family = gpu_selector.get_present_queue_family_index().value();
+
+  ///// Set the queue create infos ////////////////////////////////////////
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
   std::set<uint32_t> queue_family_set = {
-    suitable_gpus[0]._graphics_family_index.value(),
-    suitable_gpus[0]._present_family_index.value(),
+    _graphics_queue_family,
+    _present_queue_family,
   };
 
+  ///// Create a graphics queue & presentation queue ////////////////////
   float queue_priority = 1.0f;
   for (uint32_t queue_family_index : queue_family_set) {
     queue_create_infos.push_back({
@@ -355,24 +288,7 @@ if constexpr (debug_t::value) setupDebugMessenger();
     }); 
   }
 
-  // ///// Create a graphics queue
-  // VkDeviceQueueCreateInfo queue_info = {
-  //   .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-  //   .queueFamilyIndex = suitable_gpus[0]._graphics_family_index.value(),
-  //   .queueCount = 1,
-  //   .pQueuePriorities = &queue_priority,
-  // };
-
-  // ///// Create a presentation queue
-  // float present_queue_priority = 1.0f;
-  // VkDeviceQueueCreateInfo present_queue_info = {
-  //   .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-  //   .queueFamilyIndex = suitable_gpus[0]._present_family_index.value(),
-  //   .queueCount = 1,
-  //   .pQueuePriorities = &queue_priority,
-  // };
-
-  ///// Create the logical device
+  ///// Create the logical device ////////////////////////////////////////
   VkPhysicalDeviceVulkan13Features features13{
     .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
     .synchronization2 = true,
@@ -404,16 +320,17 @@ if constexpr (debug_t::value) setupDebugMessenger();
   
   VK_CHECK(vkCreateDevice(_selectedGPU, &device_info, nullptr, &_device));
   
-  vkGetDeviceQueue(_device, suitable_gpus[0]._graphics_family_index.value(), 0, &_graphics_queue);
-  vkGetDeviceQueue(_device, suitable_gpus[0]._present_family_index.value(), 0, &_present_queue);
+  vkGetDeviceQueue(_device, _graphics_queue_family, 0, &_graphics_queue);
+  vkGetDeviceQueue(_device, _present_queue_family, 0, &_present_queue);
 }
 
 void VulkanEngine::init_swapchain() {
   create_swapchain(_windowExtent.width, _windowExtent.height);
 }
 
-void VulkanEngine::init_commands()
-{
+void VulkanEngine::init_commands() {
+  
+
 }
 
 void VulkanEngine::init_sync_structures()
