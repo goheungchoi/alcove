@@ -9,8 +9,8 @@ project(alcove  VERSION     0.1.0
 include(CMakePrintHelpers)
 ############### Config ##################
 set(Alcove_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-cmake_print_variables(Alcove_SOURCE_DIR)
 set(Alcove_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/alcove")
+cmake_print_variables(Alcove_SOURCE_DIR)
 cmake_print_variables(Alcove_INCLUDE_DIR)
 cmake_print_variables(CMAKE_SOURCE_DIR)
 cmake_print_variables(CMAKE_BINARY_DIR)

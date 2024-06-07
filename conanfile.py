@@ -20,10 +20,9 @@ class AlcoveRecipe(ConanFile):
 
   def requirements(self):
     self.requires("glm/0.9.9.8")
-    self.requires("sdl/2.28.5")
+    self.requires("sdl/2.30.3")
     self.requires("catch2/3.5.0")
     self.requires("imgui/1.90")
-    self.requires("vulkan-memory-allocator/3.0.1")
     self.requires("fmt/10.2.1")
 
   def layout(self):

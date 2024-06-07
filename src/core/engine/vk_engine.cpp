@@ -267,14 +267,14 @@ if constexpr (debug_t::value) setupDebugMessenger();
   ///////////////////////////////////////////////////////////////////////
 
   // Retrieve Queue family indices
-  _graphics_queue_family = gpu_selector.get_graphics_queue_family_index().value();
-  _present_queue_family = gpu_selector.get_present_queue_family_index().value();
+  _graphics_family_index = gpu_selector.get_graphics_queue_family_index().value();
+  _present_family_index = gpu_selector.get_present_queue_family_index().value();
 
   ///// Set the queue create infos ////////////////////////////////////////
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
   std::set<uint32_t> queue_family_set = {
-    _graphics_queue_family,
-    _present_queue_family,
+    _graphics_family_index,
+    _present_family_index,
   };
 
   ///// Create a graphics queue & presentation queue ////////////////////
@@ -320,8 +320,8 @@ if constexpr (debug_t::value) setupDebugMessenger();
   
   VK_CHECK(vkCreateDevice(_selectedGPU, &device_info, nullptr, &_device));
   
-  vkGetDeviceQueue(_device, _graphics_queue_family, 0, &_graphics_queue);
-  vkGetDeviceQueue(_device, _present_queue_family, 0, &_present_queue);
+  vkGetDeviceQueue(_device, _graphics_family_index, 0, &_graphics_queue);
+  vkGetDeviceQueue(_device, _present_family_index, 0, &_present_queue);
 }
 
 void VulkanEngine::init_swapchain() {
@@ -329,12 +329,32 @@ void VulkanEngine::init_swapchain() {
 }
 
 void VulkanEngine::init_commands() {
-  
+  VkCommandPool CreateInfo commandPoolInfo {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+    .pNext = nullptr,
+    .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+    .queueFamilyIndex = _graphicsQueueFamily
+  };
+
+  for (int i = 0; i < FRAME_OVERLAP; ++i) {
+
+    // Create a command pool
+    VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_frames[i]._command_pool));
+
+    // Create a main command buffer
+    VkCommandBufferAllocateInfo cmdAllocInfo {
+      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+      .pNext = nullptr,
+      .commandPool = _frames[i]._command_pool,
+      .commandBufferCount = 1,
+      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY
+    }
+    VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_frames[i]._mainCommandBuffer));
+  }
 
 }
 
-void VulkanEngine::init_sync_structures()
-{
+void VulkanEngine::init_sync_structures() {
 }
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {

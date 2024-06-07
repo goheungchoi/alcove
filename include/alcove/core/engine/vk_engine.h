@@ -32,15 +32,16 @@ public:
   // Run the main loop
   void run();
 
+/* VULKAN SETUP */
 public:
   VkInstance                _instance;        // Vulkan library handle
   VkDebugUtilsMessengerEXT  _debug_messenger; // Vulkan debug output handle
   VkPhysicalDevice          _selectedGPU;     // GPU chosen as the default device
   VkDevice                  _device;          // Vulkan device for commands
   VkQueue                   _graphics_queue;  // Device graphics queue handle
-  uint32_t                  _graphics_queue_family;
+  uint32_t                  _graphics_family_index;
   VkQueue                   _present_queue;   // Device presentation queue handle
-  uint32_t                  _present_queue_family;
+  uint32_t                  _present_family_index;
   VkSurfaceKHR              _surface;         // Vulkan window surface
 
 private:

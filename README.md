@@ -38,7 +38,10 @@ Must-be-installed Programs for Dev
 
 ## How to init
 Windows
-- `py pymake.py `
+- Debug Mode:
+  - `py pymake.py conan-debug`
+  - `py pymake.py config-msvc`
+  - `py pymake.py msvc-debug`
 
 ## TODO List
 
