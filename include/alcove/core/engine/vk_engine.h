@@ -2,9 +2,18 @@
 #pragma once
 #include <core/engine/vk_common.h>
 
+// TODO: Wrap queue data with the QueueData structs.
+struct QueueData {
+  VkQueue _handle;
+  uint32_t _family_index;
+};
+
 struct FrameData {
   VkCommandPool _command_pool;
   VkCommandBuffer _main_command_buffer;
+  VkSemaphore _swapchain_semaphore; // Let render commands wait on the swapchian image request
+  VkSemaphore _render_semaphore;  // Control presenting images to the OS once drawing finishes.
+  VkFence _render_fence;  // Wait for the draw commands of this frame to be finished
 };
 
 constexpr unsigned int FRAME_OVERLAP = 2;

@@ -69,6 +69,12 @@ void VulkanEngine::init() {
 
 void VulkanEngine::cleanup() {
   if (_isInitialized) {
+    // Make sure the GPU has stopped
+    vkDeviceWaitIdle(_device);
+
+    for (int i=0; i<FRAME_OVERLAP; i++) {
+      vkDestroyCommandPool(_device, _frames[i]._command_pool, nullptr);
+    }
 
     destroy_swapchain();
 
@@ -87,6 +93,41 @@ if constexpr (debug_t::value) cleanupDebugMessenger();
 }
 
 void VulkanEngine::draw() {
+  // Wait until the GPU has finished rendering the last frame.
+  // Timeout of 1 second
+  VK_CHECK(
+    vkWaitForFences(
+      _device, 
+      1, 
+      &get_current_frame()._render_fence, 
+      true, 
+      1'000'000'000 // ns
+    )
+  );
+
+  // Reset the fence to re-use in the next frame
+  VK_CHECK(
+    vkResetFences(
+      _device,
+      1,
+      &get_current_frame()._render_fence
+    )
+  );
+
+  // Request an image from the swapchain
+  uint32_t swapchainImageIndex;
+  VK_CHECK(
+    vkAcquireNextImageKHR(
+      _device, 
+      _swapchain, 
+      1'000'000'000, 
+      get_current_frame()._swapchain_semaphore, 
+      nullptr, 
+      &swapchainImageIndex
+    )
+  );
+
+  // TODO: Begin command queue
 
 }
 
@@ -329,11 +370,11 @@ void VulkanEngine::init_swapchain() {
 }
 
 void VulkanEngine::init_commands() {
-  VkCommandPool CreateInfo commandPoolInfo {
+  VkCommandPoolCreateInfo commandPoolInfo {
     .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
     .pNext = nullptr,
     .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-    .queueFamilyIndex = _graphicsQueueFamily
+    .queueFamilyIndex = _graphics_family_index
   };
 
   for (int i = 0; i < FRAME_OVERLAP; ++i) {
@@ -346,15 +387,31 @@ void VulkanEngine::init_commands() {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
       .pNext = nullptr,
       .commandPool = _frames[i]._command_pool,
-      .commandBufferCount = 1,
-      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY
-    }
-    VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_frames[i]._mainCommandBuffer));
+      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+      .commandBufferCount = 1
+    };
+    VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_frames[i]._main_command_buffer));
   }
-
 }
 
 void VulkanEngine::init_sync_structures() {
+  VkFenceCreateInfo fenceCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+    .pNext = nullptr,
+    .flags = VK_FENCE_CREATE_SIGNALED_BIT
+  };
+
+  VkSemaphoreCreateInfo semaphoreCreateInfo {
+    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+    .pNext = nullptr,
+  };
+
+  for (int i=0; i<FRAME_OVERLAP; ++i) {
+    VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_frames[i]._render_fence));
+  
+    VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._swapchain_semaphore));
+    VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._render_semaphore));
+  }
 }
 
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
