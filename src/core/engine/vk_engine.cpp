@@ -128,7 +128,60 @@ void VulkanEngine::draw() {
   );
 
   // TODO: Begin command queue
+  // VkFenceCreateInfo vkinit::fence_create_info(VkFenceCreateFlags flags /*= 0*/)
+  // {
+  //   VkFenceCreateInfo info = {};
+  //   info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  //   info.pNext = nullptr;
+  //   info.flags = flags;
+  //   return info;
+  // }
 
+  // VkSemaphoreCreateInfo vkinit::semaphore_create_info(VkSemaphoreCreateFlags flags /*= 0*/)
+  // {
+  //   VkSemaphoreCreateInfo info = {};
+  //   info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  //   info.pNext = nullptr;
+  //   info.flags = flags;
+  //   return info;
+  // }
+
+  // VkCommandBufferBeginInfo vkinit::command_buffer_begin_info(VkCommandBufferUsageFlags flags /*= 0*/)
+  // {
+  //   VkCommandBufferBeginInfo info = {};
+  //   info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  //   info.pNext = nullptr;
+  //   info.pInheritanceInfo = nullptr;
+  //   info.flags = flags;
+  //   return info;
+  // }
+
+  // Obtain the current command buffer
+  VkCommandBuffer cmdBuf = get_current_frame()._main_command_buffer;
+
+  // The commands finished executing, 
+  // so it can be safely reset to begin recording again.
+  VK_CHECK(vkResetCommandBuffer(cmdBuf, 0));
+
+  // Begin the command buffer recording
+  VkCommandBufferBeginInfo cmdBufBeginInfo {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    .pNext = nullptr,
+
+    // No inheritance command buffer
+    .pInheritanceInfo = nullptr,
+    // This command is for one time use
+    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+  };
+  VK_CHECK(vkBeginCommandBuffer(cmdBuf, &cmdBufBeginInfo));
+  
+  // Transition the swapchain image into a drawable layout
+
+  // Clear the image
+
+  // Transition the image back to a display optimal layout
+
+  
 }
 
 void VulkanEngine::run() {
