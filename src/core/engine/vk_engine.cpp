@@ -221,7 +221,28 @@ void VulkanEngine::draw() {
 
   // The syncronization structures need to be connected
   // in order to interact correctly with the swapchain.
-  
+  VkSemaphoreSubmitInfo semaphoreSubmitInfo {
+    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+    .pNext = nullptr,
+    .semaphore = VkSemaphore,
+    .stageMask = VkPipelineStageFlags2,
+    .deviceIndex = 0,
+    .value = 1
+  };
+
+  VkCommandBufferSubmitInfo cmdBufSubmitInfo {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+    .pNext = nullptr,
+    .commandBuffer = cmdBuf,
+    .deviceMask = 0
+  };
+
+  VkSubmitInfo2 submitInfo {
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+    .pNext = nullptr,
+
+    .waitSemaphoreInfoCount = /* */
+  }
 
 }
 
