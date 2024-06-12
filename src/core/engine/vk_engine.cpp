@@ -6,6 +6,7 @@
 
 #include <core/engine/vk_gpu_selector.h>
 #include <core/engine/vk_initializers.h>
+#include <core/engine/vk_images.h>
 #include <core/engine/vk_common.h>
 
 #include <chrono>
@@ -105,7 +106,8 @@ void VulkanEngine::draw() {
     )
   );
 
-  // Reset the fence to re-use in the next frame
+  // After the fence is terminated,
+  // reset the fence to re-use in the next frame
   VK_CHECK(
     vkResetFences(
       _device,
@@ -114,7 +116,7 @@ void VulkanEngine::draw() {
     )
   );
 
-  // Request an image from the swapchain
+  // Request an image from the swapchain.
   uint32_t swapchainImageIndex;
   VK_CHECK(
     vkAcquireNextImageKHR(
@@ -170,18 +172,57 @@ void VulkanEngine::draw() {
 
     // No inheritance command buffer
     .pInheritanceInfo = nullptr,
-    // This command is for one time use
+    // This command buffer is for one time use
     .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
   };
   VK_CHECK(vkBeginCommandBuffer(cmdBuf, &cmdBufBeginInfo));
   
   // Transition the swapchain image into a drawable layout
+  // (If the image's layout is either of the initial layouts,
+  // VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED,
+  // any image subresources must be transitioned to another layout
+  // before they are accessed by the device.)
+  vkutil::cmd_transition_image(
+    cmdBuf,
+    _swapcahin_images[swapchainImageIndex],
+    VK_IMAGE_LAYOUT_UNDEFINED,  // Don't care the current image layout
+    VK_IMAGE_LAYOUT_GENERAL     // Transition to general purpose layout
+                                // It supports all types of device access
+  );
+
+  // TODO: Temp gradient clear color.
+  VkClearColorValue clearColorValue;
+  float flash = std::abs(std::sin(_frameNumber / 120.f));
+  clearColorValue = {{0.0f, 0.0f, flash, 1.0f}};
+  auto clearRange = vkinit::image_subresource_rage(
+    VK_IMAGE_ASPECT_COLOR_BIT
+  );
 
   // Clear the image
+  vkCmdClearColorImage(
+    cmdBuf, 
+    _swapchain_images[swapchainImageIndex],
+    VK_IMAGE_LAYOUT_GENERAL,
+    &clearColorValue,
+    1,
+    &clearRange
+  );
 
   // Transition the image back to a display optimal layout
+  vkutil::cmd_transition_image(
+    cmdBuf,
+    _swapchain_images[swapchainImageIndex],
+    VK_IMAGE_LAYOUT_GENERAL,
+    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR // The only image layout the swapchain allows for presenting to screen
+  );
 
+  // Finish recording commands
+  VK_CHECK(vkEndCommandBuffer(cmdBuf));
+
+  // The syncronization structures need to be connected
+  // in order to interact correctly with the swapchain.
   
+
 }
 
 void VulkanEngine::run() {
@@ -580,6 +621,7 @@ void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
   vkGetSwapchainImagesKHR(_device, _swapchain, &image_count, nullptr);
   _swapchain_images.resize(image_count);
   vkGetSwapchainImagesKHR(_device, _swapchain, &image_count, _swapchain_images.data());
+  
   ///// Retrieve the swap chain image views
   _swapchain_image_views.resize(image_count);
 
