@@ -19,13 +19,92 @@ cmake_print_variables(CMAKE_BINARY_DIR)
 # cmake_print_variables(CMAKE_MODULE_PATH)
 #########################################
 
-#### Setup External Packages ####
+#### Setup External Packages ############
 # Vulkan Provided
 find_package(Vulkan REQUIRED 
   COMPONENTS 
   glslang 
   SPIRV-Tools
 )
+
+# include(FetchContent)
+
+# # glm
+# FetchContent_Declare(
+#   glm
+#   GIT_REPOSITORY https://github.com/g-truc/glm.git
+#   GIT_TAG 1.0.1
+#   GIT_SHALLOW TRUE
+# )
+
+# # sdl
+# FetchContent_Declare(
+#   SDL2
+#   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+#   GIT_TAG release-2.30.3
+# )
+
+# # catch2
+# FetchContent_Declare(
+#   Catch2
+#   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+#   GIT_TAG v2.13.9
+# )
+
+# # imgui
+# FetchContent_Declare(
+#   imgui
+#   GIT_REPOSITORY https://github.com/ocornut/imgui.git
+#   GIT_TAG v1.90.8
+# )
+
+# # fmt
+# FetchContent_Declare(
+#   fmt
+#   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#   GIT_TAG 10.2.1
+# )
+
+# # VMA
+# FetchContent_Declare(
+#   VMA
+#   GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+#   GIT_TAG v3.1.0
+# )
+
+# # Make contents available
+# FetchContent_MakeAvailable(
+#   glm
+#   SDL2
+#   Catch2
+#   imgui
+#   fmt
+#   VMA
+# )
+
+# if (TARGET glm::glm)
+#   message(STATUS "glm target alias is found!")
+# endif()
+
+# if (TARGET SDL2::SDL2)
+#   message(STATUS "SDL2 target alias is found!")
+# endif()
+
+# if (TARGET Catch2::Catch2)
+#   message(STATUS "Catch2 target alias is found!")
+# endif()
+
+# if (TARGET imgui::imgui)
+#   message(STATUS "imgui target alias is found!")
+# endif()
+
+# if (TARGET fmt::fmt)
+#   message(STATUS "fmt target alias is found!")
+# endif()
+
+# if (TARGET GPUOpen::VulkanMemoryAllocator)
+#   message(STATUS "VulkanMemoryAllocator target alias is found!")
+# endif()
 
 #########################################
 #########################################
@@ -84,9 +163,6 @@ cmake_print_variables(Vulkan_glslang_FOUND)
 cmake_print_variables(Vulkan_SPIRV-Tools_FOUND)
 cmake_print_variables(Vulkan_INCLUDE_DIRS)
 
-
-# Conan Provided
-find_package(SDL2 REQUIRED CONFIG)
 cmake_print_variables(SDL2_VERSION)
 find_package(fmt REQUIRED)
 cmake_print_variables(fmt_VERSION)

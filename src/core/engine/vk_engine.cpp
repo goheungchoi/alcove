@@ -61,8 +61,6 @@ void VulkanEngine::init() {
     fmt::println("{}", e.what());
   }
   
-
-
   // Notify that every initialization step went fine.
   _isInitialized = true;
 }
@@ -75,6 +73,11 @@ void VulkanEngine::cleanup() {
 
     for (int i=0; i<FRAME_OVERLAP; i++) {
       vkDestroyCommandPool(_device, _frames[i]._command_pool, nullptr);
+    
+      // Destroy sync objects
+      vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
+      vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
+      vkDestroySemaphore(_device, _frames[i]._swapchain_semaphore, nullptr);
     }
 
     destroy_swapchain();
@@ -123,40 +126,13 @@ void VulkanEngine::draw() {
       _device, 
       _swapchain, 
       1'000'000'000, 
-      get_current_frame()._swapchain_semaphore, 
+      get_current_frame()._swapchain_semaphore,  // Signal when successfully acquires an image
       nullptr, 
       &swapchainImageIndex
     )
   );
 
-  // TODO: Begin command queue
-  // VkFenceCreateInfo vkinit::fence_create_info(VkFenceCreateFlags flags /*= 0*/)
-  // {
-  //   VkFenceCreateInfo info = {};
-  //   info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  //   info.pNext = nullptr;
-  //   info.flags = flags;
-  //   return info;
-  // }
-
-  // VkSemaphoreCreateInfo vkinit::semaphore_create_info(VkSemaphoreCreateFlags flags /*= 0*/)
-  // {
-  //   VkSemaphoreCreateInfo info = {};
-  //   info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  //   info.pNext = nullptr;
-  //   info.flags = flags;
-  //   return info;
-  // }
-
-  // VkCommandBufferBeginInfo vkinit::command_buffer_begin_info(VkCommandBufferUsageFlags flags /*= 0*/)
-  // {
-  //   VkCommandBufferBeginInfo info = {};
-  //   info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  //   info.pNext = nullptr;
-  //   info.pInheritanceInfo = nullptr;
-  //   info.flags = flags;
-  //   return info;
-  // }
+  /* Begin Recording Commands */
 
   // Obtain the current command buffer
   VkCommandBuffer cmdBuf = get_current_frame()._main_command_buffer;
@@ -177,6 +153,7 @@ void VulkanEngine::draw() {
   };
   VK_CHECK(vkBeginCommandBuffer(cmdBuf, &cmdBufBeginInfo));
   
+  // COMMAND:
   // Transition the swapchain image into a drawable layout
   // (If the image's layout is either of the initial layouts,
   // VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED,
@@ -198,7 +175,7 @@ void VulkanEngine::draw() {
     VK_IMAGE_ASPECT_COLOR_BIT
   );
 
-  // Clear the image
+  // COMMAND: Clear the image
   vkCmdClearColorImage(
     cmdBuf, 
     _swapchain_images[swapchainImageIndex],
@@ -208,7 +185,7 @@ void VulkanEngine::draw() {
     &clearRange
   );
 
-  // Transition the image back to a display optimal layout
+  // COMMAND: Transition the image back to a display optimal layout
   vkutil::cmd_transition_image(
     cmdBuf,
     _swapchain_images[swapchainImageIndex],
@@ -221,29 +198,87 @@ void VulkanEngine::draw() {
 
   // The syncronization structures need to be connected
   // in order to interact correctly with the swapchain.
-  VkSemaphoreSubmitInfo semaphoreSubmitInfo {
+
+  // 
+  VkSemaphoreSubmitInfo waitSemaphoreSubmitInfo {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
     .pNext = nullptr,
-    .semaphore = VkSemaphore,
-    .stageMask = VkPipelineStageFlags2,
-    .deviceIndex = 0,
-    .value = 1
+    .semaphore = get_current_frame()._swapchain_semaphore,
+    .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
+    .deviceIndex = 0,   // Used for multi-GPU semaphore usage
+    .value = 1          // Used for timeline semaphores
+  };
+
+  VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo {
+    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+    .pNext = nullptr,
+    .semaphore = get_current_frame()._render_semaphore,
+    .stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
+    .deviceIndex = 0,   // Used for multi-GPU semaphore usage
+    .value = 1          // Used for timeline semaphores
   };
 
   VkCommandBufferSubmitInfo cmdBufSubmitInfo {
     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
     .pNext = nullptr,
     .commandBuffer = cmdBuf,
-    .deviceMask = 0
+    .deviceMask = 0   // Used when multi-devices need to execute the command
   };
 
-  VkSubmitInfo2 submitInfo {
+  // Wrap semaphores and command buffer
+  VkSubmitInfo2 submitInfo2 {
     .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
     .pNext = nullptr,
 
-    .waitSemaphoreInfoCount = /* */
+    // The semaphore to be waited before the execution of the commands
+    .waitSemaphoreInfoCount = 1,
+    .pWaitSemaphoreInfos = &waitSemaphoreSubmitInfo,
+
+    // The semaphore to be signaled after the execution of the commands
+    .signalSemaphoreInfoCount = 1,
+    .pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo,
+
+    // Command buffer to be submitted
+    .commandBufferInfoCount = 1,
+    .pCommandBufferInfos = &cmdBufSubmitInfo,
   }
 
+  // Submit to the queue
+  VK_CHECK(
+    vkQueueSubmit2(
+      _graphics_queue,
+      1,
+      &submitInfo2,
+      get_current_frame()._render_fence
+    )
+  );
+
+
+  // Prepare presentation
+  // Need to make sure the image won't be presented
+  // until it has finished the rendering commands.
+  VkPresentInfoKHR presentInfo {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .pNext = nullptr,
+    .pSwapchains = &_swapchain,
+    .swapchainCount = 1,
+
+    // Wait on the _renderSemaphore to be signaled
+    .pWaitSemaphores = &get_current_frame()._render_semaphore,
+    .waitSemaphoreCount = 1,
+
+    .pImageIndices = &swapchainImageIndex,
+  };
+
+  VK_CHECK(
+    vkQueuePresentKHR(
+      _graphics_queue,
+      &presentInfo
+    )
+  );
+
+  // Increase the number of frames drawn
+  _frameNumber++;
 }
 
 void VulkanEngine::run() {
@@ -510,12 +545,14 @@ void VulkanEngine::init_commands() {
 }
 
 void VulkanEngine::init_sync_structures() {
+  // Fence is for GPU to CPU syncronization.
   VkFenceCreateInfo fenceCreateInfo {
     .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
     .pNext = nullptr,
     .flags = VK_FENCE_CREATE_SIGNALED_BIT
   };
 
+  // Semaphore is for GPU to GPU syncronization.
   VkSemaphoreCreateInfo semaphoreCreateInfo {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
     .pNext = nullptr,

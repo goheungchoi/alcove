@@ -58,7 +58,7 @@ def conan_release():
 ##### Config Targets #############
 ##################################
 def config_msvc():
-  run_cmd(f"cmake -S . -B build -G \"Visual Studio 17 2022\" -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_TOOLCHAIN_FILE=cmake/conan_toolchain.cmake")
+  run_cmd(f"cmake -S . -B build -G \"Visual Studio 17 2022\" -DCMAKE_EXPORT_COMPILE_COMMANDS=1")
 
 def config_test():
   run_cmd(f"cmake {CMAKE_CONFIG} -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON")
