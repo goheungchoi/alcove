@@ -10,6 +10,7 @@ include(CMakePrintHelpers)
 ############### Config ##################
 set(Alcove_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(Alcove_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/alcove")
+
 cmake_print_variables(Alcove_SOURCE_DIR)
 cmake_print_variables(Alcove_INCLUDE_DIR)
 cmake_print_variables(CMAKE_SOURCE_DIR)
@@ -65,21 +66,21 @@ find_package(Vulkan REQUIRED
 #   GIT_TAG 10.2.1
 # )
 
-# # VMA
+# VMA
 # FetchContent_Declare(
 #   VMA
 #   GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
 #   GIT_TAG v3.1.0
 # )
 
-# # Make contents available
+# Make contents available
 # FetchContent_MakeAvailable(
-#   glm
-#   SDL2
-#   Catch2
-#   imgui
-#   fmt
-#   VMA
+  # glm
+  # SDL2
+  # Catch2
+  # imgui
+  # fmt
+  # VMA
 # )
 
 # if (TARGET glm::glm)
@@ -100,10 +101,6 @@ find_package(Vulkan REQUIRED
 
 # if (TARGET fmt::fmt)
 #   message(STATUS "fmt target alias is found!")
-# endif()
-
-# if (TARGET GPUOpen::VulkanMemoryAllocator)
-#   message(STATUS "VulkanMemoryAllocator target alias is found!")
 # endif()
 
 #########################################
@@ -155,6 +152,11 @@ mark_as_advanced(Vulkan_SPIRV-Tools-opt_DEBUG_LIBRARY)
 set(Vulkan_SPIRV-Tools-opt 
   "$<$<CONFIG:Debug>:${Vulkan_SPIRV-Tools-opt_DEBUG_LIBRARY}>$<$<NOT:$<CONFIG:Debug>>:${Vulkan_SPIRV-Tools-opt_LIBRARY}>"
 )
+
+# Vulkan Memory Allocator
+set(vulkan-memory-allocator_INCLUDE_DIRS "$ENV{VULKAN_SDK}/Include/vma")
+
+
 #########################################
 #########################################
 #########################################
@@ -163,6 +165,8 @@ cmake_print_variables(Vulkan_glslang_FOUND)
 cmake_print_variables(Vulkan_SPIRV-Tools_FOUND)
 cmake_print_variables(Vulkan_INCLUDE_DIRS)
 
+# Conan Provided
+find_package(SDL2 REQUIRED CONFIG)
 cmake_print_variables(SDL2_VERSION)
 find_package(fmt REQUIRED)
 cmake_print_variables(fmt_VERSION)
@@ -170,8 +174,8 @@ find_package(glm REQUIRED)
 cmake_print_variables(glm_VERSION)
 find_package(imgui REQUIRED)
 cmake_print_variables(imgui_VERSION)
-find_package(vulkan-memory-allocator REQUIRED)
-cmake_print_variables(vulkan-memory-allocator_VERSION)
+# find_package(vulkan-memory-allocator REQUIRED)
+# cmake_print_variables(vulkan-memory-allocator_VERSION)
 
 ######## Testing Option  ########
 

@@ -75,8 +75,8 @@ void VulkanEngine::cleanup() {
       vkDestroyCommandPool(_device, _frames[i]._command_pool, nullptr);
     
       // Destroy sync objects
-      vkDestroyFence(_device, _frames[i]._renderFence, nullptr);
-      vkDestroySemaphore(_device, _frames[i]._renderSemaphore, nullptr);
+      vkDestroyFence(_device, _frames[i]._render_fence, nullptr);
+      vkDestroySemaphore(_device, _frames[i]._render_semaphore, nullptr);
       vkDestroySemaphore(_device, _frames[i]._swapchain_semaphore, nullptr);
     }
 
@@ -146,10 +146,10 @@ void VulkanEngine::draw() {
     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
     .pNext = nullptr,
 
+    // This command buffer is for one time use
+    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
     // No inheritance command buffer
     .pInheritanceInfo = nullptr,
-    // This command buffer is for one time use
-    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
   };
   VK_CHECK(vkBeginCommandBuffer(cmdBuf, &cmdBufBeginInfo));
   
@@ -161,7 +161,7 @@ void VulkanEngine::draw() {
   // before they are accessed by the device.)
   vkutil::cmd_transition_image(
     cmdBuf,
-    _swapcahin_images[swapchainImageIndex],
+    _swapchain_images[swapchainImageIndex],
     VK_IMAGE_LAYOUT_UNDEFINED,  // Don't care the current image layout
     VK_IMAGE_LAYOUT_GENERAL     // Transition to general purpose layout
                                 // It supports all types of device access
@@ -171,7 +171,7 @@ void VulkanEngine::draw() {
   VkClearColorValue clearColorValue;
   float flash = std::abs(std::sin(_frameNumber / 120.f));
   clearColorValue = {{0.0f, 0.0f, flash, 1.0f}};
-  auto clearRange = vkinit::image_subresource_rage(
+  auto clearRange = vkutil::image_subresource_range(
     VK_IMAGE_ASPECT_COLOR_BIT
   );
 
@@ -204,18 +204,19 @@ void VulkanEngine::draw() {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
     .pNext = nullptr,
     .semaphore = get_current_frame()._swapchain_semaphore,
+    .value = 1,         // Used for timeline semaphores
     .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
     .deviceIndex = 0,   // Used for multi-GPU semaphore usage
-    .value = 1          // Used for timeline semaphores
+    
   };
 
   VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
     .pNext = nullptr,
     .semaphore = get_current_frame()._render_semaphore,
+    .value = 1,         // Used for timeline semaphores
     .stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
     .deviceIndex = 0,   // Used for multi-GPU semaphore usage
-    .value = 1          // Used for timeline semaphores
   };
 
   VkCommandBufferSubmitInfo cmdBufSubmitInfo {
@@ -234,14 +235,14 @@ void VulkanEngine::draw() {
     .waitSemaphoreInfoCount = 1,
     .pWaitSemaphoreInfos = &waitSemaphoreSubmitInfo,
 
-    // The semaphore to be signaled after the execution of the commands
-    .signalSemaphoreInfoCount = 1,
-    .pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo,
-
     // Command buffer to be submitted
     .commandBufferInfoCount = 1,
     .pCommandBufferInfos = &cmdBufSubmitInfo,
-  }
+
+    // The semaphore to be signaled after the execution of the commands
+    .signalSemaphoreInfoCount = 1,
+    .pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo,
+  };
 
   // Submit to the queue
   VK_CHECK(
@@ -260,13 +261,14 @@ void VulkanEngine::draw() {
   VkPresentInfoKHR presentInfo {
     .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
     .pNext = nullptr,
-    .pSwapchains = &_swapchain,
-    .swapchainCount = 1,
 
     // Wait on the _renderSemaphore to be signaled
-    .pWaitSemaphores = &get_current_frame()._render_semaphore,
     .waitSemaphoreCount = 1,
+    .pWaitSemaphores = &get_current_frame()._render_semaphore,
 
+    .swapchainCount = 1,
+    .pSwapchains = &_swapchain,
+    
     .pImageIndices = &swapchainImageIndex,
   };
 
@@ -430,14 +432,14 @@ if constexpr (debug_t::value) setupDebugMessenger();
   };
 
   // Required physical device Vulkan features
-  VkPhysicalDeviceVulkan13Features features13 {
-    .synchronization2 = true,
-    .dynamicRendering = true,
-  };
-  VkPhysicalDeviceVulkan12Features features12 {
-    .descriptorIndexing = true,
-    .bufferDeviceAddress = true,
-  };
+  // VkPhysicalDeviceVulkan13Features features13 {
+  //   .synchronization2 = true,
+  //   .dynamicRendering = true,
+  // };
+  // VkPhysicalDeviceVulkan12Features features12 {
+  //   .descriptorIndexing = true,
+  //   .bufferDeviceAddress = true,
+  // };
 
   // Select a GPU from the physical device query
   GPU_Selector gpu_selector;
@@ -456,6 +458,10 @@ if constexpr (debug_t::value) setupDebugMessenger();
     .select_GPU(_instance)
     .get_selected_GPU();
   ///////////////////////////////////////////////////////////////////////
+
+#ifndef NDEBUG
+    fmt::print("Creating a graphics queue and present queue...");
+#endif
 
   // Retrieve Queue family indices
   _graphics_family_index = gpu_selector.get_graphics_queue_family_index().value();
@@ -478,6 +484,10 @@ if constexpr (debug_t::value) setupDebugMessenger();
       .pQueuePriorities = &queue_priority,
     }); 
   }
+
+#ifndef NDEBUG
+    fmt::print("done\n");
+#endif
 
   ///// Create the logical device ////////////////////////////////////////
   VkPhysicalDeviceVulkan13Features features13{
@@ -609,6 +619,8 @@ void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
 
   auto select_present_mode = [](const std::vector<VkPresentModeKHR>& available_present_modes) {
     for (const auto& available_present_mode : available_present_modes) {
+      // Check if VK_PRESENT_MODE_MAILBOX_KHR is available,
+      // and if yes, use the mail box mode.
       if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR)
         return available_present_mode;
     }

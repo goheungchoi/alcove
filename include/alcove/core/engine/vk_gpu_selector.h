@@ -148,7 +148,7 @@ public:
       "All arguments must be of VkQueueFlagBits."
     );
     _check_graphics_queue_family_support = true;
-    (_queried_graphics_queue_flag_bits.insert(args), ...)
+    (_queried_graphics_queue_flag_bits.insert(args), ...);
     return *this;
   }
 
@@ -160,6 +160,10 @@ public:
 
   // Execute the selector and return the suitable physical device
   GPU_Selector& select_GPU(VkInstance _instance) {
+#ifndef NDEBUG
+    fmt::print("Selecting GPU...\n");
+#endif
+
     uint32_t gpus_count = 0;
     VK_CHECK(vkEnumeratePhysicalDevices(_instance, &gpus_count, nullptr));
     if (!gpus_count) {
@@ -223,6 +227,10 @@ public:
     }
 
     _selected_GPU = selected_GPU;
+
+#ifndef NDEBUG
+    fmt::print("Selecting GPU...done\n");
+#endif
   }
 
 private:
@@ -282,6 +290,8 @@ private:
         return true;
       } break;
     }
+
+    return false;
   }
 
   bool check_device_extensions_support(VkPhysicalDevice gpu, int* score) {
@@ -313,6 +323,8 @@ private:
         return true;
       } break;
     }
+
+    return false;
   }
 
   bool check_graphics_queue_family(VkPhysicalDevice gpu, int* score) {
@@ -374,6 +386,8 @@ private:
         return true;
       } break;
     }
+
+    return false;
   }
 
   bool check_present_queue_family(VkPhysicalDevice gpu, int* score) {
@@ -414,6 +428,8 @@ private:
         return true;
       } break;
     }
+
+    return false;
   }
 
   bool check_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR _surface) {

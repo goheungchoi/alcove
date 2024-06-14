@@ -19,14 +19,19 @@ int main(int argc, char *argv[])
 
     // glm::vec4 v(0.f, 0.f, 0.f, 0.f);
     // std::cout << v.length << std::endl;
+    try {
+        VulkanEngine engine;
 
-    VulkanEngine engine;
+        engine.init();
 
-    engine.init();
+        engine.run();
 
-    engine.run();
-
-    engine.cleanup();
+        engine.cleanup();
+    } catch (const std::exception& e) {
+        // Handle the exception message
+        // TODO: Need a logger!
+        fmt::print("{}", e.what());
+    }
 
     return 0;
 }

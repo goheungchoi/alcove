@@ -16,7 +16,6 @@ target_link_libraries(
   vk_engine_lib 
   PRIVATE 
   general Vulkan::Vulkan
-  general vulkan-memory-allocator::vulkan-memory-allocator
   general fmt::fmt
   general glm::glm
   general SDL2::SDL2
