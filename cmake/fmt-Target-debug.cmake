@@ -13,10 +13,11 @@ if(NOT TARGET fmt_DEPS_TARGET)
 endif()
 
 set_property(TARGET fmt_DEPS_TARGET
-             APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+             PROPERTY INTERFACE_LINK_LIBRARIES
              $<$<CONFIG:Debug>:${fmt_FRAMEWORKS_FOUND_DEBUG}>
              $<$<CONFIG:Debug>:${fmt_SYSTEM_LIBS_DEBUG}>
-             $<$<CONFIG:Debug>:>)
+             $<$<CONFIG:Debug>:>
+             APPEND)
 
 ####### Find the libraries declared in cpp_info.libs, create an IMPORTED target for each one and link the
 ####### fmt_DEPS_TARGET to all of them
@@ -49,11 +50,11 @@ set(CMAKE_MODULE_PATH ${fmt_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
         endif()
 
         set_property(TARGET fmt_fmt_fmt_DEPS_TARGET
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                     PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${fmt_fmt_fmt_FRAMEWORKS_FOUND_DEBUG}>
                      $<$<CONFIG:Debug>:${fmt_fmt_fmt_SYSTEM_LIBS_DEBUG}>
                      $<$<CONFIG:Debug>:${fmt_fmt_fmt_DEPENDENCIES_DEBUG}>
-                     )
+                     APPEND)
 
         ####### Find the libraries declared in cpp_info.component["xxx"].libs,
         ####### create an IMPORTED target for each one and link the 'fmt_fmt_fmt_DEPS_TARGET' to all of them
@@ -71,32 +72,33 @@ set(CMAKE_MODULE_PATH ${fmt_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
         ########## TARGET PROPERTIES #####################################
         set_property(TARGET fmt::fmt
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                     PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${fmt_fmt_fmt_OBJECTS_DEBUG}>
                      $<$<CONFIG:Debug>:${fmt_fmt_fmt_LIBRARIES_TARGETS}>
-                     )
+                     APPEND)
 
         if("${fmt_fmt_fmt_LIBS_DEBUG}" STREQUAL "")
             # If the component is not declaring any "cpp_info.components['foo'].libs" the system, frameworks etc are not
             # linked to the imported targets and we need to do it to the global target
             set_property(TARGET fmt::fmt
-                         APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-                         fmt_fmt_fmt_DEPS_TARGET)
+                         PROPERTY INTERFACE_LINK_LIBRARIES
+                         fmt_fmt_fmt_DEPS_TARGET
+                         APPEND)
         endif()
 
-        set_property(TARGET fmt::fmt APPEND PROPERTY INTERFACE_LINK_OPTIONS
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LINKER_FLAGS_DEBUG}>)
-        set_property(TARGET fmt::fmt APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_INCLUDE_DIRS_DEBUG}>)
-        set_property(TARGET fmt::fmt APPEND PROPERTY INTERFACE_LINK_DIRECTORIES
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LIB_DIRS_DEBUG}>)
-        set_property(TARGET fmt::fmt APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_COMPILE_DEFINITIONS_DEBUG}>)
-        set_property(TARGET fmt::fmt APPEND PROPERTY INTERFACE_COMPILE_OPTIONS
-                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_COMPILE_OPTIONS_DEBUG}>)
+        set_property(TARGET fmt::fmt PROPERTY INTERFACE_LINK_OPTIONS
+                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LINKER_FLAGS_DEBUG}> APPEND)
+        set_property(TARGET fmt::fmt PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_INCLUDE_DIRS_DEBUG}> APPEND)
+        set_property(TARGET fmt::fmt PROPERTY INTERFACE_LINK_DIRECTORIES
+                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_LIB_DIRS_DEBUG}> APPEND)
+        set_property(TARGET fmt::fmt PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_COMPILE_DEFINITIONS_DEBUG}> APPEND)
+        set_property(TARGET fmt::fmt PROPERTY INTERFACE_COMPILE_OPTIONS
+                     $<$<CONFIG:Debug>:${fmt_fmt_fmt_COMPILE_OPTIONS_DEBUG}> APPEND)
 
     ########## AGGREGATED GLOBAL TARGET WITH THE COMPONENTS #####################
-    set_property(TARGET fmt::fmt APPEND PROPERTY INTERFACE_LINK_LIBRARIES fmt::fmt)
+    set_property(TARGET fmt::fmt PROPERTY INTERFACE_LINK_LIBRARIES fmt::fmt APPEND)
 
 ########## For the modules (FindXXX)
 set(fmt_LIBRARIES_DEBUG fmt::fmt)

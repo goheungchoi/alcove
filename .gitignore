@@ -1,4 +1,6 @@
 # Build directory
 build/
+out/
 .vscode/
 extern/**
+.vs/

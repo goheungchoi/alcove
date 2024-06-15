@@ -172,7 +172,7 @@ public:
     std::vector<VkPhysicalDevice> gpus(gpus_count);
     VK_CHECK(vkEnumeratePhysicalDevices(_instance, &gpus_count, gpus.data()));
     
-    // TODO: Score calculator
+    // Calculate scores
     for (const auto& gpu : gpus) {
       int score = 0;
       
@@ -208,6 +208,8 @@ public:
         continue;
       }
 
+			// TODO: Need to check support for features.
+
       candidates.insert({score, gpu});
     }
 
@@ -229,8 +231,10 @@ public:
     _selected_GPU = selected_GPU;
 
 #ifndef NDEBUG
-    fmt::print("Selecting GPU...done\n");
+    fmt::print("done\n");
 #endif
+
+		return *this;
   }
 
 private:
@@ -498,7 +502,7 @@ private:
 
 public: // Getters
   
-  VkPhysicalDevice get_selected_GPU() {
+  VkPhysicalDevice& get_selected_GPU() {
     return _selected_GPU;
   }
 

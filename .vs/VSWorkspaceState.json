@@ -1,12 +1,20 @@
 {
   "OutputFoldersPerTargetSystem": {
     "Local Machine": [
-      "out\\build\\x64-Debug",
-      "out\\install\\x64-Debug"
+      "build"
     ]
   },
   "ExpandedNodes": [
-    ""
+    "",
+    "\\config",
+    "\\include",
+    "\\include\\alcove",
+    "\\include\\alcove\\core",
+    "\\include\\alcove\\core\\engine",
+    "\\src",
+    "\\src\\core",
+    "\\src\\core\\engine"
   ],
+  "SelectedNode": "\\include\\alcove\\core\\engine\\vk_engine.h",
   "PreviewInSolutionExplorer": false
 }

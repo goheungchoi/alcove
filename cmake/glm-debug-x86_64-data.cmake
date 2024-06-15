@@ -2,16 +2,11 @@
 #############################################################################################
 
 set(glm_COMPONENT_NAMES "")
-if(DEFINED glm_FIND_DEPENDENCY_NAMES)
-  list(APPEND glm_FIND_DEPENDENCY_NAMES )
-  list(REMOVE_DUPLICATES glm_FIND_DEPENDENCY_NAMES)
-else()
-  set(glm_FIND_DEPENDENCY_NAMES )
-endif()
+set(glm_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(glm_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/glmee168c829b0e6/p")
+set(glm_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p")
 set(glm_BUILD_MODULES_PATHS_DEBUG )
 
 

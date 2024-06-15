@@ -1,5 +1,6 @@
 # Load the debug and release variables
-file(GLOB DATA_FILES "${CMAKE_CURRENT_LIST_DIR}/imgui-*-data.cmake")
+get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+file(GLOB DATA_FILES "${_DIR}/imgui-*-data.cmake")
 
 foreach(f ${DATA_FILES})
     include(${f})
@@ -18,7 +19,8 @@ if(NOT TARGET imgui::imgui)
     message(${imgui_MESSAGE_MODE} "Conan: Target declared 'imgui::imgui'")
 endif()
 # Load the debug and release library finders
-file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/imgui-Target-*.cmake")
+get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+file(GLOB CONFIG_FILES "${_DIR}/imgui-Target-*.cmake")
 
 foreach(f ${CONFIG_FILES})
     include(${f})

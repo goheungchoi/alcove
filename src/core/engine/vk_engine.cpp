@@ -7,7 +7,9 @@
 #include <core/engine/vk_gpu_selector.h>
 #include <core/engine/vk_initializers.h>
 #include <core/engine/vk_images.h>
-#include <core/engine/vk_common.h>
+
+#define VMA_IMPLEMENTATION	// Activate the VMA implementation.
+#include <vk_mem_alloc.h>
 
 #include <chrono>
 #include <thread>
@@ -78,7 +80,12 @@ void VulkanEngine::cleanup() {
       vkDestroyFence(_device, _frames[i]._render_fence, nullptr);
       vkDestroySemaphore(_device, _frames[i]._render_semaphore, nullptr);
       vkDestroySemaphore(_device, _frames[i]._swapchain_semaphore, nullptr);
-    }
+    
+			_frames[i]._local_deletion_queue.flush();
+		}
+
+		// Flush the global deletion queue
+		_main_deletion_queue.flush();
 
     destroy_swapchain();
 
@@ -108,6 +115,8 @@ void VulkanEngine::draw() {
       1'000'000'000 // ns
     )
   );
+
+	get_current_frame()._local_deletion_queue.flush();
 
   // After the fence is terminated,
   // reset the fence to re-use in the next frame
@@ -247,7 +256,7 @@ void VulkanEngine::draw() {
   // Submit to the queue
   VK_CHECK(
     vkQueueSubmit2(
-      _graphics_queue,
+      _graphics_q._handle,
       1,
       &submitInfo2,
       get_current_frame()._render_fence
@@ -274,7 +283,7 @@ void VulkanEngine::draw() {
 
   VK_CHECK(
     vkQueuePresentKHR(
-      _graphics_queue,
+			_present_q._handle,
       &presentInfo
     )
   );
@@ -464,14 +473,14 @@ if constexpr (debug_t::value) setupDebugMessenger();
 #endif
 
   // Retrieve Queue family indices
-  _graphics_family_index = gpu_selector.get_graphics_queue_family_index().value();
-  _present_family_index = gpu_selector.get_present_queue_family_index().value();
+	_graphics_q._index = gpu_selector.get_graphics_queue_family_index().value();
+	_present_q._index = gpu_selector.get_present_queue_family_index().value();
 
   ///// Set the queue create infos ////////////////////////////////////////
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
   std::set<uint32_t> queue_family_set = {
-    _graphics_family_index,
-    _present_family_index,
+		_graphics_q._index,
+		_graphics_q._index,
   };
 
   ///// Create a graphics queue & presentation queue ////////////////////
@@ -521,8 +530,22 @@ if constexpr (debug_t::value) setupDebugMessenger();
   
   VK_CHECK(vkCreateDevice(_selectedGPU, &device_info, nullptr, &_device));
   
-  vkGetDeviceQueue(_device, _graphics_family_index, 0, &_graphics_queue);
-  vkGetDeviceQueue(_device, _present_family_index, 0, &_present_queue);
+  vkGetDeviceQueue(_device, _graphics_q._index, 0, &_graphics_q._handle);
+  vkGetDeviceQueue(_device, _present_q._index, 0, &_present_q._handle);
+
+	///// Initialize the vk memory allocator ////////////////////////////////
+	VmaAllocatorCreateInfo allocatorInfo{
+		.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+		.physicalDevice = _selectedGPU,
+		.device = _device,
+		.instance = _instance,
+	};
+	vmaCreateAllocator(&allocatorInfo, &_allocator);
+
+	// Reserve a deletion call for the memory allocator.
+	_main_deletion_queue.push_function([this]() {
+		vmaDestroyAllocator(_allocator);
+	});
 }
 
 void VulkanEngine::init_swapchain() {
@@ -534,7 +557,7 @@ void VulkanEngine::init_commands() {
     .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
     .pNext = nullptr,
     .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-    .queueFamilyIndex = _graphics_family_index
+    .queueFamilyIndex = _graphics_q._index
   };
 
   for (int i = 0; i < FRAME_OVERLAP; ++i) {

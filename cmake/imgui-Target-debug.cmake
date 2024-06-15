@@ -13,10 +13,11 @@ if(NOT TARGET imgui_DEPS_TARGET)
 endif()
 
 set_property(TARGET imgui_DEPS_TARGET
-             APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+             PROPERTY INTERFACE_LINK_LIBRARIES
              $<$<CONFIG:Debug>:${imgui_FRAMEWORKS_FOUND_DEBUG}>
              $<$<CONFIG:Debug>:${imgui_SYSTEM_LIBS_DEBUG}>
-             $<$<CONFIG:Debug>:>)
+             $<$<CONFIG:Debug>:>
+             APPEND)
 
 ####### Find the libraries declared in cpp_info.libs, create an IMPORTED target for each one and link the
 ####### imgui_DEPS_TARGET to all of them
@@ -36,36 +37,37 @@ set(CMAKE_MODULE_PATH ${imgui_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
 ########## GLOBAL TARGET PROPERTIES Debug ########################################
     set_property(TARGET imgui::imgui
-                 APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                 PROPERTY INTERFACE_LINK_LIBRARIES
                  $<$<CONFIG:Debug>:${imgui_OBJECTS_DEBUG}>
                  $<$<CONFIG:Debug>:${imgui_LIBRARIES_TARGETS}>
-                 )
+                 APPEND)
 
     if("${imgui_LIBS_DEBUG}" STREQUAL "")
         # If the package is not declaring any "cpp_info.libs" the package deps, system libs,
         # frameworks etc are not linked to the imported targets and we need to do it to the
         # global target
         set_property(TARGET imgui::imgui
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-                     imgui_DEPS_TARGET)
+                     PROPERTY INTERFACE_LINK_LIBRARIES
+                     imgui_DEPS_TARGET
+                     APPEND)
     endif()
 
     set_property(TARGET imgui::imgui
-                 APPEND PROPERTY INTERFACE_LINK_OPTIONS
-                 $<$<CONFIG:Debug>:${imgui_LINKER_FLAGS_DEBUG}>)
+                 PROPERTY INTERFACE_LINK_OPTIONS
+                 $<$<CONFIG:Debug>:${imgui_LINKER_FLAGS_DEBUG}> APPEND)
     set_property(TARGET imgui::imgui
-                 APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                 $<$<CONFIG:Debug>:${imgui_INCLUDE_DIRS_DEBUG}>)
+                 PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                 $<$<CONFIG:Debug>:${imgui_INCLUDE_DIRS_DEBUG}> APPEND)
     # Necessary to find LINK shared libraries in Linux
     set_property(TARGET imgui::imgui
-                 APPEND PROPERTY INTERFACE_LINK_DIRECTORIES
-                 $<$<CONFIG:Debug>:${imgui_LIB_DIRS_DEBUG}>)
+                 PROPERTY INTERFACE_LINK_DIRECTORIES
+                 $<$<CONFIG:Debug>:${imgui_LIB_DIRS_DEBUG}> APPEND)
     set_property(TARGET imgui::imgui
-                 APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                 $<$<CONFIG:Debug>:${imgui_COMPILE_DEFINITIONS_DEBUG}>)
+                 PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                 $<$<CONFIG:Debug>:${imgui_COMPILE_DEFINITIONS_DEBUG}> APPEND)
     set_property(TARGET imgui::imgui
-                 APPEND PROPERTY INTERFACE_COMPILE_OPTIONS
-                 $<$<CONFIG:Debug>:${imgui_COMPILE_OPTIONS_DEBUG}>)
+                 PROPERTY INTERFACE_COMPILE_OPTIONS
+                 $<$<CONFIG:Debug>:${imgui_COMPILE_OPTIONS_DEBUG}> APPEND)
 
 ########## For the modules (FindXXX)
 set(imgui_LIBRARIES_DEBUG imgui::imgui)
