@@ -1,9 +1,9 @@
 // vk_engine.h
 #pragma once
 #include <core/engine/vk_common.h>
+
 // Includes all the common types to be used throughout the engine.
 #include <core/engine/vk_types.h>
-
 
 class VulkanEngine {
 public:

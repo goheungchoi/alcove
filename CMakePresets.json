@@ -25,15 +25,16 @@
                 "value": "x64",
                 "strategy": "external"
             },
-            "toolchainFile": "C:\\Users\\ga1ox\\Desktop\\github-repos\\alcove\\cmake\\conan_toolchain.cmake",
-            "binaryDir": "C:\\Users\\ga1ox\\Desktop\\github-repos\\alcove\\build"
+            "toolchainFile": "..\\cmake\\conan_toolchain.cmake",
+            "binaryDir": "C:\\Users\\User\\Desktop\\github_repos\\alcove\\build"
         }
     ],
     "buildPresets": [
         {
             "name": "conan-debug",
             "configurePreset": "conan-default",
-            "configuration": "Debug"
+            "configuration": "Debug",
+            "jobs": 32
         }
     ],
     "testPresets": [

@@ -10,11 +10,8 @@
     "\\include",
     "\\include\\alcove",
     "\\include\\alcove\\core",
-    "\\include\\alcove\\core\\engine",
-    "\\src",
-    "\\src\\core",
-    "\\src\\core\\engine"
+    "\\include\\alcove\\core\\engine"
   ],
-  "SelectedNode": "\\include\\alcove\\core\\engine\\vk_engine.h",
+  "SelectedNode": "\\CMakePresets.json",
   "PreviewInSolutionExplorer": false
 }

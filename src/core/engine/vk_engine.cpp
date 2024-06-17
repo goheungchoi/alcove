@@ -550,6 +550,95 @@ if constexpr (debug_t::value) setupDebugMessenger();
 
 void VulkanEngine::init_swapchain() {
   create_swapchain(_windowExtent.width, _windowExtent.height);
+
+  // Create Canvas
+  // Canvas will take care of drawing frames and 
+  // transfer it into the swapchain image.
+  
+  // Image extent to be passed
+  VkExtent3D imageExtent {
+    _windowExtent.width,
+    _windowExtent.height,
+    1
+  };
+
+  // Image usage flags to be passed
+  VkImageUsageFlags imageUsageFlags{};
+  imageUsageFlags = 
+    VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+    VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+    VK_IMAGE_USAGE_STORAGE_BIT |
+    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+  // Image create info
+  VkImageCreateInfo canvasInfo {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+    .pNext = nullptr,
+
+    .imageType = VK_IMAGE_TYPE_2D,
+
+    .format = VK_FORMAT_R16G16B16A16_SFLOAT,
+    .extent = imageExtent,
+
+    .mipLevels = 1,
+    .arrayLayers = 1,
+
+    .samples = VK_SAMPLE_COUNT_1_BIT, // 1 sample per pixel
+
+    .tiling = VK_IMAGE_TILING_OPTIMAL, // image is stored on the best gpu format
+    .usage = imageUsageFlags
+  };
+
+  // Allocate the image from gpu local memory
+  VmaAllocationCreateInfo imageAllocInfo {
+    .usage = VMA_MEMORY_USAGE_GPU_ONLY,
+    .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+  };
+
+  // Allocate gpu memory and create canvas
+  vmaCreateImage(
+    _allocator, 
+    &canvasInfo, 
+    &imageAllocInfo, 
+    &_canvas._image,
+    &_canvas._allocation,
+    nullptr
+  );
+  _canvas._extent = imageExtent;
+  _canvas._image_format = VK_FORMAT_R16G16B16A16_SFLOAT;
+
+  // Build a image view for the canvas to use for rendering
+  VkImageViewCreateInfo canvasViewInfo {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    .pNext = nullptr,
+
+    .image = _canvas._image,
+    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+    .format = VK_FORMAT_R16G16B16A16_SFLOAT,
+    .subresourceRange = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .baseMipLevel = 0,
+      .levelCount = 1,
+      .baseArrayLayer = 0,
+      .layerCount = 1
+    }
+  };
+
+  // Create the canvas view
+  VK_CHECK(
+    vkCreateImageView(
+      _device, 
+      &canvasViewInfo,
+      nullptr,
+      &_canvas._image_view
+    )
+  );
+  
+  // Reserve the image destroy call.
+  _main_deletion_queue.push_function([this]() {
+    vkDestroyImageView(_device, _canvas._image_view, nullptr);
+    vmaDestroyImage(_allocator, _canvas._image, _canvas._allocation);
+  });
 }
 
 void VulkanEngine::init_commands() {
