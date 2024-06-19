@@ -150,6 +150,10 @@ void VulkanEngine::draw() {
   // so it can be safely reset to begin recording again.
   VK_CHECK(vkResetCommandBuffer(cmdBuf, 0));
 
+  // Set the canvas 2D extent
+  _canvas_extent.width = _canvas._extent.width;
+  _canvas_extent.height = _canvas._extent.height;
+
   // Begin the command buffer recording
   VkCommandBufferBeginInfo cmdBufBeginInfo {
     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -170,7 +174,7 @@ void VulkanEngine::draw() {
   // before they are accessed by the device.)
   vkutil::cmd_transition_image(
     cmdBuf,
-    _swapchain_images[swapchainImageIndex],
+    _canvas._image,
     VK_IMAGE_LAYOUT_UNDEFINED,  // Don't care the current image layout
     VK_IMAGE_LAYOUT_GENERAL     // Transition to general purpose layout
                                 // It supports all types of device access
@@ -187,18 +191,43 @@ void VulkanEngine::draw() {
   // COMMAND: Clear the image
   vkCmdClearColorImage(
     cmdBuf, 
-    _swapchain_images[swapchainImageIndex],
+    _canvas._image,
     VK_IMAGE_LAYOUT_GENERAL,
     &clearColorValue,
     1,
     &clearRange
   );
 
-  // COMMAND: Transition the image back to a display optimal layout
+  // COMMAND: Transition the canvas into transfer source optimal layout
+  vkutil::cmd_transition_image(
+    cmdBuf,
+    _canvas._image,
+    VK_IMAGE_LAYOUT_GENERAL,
+    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+  );
+  
+  // COMMAND: Transition the swapchain image into transfer destination optimal layout
   vkutil::cmd_transition_image(
     cmdBuf,
     _swapchain_images[swapchainImageIndex],
-    VK_IMAGE_LAYOUT_GENERAL,
+    VK_IMAGE_LAYOUT_UNDEFINED,
+    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL 
+  );
+
+  // COMMAND: Copy from the canvas to the swapchain
+  vkutil::copy_image(
+    cmdBuf,
+    _canvas._image,
+    _canvas_extent,
+    _swapchain_images[swapchainImageIndex],
+    _swapchain_extent
+  );
+
+  // COMMAND: Transition the swapchain image into Present
+  vkutil::cmd_transition_image(
+    cmdBuf,
+    _swapchain_images[swapchainImageIndex],
+    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR // The only image layout the swapchain allows for presenting to screen
   );
 
@@ -216,7 +245,6 @@ void VulkanEngine::draw() {
     .value = 1,         // Used for timeline semaphores
     .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
     .deviceIndex = 0,   // Used for multi-GPU semaphore usage
-    
   };
 
   VkSemaphoreSubmitInfo signalSemaphoreSubmitInfo {

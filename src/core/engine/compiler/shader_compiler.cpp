@@ -78,6 +78,7 @@ void GLSLCompiler::compileShader(const std::string& filename, bool output) {
     // TProgram must be deleted prior to freeing up TShaders
     delete &program;
   } else {
+    std::cerr << "The shader resource is empty!" << std::endl;
     return; /* TODO: Requires a more elagant way of handling errors */
   }
 }

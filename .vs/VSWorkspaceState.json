@@ -7,7 +7,6 @@
   "ExpandedNodes": [
     "",
     "\\config",
-    "\\include",
     "\\include\\alcove",
     "\\include\\alcove\\core",
     "\\include\\alcove\\core\\engine"

@@ -20,6 +20,10 @@ list(PREPEND CMAKE_PREFIX_PATH
 	"$ENV{VULKAN_SDK}/Lib/cmake"
 	"$ENV{VULKAN_SDK}/Lib/cmake/glslang"
 )
+list(PREPEND CMAKE_MODULE_PATH 
+	"$ENV{VULKAN_SDK}/Lib/cmake"
+	"$ENV{VULKAN_SDK}/Lib/cmake/glslang"
+)
 cmake_print_variables(CMAKE_MODULE_PATH)
 #########################################
 

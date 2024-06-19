@@ -51,6 +51,8 @@ public:
   VkFormat        _swapchain_image_format;
 
 	Canvas _canvas;
+  VkExtent2D _canvas_extent;
+
   std::vector<VkImage> _swapchain_images;
   std::vector<VkImageView> _swapchain_image_views;
   VkExtent2D  _swapchain_extent;
