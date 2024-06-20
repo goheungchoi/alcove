@@ -1,5 +1,6 @@
 # Load the debug and release variables
-file(GLOB DATA_FILES "${CMAKE_CURRENT_LIST_DIR}/SDL2-*-data.cmake")
+get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+file(GLOB DATA_FILES "${_DIR}/SDL2-*-data.cmake")
 
 foreach(f ${DATA_FILES})
     include(${f})
@@ -22,7 +23,8 @@ if(NOT TARGET SDL2::SDL2-static)
     set_property(TARGET SDL2::SDL2-static PROPERTY INTERFACE_LINK_LIBRARIES SDL2::SDL2)
 endif()
 # Load the debug and release library finders
-file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/SDL2-Target-*.cmake")
+get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+file(GLOB CONFIG_FILES "${_DIR}/SDL2-Target-*.cmake")
 
 foreach(f ${CONFIG_FILES})
     include(${f})

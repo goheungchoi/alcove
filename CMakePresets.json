@@ -25,8 +25,8 @@
                 "value": "x64",
                 "strategy": "external"
             },
-            "toolchainFile": "..\\cmake\\conan_toolchain.cmake",
-            "binaryDir": "C:\\Users\\User\\Desktop\\github_repos\\alcove\\build"
+            "toolchainFile": "C:\\Users\\ga1ox\\Desktop\\github-repos\\alcove\\cmake\\conan_toolchain.cmake",
+            "binaryDir": "C:\\Users\\ga1ox\\Desktop\\github-repos\\alcove\\build"
         }
     ],
     "buildPresets": [

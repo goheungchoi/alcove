@@ -74,16 +74,12 @@ function(compile_glsl_shaders path)
 
   add_custom_target(  # Create a target
     CompileShader
+    ALL
     DEPENDS ${SPIRV_BINARY_FILES}
   )
 
-  message(STATUS "\nShader compile targets ready")
+  message(STATUS "\nCompile Shader target's ready!")
   message(STATUS "")
 
   unset(_glsl_validator_hint_executable_search_paths)
-
-  return(PROPAGATE 
-    SPIRV_BINARY_FILES
-    CompileShader
-  )
 endfunction()

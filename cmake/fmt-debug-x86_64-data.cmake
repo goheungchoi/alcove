@@ -3,16 +3,11 @@
 
 list(APPEND fmt_COMPONENT_NAMES fmt::fmt)
 list(REMOVE_DUPLICATES fmt_COMPONENT_NAMES)
-if(DEFINED fmt_FIND_DEPENDENCY_NAMES)
-  list(APPEND fmt_FIND_DEPENDENCY_NAMES )
-  list(REMOVE_DUPLICATES fmt_FIND_DEPENDENCY_NAMES)
-else()
-  set(fmt_FIND_DEPENDENCY_NAMES )
-endif()
+set(fmt_FIND_DEPENDENCY_NAMES "")
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(fmt_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/fmt02b64086c49fa/p")
+set(fmt_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p")
 set(fmt_BUILD_MODULES_PATHS_DEBUG )
 
 

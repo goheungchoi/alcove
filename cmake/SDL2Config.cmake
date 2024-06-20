@@ -31,8 +31,7 @@ set(SDL2_INCLUDE_DIR ${sdl_INCLUDE_DIRS_DEBUG} )
 set(SDL2_LIBRARIES ${sdl_LIBRARIES_DEBUG} )
 set(SDL2_DEFINITIONS ${sdl_DEFINITIONS_DEBUG} )
 
-
-# Only the last installed configuration BUILD_MODULES are included to avoid the collision
+# Only the first installed configuration is included to avoid the collision
 foreach(_BUILD_MODULE ${sdl_BUILD_MODULES_PATHS_DEBUG} )
     message(${SDL2_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})

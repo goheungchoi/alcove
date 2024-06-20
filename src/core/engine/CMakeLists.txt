@@ -1,3 +1,19 @@
+# Add the `descriptors` library target
+add_library(vk_descriptors_lib STATIC vk_descriptors.cpp)
+
+target_compile_features(vk_descriptors_lib PRIVATE cxx_std_20)
+target_include_directories(
+  vk_descriptors_lib
+  PRIVATE
+  ${Alcove_INCLUDE_DIR}
+  ${Vulkan_INCLUDE_DIRS}
+)
+target_link_libraries(
+  vk_descriptors_lib 
+  PRIVATE 
+  general Vulkan::Vulkan  # general means debug & release mode
+)
+
 # Add the `engine` library target
 add_library(vk_engine_lib STATIC vk_engine.cpp)
 
@@ -20,6 +36,7 @@ target_link_libraries(
   general glm::glm
   general SDL2::SDL2
   general SDL2::SDL2main 
+  general vk_descriptors_lib
 )
 
 ##########################################

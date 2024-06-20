@@ -51,6 +51,12 @@ VkDescriptorSetLayout DescriptorLayoutBuilder::build(
   return desc_set_layout;
 }
 
+/**
+ * @brief 
+ * @param device 
+ * @param maxSets The max number of VkDescriptorSets that can be created from this allocator
+ * @param poolRatios Array of PoolSizeRatio
+ */
 void DescriptorAllocator::init_pool(
   VkDevice device, 
   uint32_t maxSets, 
@@ -90,7 +96,22 @@ VkDescriptorSet DescriptorAllocator::allocate(
   VkDevice device, 
   VkDescriptorSetLayout layout
 ) {
+  VkDescriptorSetAllocateInfo descAllocInfo {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+    .pNext = nullptr,
+    .descriptorPool = pool,
+    .descriptorSetCount = 1,
+    .pSetLayouts = &layout
+  };
 
+  VkDescriptorSet descSet;
+  VK_CHECK(
+    vkAllocateDescriptorSets(
+      device, 
+      &descAllocInfo, 
+      &descSet
+    )
+  );
 
-  return VkDescriptorSet();
+  return descSet;
 }
