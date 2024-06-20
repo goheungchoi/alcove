@@ -1,3 +1,96 @@
 #include <core/engine/vk_descriptors.h>
+#include "vk_descriptors.h"
+
+void DescriptorLayoutBuilder::add_binding(
+  uint32_t binding,
+  VkDescriptorType type
+) {
+  VkDescriptorSetLayoutBinding bind {
+    .binding = binding,
+    .descriptorType = type,
+    .descriptorCount = 1,
+  };
+
+  bindings.push_back(bind);
+}
+
+void DescriptorLayoutBuilder::clear() {
+  bindings.clear();
+}
+
+VkDescriptorSetLayout DescriptorLayoutBuilder::build(
+  VkDevice device,
+  VkShaderStageFlags shaderStages,
+  void* pNext,
+  VkDescriptorSetLayoutCreateFlags flags
+) {
+  for (auto& b : bindings) {
+    b.stageFlags |= shaderStages;
+  }
+
+  VkDescriptorSetLayoutCreateInfo info = {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+    .pNext = pNext,
+
+    .flags = flags,
+
+    .bindingCount = static_cast<uint32_t>(bindings.size()),
+    .pBindings = bindings.data()
+  };
+
+  VkDescriptorSetLayout desc_set_layout;
+  VK_CHECK(
+    vkCreateDescriptorSetLayout(
+      device, 
+      &info, 
+      nullptr, 
+      &desc_set_layout
+    )
+  );
+
+  return desc_set_layout;
+}
+
+void DescriptorAllocator::init_pool(
+  VkDevice device, 
+  uint32_t maxSets, 
+  std::span<PoolSizeRatio> poolRatios
+) {
+  std::vector<VkDescriptorPoolSize> poolSizes;
+
+  for (PoolSizeRatio ratio : poolRatios) {
+    poolSizes.push_back(
+      VkDescriptorPoolSize{
+        .type = ratio.type,
+        .descriptorCount = static_cast<uint32_t>(ratio.ratio * maxSets)
+      }
+    );
+  }
+
+  VkDescriptorPoolCreateInfo poolInfo {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+    .flags = 0,
+    .maxSets = maxSets,
+    .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
+    .pPoolSizes = poolSizes.data()
+  };
+
+  vkCreateDescriptorPool(device, &poolInfo, nullptr, &pool);
+}
+
+void DescriptorAllocator::clear_descriptors(VkDevice device) {
+  vkResetDescriptorPool(device, pool, 0);
+}
+
+void DescriptorAllocator::destroy_pool(VkDevice device) {
+  vkDestroyDescriptorPool(device, pool, nullptr);
+}
+
+VkDescriptorSet DescriptorAllocator::allocate(
+  VkDevice device, 
+  VkDescriptorSetLayout layout
+) {
 
 
+  return VkDescriptorSet();
+}
