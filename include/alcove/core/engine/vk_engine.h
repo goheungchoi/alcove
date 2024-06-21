@@ -4,6 +4,7 @@
 
 // Includes all the common types to be used throughout the engine.
 #include <core/engine/vk_types.h>
+#include <core/engine/vk_descriptors.h>
 
 class VulkanEngine {
 public:
@@ -46,6 +47,7 @@ private:
   void init_commands();
   void init_sync_structures();
 
+/* RENDER SETUP */
 public:
   VkSwapchainKHR  _swapchain;
   VkFormat        _swapchain_image_format;
@@ -68,6 +70,16 @@ public:
   FrameData& get_current_frame() { return _frames[_frameNumber % FRAME_OVERLAP]; }
 
 	VmaAllocator _allocator;
+
+/* DESCRIPTOR SETUP */
+public:
+  DescriptorAllocator _global_descriptor_allocator;
+
+  VkDescriptorSet _draw_image_descriptors;
+  VkDescriptorSetLayout _draw_image_descriptor_layout;
+
+private:
+  void init_descriptors();
 
 
 #ifndef NDEBUG

@@ -52,6 +52,7 @@ void VulkanEngine::init() {
 
   ///// Initialize Vulkan
   try {
+
     init_vulkan();
 
     init_swapchain();
@@ -59,6 +60,9 @@ void VulkanEngine::init() {
     init_commands();
 
     init_sync_structures();
+
+    init_descriptors();
+
   } catch (const std::exception& e) {
     fmt::println("{}", e.what());
   }
@@ -869,6 +873,19 @@ void VulkanEngine::destroy_swapchain() {
   // Destroy image views
   for (auto& _image_view : _swapchain_image_views)
     vkDestroyImageView(_device, _image_view, nullptr);
+}
+
+void VulkanEngine::init_descriptors() {
+  // Create a descriptor pool that can hold 10 sets with 1 image each.
+  std::vector<DescriptorAllocator::PoolSizeRatio> sizes = {
+    {
+      VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, // 
+      1
+    }
+  };
+
+  _global_descriptor_allocator.init_pool(_device, 10, sizes);
+
 }
 
 /////////////////////////////////////////////////////
