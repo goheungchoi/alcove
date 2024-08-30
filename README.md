@@ -7,7 +7,7 @@ Must-be-installed Programs for Dev
 - Git v2.34 or higher
 - CMake v3.25 or higher
 - Conan v2.00 or higher
-- VulcanSDK v1.3 or higher
+- Vulcan SDK v1.3 or higher
 
 ## Current Build Environment
 
@@ -36,12 +36,21 @@ Must-be-installed Programs for Dev
 - Build Tool: Ninja
 - Compiler: Clang
 
-## How to init
+## How to Init
 Windows
 - Debug Mode:
   - `py pymake.py conan-debug`
   - `py pymake.py config-msvc`
   - `py pymake.py msvc-debug`
+
+## Current Dependencies
+
+- Imported by Conan
+  - GLM [0.9.9.8]
+  - SDL [2.30.3]
+  - Catch2 [3.5.0]
+  - imgui [1.90]
+  - fmt [10.2.1]
 
 ## TODO List
 
@@ -51,10 +60,10 @@ Windows
 ## BUG REPORT
 
 1. CMake `Vulkan_INCLUDE_DIRS` Overriding
-- What happened?
+- What happened?<br>
 During the CMake configuration stage, the `Vulkan_INCLUDE_DIRS` variable keeps
-being overridden as "{USER_DIR}/.conan2/p/vulkaa955012f78a68/p/include".
-- What should have happened?
-If the `FindVulkan()` function operated normally, the value of `Vulkan_INCLUDE_DIRS` must've been "$ENV{VULKAN_SDK}/Include".
-- What might be causing this issue?
+being overridden as `{USER_DIR}/.conan2/p/vulkaa955012f78a68/p/include`.
+- What should have happened?<br>
+If the `FindVulkan()` function operated normally, the value of `Vulkan_INCLUDE_DIRS` must've been `$ENV{VULKAN_SDK}/Include`.
+- What might be causing this issue?<br>
 It seems that the `vulkan-headers` conan package is modifying the vulkan include path.

@@ -31,7 +31,8 @@ set(imgui_INCLUDE_DIR ${imgui_INCLUDE_DIRS_DEBUG} )
 set(imgui_LIBRARIES ${imgui_LIBRARIES_DEBUG} )
 set(imgui_DEFINITIONS ${imgui_DEFINITIONS_DEBUG} )
 
-# Only the first installed configuration is included to avoid the collision
+
+# Only the last installed configuration BUILD_MODULES are included to avoid the collision
 foreach(_BUILD_MODULE ${imgui_BUILD_MODULES_PATHS_DEBUG} )
     message(${imgui_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})

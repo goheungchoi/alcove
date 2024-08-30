@@ -4,7 +4,6 @@
         "conan": {}
     },
     "include": [
-        "..\\cmake\\CMakePresets.json",
-        "C:\\Users\\ga1ox\\Desktop\\github-repos\\alcove\\cmake\\CMakePresets.json"
+        "..\\cmake\\CMakePresets.json"
     ]
 }

@@ -1,6 +1,5 @@
 # Load the debug and release variables
-get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-file(GLOB DATA_FILES "${_DIR}/glm-*-data.cmake")
+file(GLOB DATA_FILES "${CMAKE_CURRENT_LIST_DIR}/glm-*-data.cmake")
 
 foreach(f ${DATA_FILES})
     include(${f})
@@ -19,8 +18,7 @@ if(NOT TARGET glm::glm)
     message(${glm_MESSAGE_MODE} "Conan: Target declared 'glm::glm'")
 endif()
 # Load the debug and release library finders
-get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-file(GLOB CONFIG_FILES "${_DIR}/glm-Target-*.cmake")
+file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/glm-Target-*.cmake")
 
 foreach(f ${CONFIG_FILES})
     include(${f})

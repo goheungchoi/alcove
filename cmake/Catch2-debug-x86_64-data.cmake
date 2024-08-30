@@ -3,11 +3,16 @@
 
 list(APPEND catch2_COMPONENT_NAMES Catch2::Catch2 Catch2::Catch2WithMain)
 list(REMOVE_DUPLICATES catch2_COMPONENT_NAMES)
-set(catch2_FIND_DEPENDENCY_NAMES "")
+if(DEFINED catch2_FIND_DEPENDENCY_NAMES)
+  list(APPEND catch2_FIND_DEPENDENCY_NAMES )
+  list(REMOVE_DUPLICATES catch2_FIND_DEPENDENCY_NAMES)
+else()
+  set(catch2_FIND_DEPENDENCY_NAMES )
+endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(catch2_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p")
+set(catch2_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/catchac0d2a5307887/p")
 set(catch2_BUILD_MODULES_PATHS_DEBUG )
 
 
