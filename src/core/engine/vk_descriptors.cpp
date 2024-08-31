@@ -1,5 +1,4 @@
 #include <core/engine/vk_descriptors.h>
-#include "vk_descriptors.h"
 
 void DescriptorLayoutBuilder::add_binding(
   uint32_t binding,

@@ -81,6 +81,14 @@ public:
 private:
   void init_descriptors();
 
+/* PIPELINE SETUP */
+public:
+  VkPipeline _gradient_pipeline;
+  VkPipelineLayout _gradient_pipeline_layout;
+
+private:
+  void init_pipelines();
+  void init_background_pipelines();
 
 #ifndef NDEBUG
 public:

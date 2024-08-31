@@ -70,9 +70,16 @@ void GLSLCompiler::compileShader(const std::string& filename, bool output) {
     spv::SpvBuildLogger logger;
     glslang::GlslangToSpv(*intermediate, spir_v, &logger);
 
-    if ( output && !glslang::OutputSpvBin(spir_v, bin_name.c_str()) ) {
-      std::cerr << "Creating SPV binary file failed for: " << filename << std::endl;
-      return; /* TODO: Requires a more elagant way of handling errors */
+    if (output) {
+      // NOTE: OutputSpvBin function of glslang in Vulkan SDK version 1.3.239.0 
+      //  doesn't return bool.
+      glslang::OutputSpvBin(spir_v, bin_name.c_str());
+
+      if (false)
+      {
+        std::cerr << "Creating SPV binary file failed for: " << filename << std::endl;
+        return; /* TODO: Requires a more elagant way of handling errors */
+      }
     }
 
     // TProgram must be deleted prior to freeing up TShaders
