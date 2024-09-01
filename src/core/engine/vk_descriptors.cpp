@@ -24,11 +24,12 @@ VkDescriptorSetLayout DescriptorLayoutBuilder::build(
   void* pNext,
   VkDescriptorSetLayoutCreateFlags flags
 ) {
+  // Set the stage flags of the layout bindings
   for (auto& b : bindings) {
     b.stageFlags |= shaderStages;
   }
 
-  VkDescriptorSetLayoutCreateInfo info = {
+  VkDescriptorSetLayoutCreateInfo info {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
     .pNext = pNext,
 
@@ -38,17 +39,17 @@ VkDescriptorSetLayout DescriptorLayoutBuilder::build(
     .pBindings = bindings.data()
   };
 
-  VkDescriptorSetLayout desc_set_layout;
+  VkDescriptorSetLayout inDescriptorSetLayout;
   VK_CHECK(
     vkCreateDescriptorSetLayout(
       device, 
       &info, 
       nullptr, 
-      &desc_set_layout
+      &inDescriptorSetLayout
     )
   );
 
-  return desc_set_layout;
+  return inDescriptorSetLayout;
 }
 
 /**

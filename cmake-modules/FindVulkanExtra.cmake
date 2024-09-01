@@ -1,3 +1,5 @@
+# Find the vulkan libraries and tools that are not come with
+# the default VulkanFind module.
 function(find_vulkan_extra)
   if (WIN32) 
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)

@@ -1,3 +1,7 @@
+# Compile the shader while configuring CMake files.
+# It first finds `glslangValidator` from the VULKAN_SDK directory.
+# Then, each shader file in the directory passed via the `path` parameter
+# is collected and compiled with `glslangValidator`.
 function(compile_glsl_shaders path) 
 
   # Check if glslangValidator exists

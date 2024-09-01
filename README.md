@@ -48,6 +48,8 @@ Windows
 - Shader Compiler Tests: Need to figure out how to test the shader compiler.
 - Seems that debugMessenger must be placed in the vk_engine class.
 
+- 8/29/24: Currently, the shaders are compiled when CMake is configured. Need a separate shader compiler 
+
 ## BUG REPORT
 
 1. CMake `Vulkan_INCLUDE_DIRS` Overriding

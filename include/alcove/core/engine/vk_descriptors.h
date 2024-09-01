@@ -2,9 +2,19 @@
 
 #include <core/engine/vk_common.h>
 
+/**
+ * @brief A builder class to set up a descriptor set layout with bindings.
+ * 
+ */
 struct DescriptorLayoutBuilder {
   std::vector<VkDescriptorSetLayoutBinding> bindings;
 
+  /**
+   * @brief Add a new descriptor set layout binding.
+   * 
+   * @param binding The binding number of this entry
+   * @param type The type of resource descriptors are used for this binding
+   */
   void add_binding(uint32_t binding, VkDescriptorType type);
   
   void clear();
@@ -27,6 +37,11 @@ struct DescriptorLayoutBuilder {
   );
 };
 
+/**
+ * @brief Manages the allocation and lifecycle of descriptor sets 
+ * from a descriptor pool.
+ * 
+ */
 struct DescriptorAllocator {
   struct PoolSizeRatio {
     VkDescriptorType type;
@@ -36,7 +51,7 @@ struct DescriptorAllocator {
   VkDescriptorPool pool;
 
   /**
-   * @brief Initialize a descriptor pool.
+   * @brief Initialize a descriptor pool to allocate descriptor sets.
    * 
    * @param device 
    * @param maxSets 
