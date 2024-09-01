@@ -31,7 +31,8 @@ set(glm_INCLUDE_DIR ${glm_INCLUDE_DIRS_DEBUG} )
 set(glm_LIBRARIES ${glm_LIBRARIES_DEBUG} )
 set(glm_DEFINITIONS ${glm_DEFINITIONS_DEBUG} )
 
-# Only the first installed configuration is included to avoid the collision
+
+# Only the last installed configuration BUILD_MODULES are included to avoid the collision
 foreach(_BUILD_MODULE ${glm_BUILD_MODULES_PATHS_DEBUG} )
     message(${glm_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})

@@ -3,11 +3,16 @@
 
 list(APPEND sdl_COMPONENT_NAMES SDL2::SDL2 SDL2::SDL2main)
 list(REMOVE_DUPLICATES sdl_COMPONENT_NAMES)
-set(sdl_FIND_DEPENDENCY_NAMES "")
+if(DEFINED sdl_FIND_DEPENDENCY_NAMES)
+  list(APPEND sdl_FIND_DEPENDENCY_NAMES )
+  list(REMOVE_DUPLICATES sdl_FIND_DEPENDENCY_NAMES)
+else()
+  set(sdl_FIND_DEPENDENCY_NAMES )
+endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(sdl_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/sdl78d843de900ef/p")
+set(sdl_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/sdle85df1471a09e/p")
 set(sdl_BUILD_MODULES_PATHS_DEBUG )
 
 

@@ -1,5 +1,4 @@
 #include <core/engine/vk_descriptors.h>
-#include "vk_descriptors.h"
 
 void DescriptorLayoutBuilder::add_binding(
   uint32_t binding,
@@ -53,10 +52,10 @@ VkDescriptorSetLayout DescriptorLayoutBuilder::build(
 }
 
 /**
- * @brief 
- * @param device 
+ * @brief Initialize a descriptor pool.
+ * @param device VkDevice
  * @param maxSets The max number of VkDescriptorSets that can be created from this allocator
- * @param poolRatios Array of PoolSizeRatio
+ * @param poolRatios The array of PoolSizeRatio
  */
 void DescriptorAllocator::init_pool(
   VkDevice device, 
@@ -65,14 +64,25 @@ void DescriptorAllocator::init_pool(
 ) {
   std::vector<VkDescriptorPoolSize> poolSizes;
 
+  // Check if the sum of descriptorCounts is less than or equal to maxSets.
+  uint32_t totalDescriptorCount = 0U;
   for (PoolSizeRatio ratio : poolRatios) {
+    uint32_t descriptorCount = static_cast<uint32_t>(ratio.ratio * maxSets);
     poolSizes.push_back(
       VkDescriptorPoolSize{
         .type = ratio.type,
-        .descriptorCount = static_cast<uint32_t>(ratio.ratio * maxSets)
+        .descriptorCount = descriptorCount
       }
     );
+    totalDescriptorCount += descriptorCount;
   }
+  
+// DEBUG: Error Check
+#ifndef NDEBUG
+  if (totalDescriptorCount > maxSets) {
+    throw std::invalid_argument("DescriptorAllocator: Pool ratios are invalid!");
+  }
+ #endif
 
   VkDescriptorPoolCreateInfo poolInfo {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,

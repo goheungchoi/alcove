@@ -1,5 +1,5 @@
 /**
- * @file vk.h
+ * @file vk_common.h
  * @author Goheung Choi (you@domain.com)
  * @brief Contains commonly used header files and macros
  * @version 0.1

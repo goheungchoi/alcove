@@ -44,7 +44,18 @@ struct DescriptorLayoutBuilder {
  */
 struct DescriptorAllocator {
   struct PoolSizeRatio {
-    VkDescriptorType type;
+    // The type of the descriptor that the allocator will contain
+    VkDescriptorType type; 
+    // The ratio of this type of descriptors in the pool
+    // e.g., For an pool size ratio of uniform buffers,
+    //  ```
+    //  PoolSizeRatio uniformBufferRatio{
+    //    .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    //    .ratio = 0.8
+    //  };
+    //  ```
+    //  , if maxSets is 10, then, the descriptor allocator can
+    // contain up to 8 uniform buffers.
     float ratio;
   };
 

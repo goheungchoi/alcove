@@ -31,7 +31,8 @@ set(Catch2_INCLUDE_DIR ${catch2_INCLUDE_DIRS_DEBUG} )
 set(Catch2_LIBRARIES ${catch2_LIBRARIES_DEBUG} )
 set(Catch2_DEFINITIONS ${catch2_DEFINITIONS_DEBUG} )
 
-# Only the first installed configuration is included to avoid the collision
+
+# Only the last installed configuration BUILD_MODULES are included to avoid the collision
 foreach(_BUILD_MODULE ${catch2_BUILD_MODULES_PATHS_DEBUG} )
     message(${Catch2_MESSAGE_MODE} "Conan: Including build module from '${_BUILD_MODULE}'")
     include(${_BUILD_MODULE})

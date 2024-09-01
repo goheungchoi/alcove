@@ -53,7 +53,8 @@ function(find_vulkan_extra)
   # Vulkan Memory Allocator Header-only
   set(vulkan-memory-allocator_INCLUDE_DIRS "$ENV{VULKAN_SDK}/Include/vma")
 
-  return(PROPAGATE 
+  return(
+    PROPAGATE 
     glslang-default-resource-limits_lib 
     Vulkan_SPIRV-Tools-opt 
     vulkan-memory-allocator_INCLUDE_DIRS

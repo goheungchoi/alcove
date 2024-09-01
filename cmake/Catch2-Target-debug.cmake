@@ -13,11 +13,10 @@ if(NOT TARGET catch2_DEPS_TARGET)
 endif()
 
 set_property(TARGET catch2_DEPS_TARGET
-             PROPERTY INTERFACE_LINK_LIBRARIES
+             APPEND PROPERTY INTERFACE_LINK_LIBRARIES
              $<$<CONFIG:Debug>:${catch2_FRAMEWORKS_FOUND_DEBUG}>
              $<$<CONFIG:Debug>:${catch2_SYSTEM_LIBS_DEBUG}>
-             $<$<CONFIG:Debug>:Catch2::Catch2>
-             APPEND)
+             $<$<CONFIG:Debug>:Catch2::Catch2>)
 
 ####### Find the libraries declared in cpp_info.libs, create an IMPORTED target for each one and link the
 ####### catch2_DEPS_TARGET to all of them
@@ -50,11 +49,11 @@ set(CMAKE_MODULE_PATH ${catch2_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
         endif()
 
         set_property(TARGET catch2_Catch2_Catch2WithMain_DEPS_TARGET
-                     PROPERTY INTERFACE_LINK_LIBRARIES
+                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_FRAMEWORKS_FOUND_DEBUG}>
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_SYSTEM_LIBS_DEBUG}>
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_DEPENDENCIES_DEBUG}>
-                     APPEND)
+                     )
 
         ####### Find the libraries declared in cpp_info.component["xxx"].libs,
         ####### create an IMPORTED target for each one and link the 'catch2_Catch2_Catch2WithMain_DEPS_TARGET' to all of them
@@ -72,30 +71,29 @@ set(CMAKE_MODULE_PATH ${catch2_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
         ########## TARGET PROPERTIES #####################################
         set_property(TARGET Catch2::Catch2WithMain
-                     PROPERTY INTERFACE_LINK_LIBRARIES
+                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_OBJECTS_DEBUG}>
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_LIBRARIES_TARGETS}>
-                     APPEND)
+                     )
 
         if("${catch2_Catch2_Catch2WithMain_LIBS_DEBUG}" STREQUAL "")
             # If the component is not declaring any "cpp_info.components['foo'].libs" the system, frameworks etc are not
             # linked to the imported targets and we need to do it to the global target
             set_property(TARGET Catch2::Catch2WithMain
-                         PROPERTY INTERFACE_LINK_LIBRARIES
-                         catch2_Catch2_Catch2WithMain_DEPS_TARGET
-                         APPEND)
+                         APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                         catch2_Catch2_Catch2WithMain_DEPS_TARGET)
         endif()
 
-        set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_LINK_OPTIONS
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_LINKER_FLAGS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_INCLUDE_DIRS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_LINK_DIRECTORIES
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_LIB_DIRS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_COMPILE_DEFINITIONS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_COMPILE_OPTIONS
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_COMPILE_OPTIONS_DEBUG}> APPEND)
+        set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_LINK_OPTIONS
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_LINKER_FLAGS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_INCLUDE_DIRS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_LINK_DIRECTORIES
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_LIB_DIRS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_COMPILE_DEFINITIONS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_COMPILE_OPTIONS
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2WithMain_COMPILE_OPTIONS_DEBUG}>)
 
     ########## COMPONENT Catch2::Catch2 #############
 
@@ -110,11 +108,11 @@ set(CMAKE_MODULE_PATH ${catch2_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
         endif()
 
         set_property(TARGET catch2_Catch2_Catch2_DEPS_TARGET
-                     PROPERTY INTERFACE_LINK_LIBRARIES
+                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_FRAMEWORKS_FOUND_DEBUG}>
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_SYSTEM_LIBS_DEBUG}>
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_DEPENDENCIES_DEBUG}>
-                     APPEND)
+                     )
 
         ####### Find the libraries declared in cpp_info.component["xxx"].libs,
         ####### create an IMPORTED target for each one and link the 'catch2_Catch2_Catch2_DEPS_TARGET' to all of them
@@ -132,34 +130,33 @@ set(CMAKE_MODULE_PATH ${catch2_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
         ########## TARGET PROPERTIES #####################################
         set_property(TARGET Catch2::Catch2
-                     PROPERTY INTERFACE_LINK_LIBRARIES
+                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_OBJECTS_DEBUG}>
                      $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_LIBRARIES_TARGETS}>
-                     APPEND)
+                     )
 
         if("${catch2_Catch2_Catch2_LIBS_DEBUG}" STREQUAL "")
             # If the component is not declaring any "cpp_info.components['foo'].libs" the system, frameworks etc are not
             # linked to the imported targets and we need to do it to the global target
             set_property(TARGET Catch2::Catch2
-                         PROPERTY INTERFACE_LINK_LIBRARIES
-                         catch2_Catch2_Catch2_DEPS_TARGET
-                         APPEND)
+                         APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                         catch2_Catch2_Catch2_DEPS_TARGET)
         endif()
 
-        set_property(TARGET Catch2::Catch2 PROPERTY INTERFACE_LINK_OPTIONS
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_LINKER_FLAGS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_INCLUDE_DIRS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2 PROPERTY INTERFACE_LINK_DIRECTORIES
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_LIB_DIRS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2 PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_COMPILE_DEFINITIONS_DEBUG}> APPEND)
-        set_property(TARGET Catch2::Catch2 PROPERTY INTERFACE_COMPILE_OPTIONS
-                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_COMPILE_OPTIONS_DEBUG}> APPEND)
+        set_property(TARGET Catch2::Catch2 APPEND PROPERTY INTERFACE_LINK_OPTIONS
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_LINKER_FLAGS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2 APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_INCLUDE_DIRS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2 APPEND PROPERTY INTERFACE_LINK_DIRECTORIES
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_LIB_DIRS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2 APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_COMPILE_DEFINITIONS_DEBUG}>)
+        set_property(TARGET Catch2::Catch2 APPEND PROPERTY INTERFACE_COMPILE_OPTIONS
+                     $<$<CONFIG:Debug>:${catch2_Catch2_Catch2_COMPILE_OPTIONS_DEBUG}>)
 
     ########## AGGREGATED GLOBAL TARGET WITH THE COMPONENTS #####################
-    set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_LINK_LIBRARIES Catch2::Catch2WithMain APPEND)
-    set_property(TARGET Catch2::Catch2WithMain PROPERTY INTERFACE_LINK_LIBRARIES Catch2::Catch2 APPEND)
+    set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_LINK_LIBRARIES Catch2::Catch2WithMain)
+    set_property(TARGET Catch2::Catch2WithMain APPEND PROPERTY INTERFACE_LINK_LIBRARIES Catch2::Catch2)
 
 ########## For the modules (FindXXX)
 set(catch2_LIBRARIES_DEBUG Catch2::Catch2WithMain)

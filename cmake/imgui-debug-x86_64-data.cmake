@@ -2,11 +2,16 @@
 #############################################################################################
 
 set(imgui_COMPONENT_NAMES "")
-set(imgui_FIND_DEPENDENCY_NAMES "")
+if(DEFINED imgui_FIND_DEPENDENCY_NAMES)
+  list(APPEND imgui_FIND_DEPENDENCY_NAMES )
+  list(REMOVE_DUPLICATES imgui_FIND_DEPENDENCY_NAMES)
+else()
+  set(imgui_FIND_DEPENDENCY_NAMES )
+endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(imgui_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/imguidf1ab3c6ce6b1/p")
+set(imgui_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/imgui862e0e0b00312/p")
 set(imgui_BUILD_MODULES_PATHS_DEBUG )
 
 
