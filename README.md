@@ -58,6 +58,7 @@ Windows
 - Seems that debugMessenger must be placed in the vk_engine class.
 
 - 8/29/24: Currently, the shaders are compiled when CMake is configured. Need a separate shader compiler 
+- 9/01/24: The path to the shader directory is currently relative to the build directory. Need a convenient way to access the root project directory.
 
 ## BUG REPORT
 

@@ -90,6 +90,17 @@ private:
   void init_pipelines();
   void init_background_pipelines();
 
+/* IMMEDIATE SUBMIT SETUP */
+public:
+  VkFence _im_fence;
+  VkCommandBuffer _im_command_buffer;
+  VkCommandPool _im_command_pool;
+
+  void immediate_submit(std::function<void(VkCommandBuffer cmdBuf)>&& function);
+
+private:
+  void init_imgui();
+
 #ifndef NDEBUG
 public:
   static VKAPI_ATTR VkBool32 VKAPI_CALL  debugCallback(
