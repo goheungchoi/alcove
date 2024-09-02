@@ -1,3 +1,6 @@
+# vk_engine common external libraries
+
+
 # Add the `descriptors` library target
 add_library(vk_descriptors_lib STATIC vk_descriptors.cpp)
 
@@ -49,6 +52,7 @@ target_include_directories(
   ${fmt_INCLUDE_DIRS}
   ${glm_INCLUDE_DIRS}
   ${SDL2_INCLUDE_DIRS}
+  ${imgui_INCLUDE_DIRS}
 )
 target_link_libraries(
   vk_engine_lib 
@@ -58,6 +62,7 @@ target_link_libraries(
   general glm::glm
   general SDL2::SDL2
   general SDL2::SDL2main 
+  general imgui::imgui
   general vk_descriptors_lib
   general vk_pipelines_lib
 )

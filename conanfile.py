@@ -48,3 +48,10 @@ class AlcoveRecipe(ConanFile):
     benv.generate()
     renv = VirtualRunEnv(self)
     renv.generate()
+
+  # TODO:
+#   [imports]
+# ./res/bindings, imgui_impl_glfw.cpp -> ../bindings
+# ./res/bindings, imgui_impl_opengl3.cpp -> ../bindings
+# ./res/bindings, imgui_impl_glfw.h -> ../bindings
+# ./res/bindings, imgui_impl_opengl3.h -> ../bindings

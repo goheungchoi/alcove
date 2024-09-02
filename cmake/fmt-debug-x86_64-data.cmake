@@ -12,7 +12,7 @@ endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(fmt_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/fmt29aa75d26bb35/p")
+set(fmt_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/fmt02b64086c49fa/p")
 set(fmt_BUILD_MODULES_PATHS_DEBUG )
 
 

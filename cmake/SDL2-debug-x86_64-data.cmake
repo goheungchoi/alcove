@@ -12,7 +12,7 @@ endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(sdl_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/sdle85df1471a09e/p")
+set(sdl_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/sdl35f7e86dc44ad/p")
 set(sdl_BUILD_MODULES_PATHS_DEBUG )
 
 

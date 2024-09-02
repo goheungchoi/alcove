@@ -12,7 +12,7 @@ endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(catch2_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/catchac0d2a5307887/p")
+set(catch2_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p")
 set(catch2_BUILD_MODULES_PATHS_DEBUG )
 
 

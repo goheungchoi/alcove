@@ -11,7 +11,7 @@ endif()
 
 ########### VARIABLES #######################################################################
 #############################################################################################
-set(imgui_PACKAGE_FOLDER_DEBUG "C:/Users/ga1ox/.conan2/p/b/imgui862e0e0b00312/p")
+set(imgui_PACKAGE_FOLDER_DEBUG "C:/Users/User/.conan2/p/b/imguif78e6fbda8812/p")
 set(imgui_BUILD_MODULES_PATHS_DEBUG )
 
 

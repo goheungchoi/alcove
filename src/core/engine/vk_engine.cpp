@@ -5,11 +5,11 @@
 #include <SDL_vulkan.h> // Vulkan-specific flags and functionality for opening a Vulkan-compatible window
 
 #include "imgui.h"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_vulkan.h"
+#include "bindings/imgui_impl_sdl2.h"
+#include "bindings/imgui_impl_vulkan.h"
 
 #include <core/engine/vk_gpu_selector.h>
-#include <core/engine/vk_initializers.h>
+#include <core/engine/vk_structs.h>
 #include <core/engine/vk_images.h>
 #include <core/engine/vk_pipelines.h>
 
@@ -262,6 +262,9 @@ void VulkanEngine::draw() {
     _swapchain_images[swapchainImageIndex],
     _swapchain_extent
   );
+
+  // COMMAND: Draw imgui into the swapchain image
+  draw_imgui(cmdBuf, _swapchain_image_views[swapchainImageIndex]);
 
   // COMMAND: Transition the swapchain image into Present
   vkutil::cmd_transition_image(
@@ -1192,7 +1195,7 @@ void VulkanEngine::init_imgui()
 	init_info.ImageCount = 3;
 	init_info.UseDynamicRendering = true;
 
-	//dynamic rendering parameters for imgui to use
+	// dynamic rendering parameters for imgui to use
 	init_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
 	init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
 	init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &_swapchainImageFormat;
@@ -1210,6 +1213,19 @@ void VulkanEngine::init_imgui()
 		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
 	});
 }
+
+void VulkanEngine::draw_imgui(VkCommandBuffer cmdBuf, VkImageView targetImageView) {
+  VkRenderingAttachmentInfo colorAttachment = vkst::attachment_info(targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+  VkRenderingInfo renderInfo = vkst::rendering_info(_swapchain_extent, &colorAttachment, nullptr);
+
+  vkCmdBeginRendering(cmdBuf, &renderInfo);
+
+  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuf);
+
+  vkCmdEndRendering(cmdBuf);
+}
+
 
 /////////////////////////////////////////////////////
 ///////// Debug Messenger Setup Functions ///////////

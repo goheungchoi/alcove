@@ -98,8 +98,10 @@ public:
 
   void immediate_submit(std::function<void(VkCommandBuffer cmdBuf)>&& function);
 
+/* IMGUI SETUP */
 private:
   void init_imgui();
+  void draw_imgui(VkCommandBuffer cmdBuf, VkImageView targetImageView);
 
 #ifndef NDEBUG
 public:
