@@ -263,6 +263,14 @@ void VulkanEngine::draw() {
     _swapchain_extent
   );
 
+  // COMMAND: Transition the swapchain image into color attachment optimal, so we can draw GUI
+  vkutil::cmd_transition_image(
+    cmdBuf,
+    _swapchain_images[swapchainImageIndex],
+    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL 
+  );
+
   // COMMAND: Draw imgui into the swapchain image
   draw_imgui(cmdBuf, _swapchain_image_views[swapchainImageIndex]);
 
@@ -270,7 +278,7 @@ void VulkanEngine::draw() {
   vkutil::cmd_transition_image(
     cmdBuf,
     _swapchain_images[swapchainImageIndex],
-    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR // The only image layout the swapchain allows for presenting to screen
   );
 
@@ -910,7 +918,7 @@ void VulkanEngine::create_swapchain(uint32_t width, uint32_t height) {
     .imageColorSpace = surface_format.colorSpace,
     .imageExtent = extent,
     .imageArrayLayers = 1,
-    .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+    .imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 
     // Need to be changed if the graphics queue family index
     // and the present queue family index are not the same
