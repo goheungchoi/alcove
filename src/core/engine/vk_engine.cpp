@@ -5,8 +5,8 @@
 #include <SDL_vulkan.h> // Vulkan-specific flags and functionality for opening a Vulkan-compatible window
 
 #include "imgui.h"
-#include "bindings/imgui_impl_sdl2.h"
-#include "bindings/imgui_impl_vulkan.h"
+#include "../res/bindings/imgui_impl_sdl2.h"
+#include "../res/bindings/imgui_impl_vulkan.h"
 
 #include <core/engine/vk_gpu_selector.h>
 #include <core/engine/vk_structs.h>
@@ -1187,9 +1187,9 @@ void VulkanEngine::init_imgui()
 	// this initializes imgui for Vulkan
 	ImGui_ImplVulkan_InitInfo init_info = {};
 	init_info.Instance = _instance;
-	init_info.PhysicalDevice = _chosenGPU;
+	init_info.PhysicalDevice = _selectedGPU;
 	init_info.Device = _device;
-	init_info.Queue = _graphicsQueue;
+	init_info.Queue = _graphics_q._handle;
 	init_info.DescriptorPool = imguiPool;
 	init_info.MinImageCount = 3;
 	init_info.ImageCount = 3;
@@ -1198,7 +1198,7 @@ void VulkanEngine::init_imgui()
 	// dynamic rendering parameters for imgui to use
 	init_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
 	init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-	init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &_swapchainImageFormat;
+	init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &_swapchain_image_format;
 	
 
 	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
@@ -1208,7 +1208,7 @@ void VulkanEngine::init_imgui()
 	ImGui_ImplVulkan_CreateFontsTexture();
 
 	// add the destroy the imgui created structures
-	_mainDeletionQueue.push_function([=]() {
+	_main_deletion_queue.push_function([=]() {
 		ImGui_ImplVulkan_Shutdown();
 		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
 	});

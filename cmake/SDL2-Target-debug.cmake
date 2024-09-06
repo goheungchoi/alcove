@@ -13,10 +13,11 @@ if(NOT TARGET sdl_DEPS_TARGET)
 endif()
 
 set_property(TARGET sdl_DEPS_TARGET
-             APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+             PROPERTY INTERFACE_LINK_LIBRARIES
              $<$<CONFIG:Debug>:${sdl_FRAMEWORKS_FOUND_DEBUG}>
              $<$<CONFIG:Debug>:${sdl_SYSTEM_LIBS_DEBUG}>
-             $<$<CONFIG:Debug>:SDL2::SDL2>)
+             $<$<CONFIG:Debug>:SDL2::SDL2>
+             APPEND)
 
 ####### Find the libraries declared in cpp_info.libs, create an IMPORTED target for each one and link the
 ####### sdl_DEPS_TARGET to all of them
@@ -49,11 +50,11 @@ set(CMAKE_MODULE_PATH ${sdl_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
         endif()
 
         set_property(TARGET sdl_SDL2_SDL2main_DEPS_TARGET
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                     PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_FRAMEWORKS_FOUND_DEBUG}>
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_SYSTEM_LIBS_DEBUG}>
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_DEPENDENCIES_DEBUG}>
-                     )
+                     APPEND)
 
         ####### Find the libraries declared in cpp_info.component["xxx"].libs,
         ####### create an IMPORTED target for each one and link the 'sdl_SDL2_SDL2main_DEPS_TARGET' to all of them
@@ -71,29 +72,30 @@ set(CMAKE_MODULE_PATH ${sdl_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
         ########## TARGET PROPERTIES #####################################
         set_property(TARGET SDL2::SDL2main
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                     PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_OBJECTS_DEBUG}>
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_LIBRARIES_TARGETS}>
-                     )
+                     APPEND)
 
         if("${sdl_SDL2_SDL2main_LIBS_DEBUG}" STREQUAL "")
             # If the component is not declaring any "cpp_info.components['foo'].libs" the system, frameworks etc are not
             # linked to the imported targets and we need to do it to the global target
             set_property(TARGET SDL2::SDL2main
-                         APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-                         sdl_SDL2_SDL2main_DEPS_TARGET)
+                         PROPERTY INTERFACE_LINK_LIBRARIES
+                         sdl_SDL2_SDL2main_DEPS_TARGET
+                         APPEND)
         endif()
 
-        set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_LINK_OPTIONS
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_LINKER_FLAGS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_INCLUDE_DIRS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_LINK_DIRECTORIES
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_LIB_DIRS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_COMPILE_DEFINITIONS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_COMPILE_OPTIONS
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_COMPILE_OPTIONS_DEBUG}>)
+        set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_LINK_OPTIONS
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_LINKER_FLAGS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_INCLUDE_DIRS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_LINK_DIRECTORIES
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_LIB_DIRS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_COMPILE_DEFINITIONS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_COMPILE_OPTIONS
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2main_COMPILE_OPTIONS_DEBUG}> APPEND)
 
     ########## COMPONENT SDL2::SDL2 #############
 
@@ -108,11 +110,11 @@ set(CMAKE_MODULE_PATH ${sdl_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
         endif()
 
         set_property(TARGET sdl_SDL2_SDL2_DEPS_TARGET
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                     PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_FRAMEWORKS_FOUND_DEBUG}>
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_SYSTEM_LIBS_DEBUG}>
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_DEPENDENCIES_DEBUG}>
-                     )
+                     APPEND)
 
         ####### Find the libraries declared in cpp_info.component["xxx"].libs,
         ####### create an IMPORTED target for each one and link the 'sdl_SDL2_SDL2_DEPS_TARGET' to all of them
@@ -130,33 +132,34 @@ set(CMAKE_MODULE_PATH ${sdl_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
         ########## TARGET PROPERTIES #####################################
         set_property(TARGET SDL2::SDL2
-                     APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                     PROPERTY INTERFACE_LINK_LIBRARIES
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_OBJECTS_DEBUG}>
                      $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_LIBRARIES_TARGETS}>
-                     )
+                     APPEND)
 
         if("${sdl_SDL2_SDL2_LIBS_DEBUG}" STREQUAL "")
             # If the component is not declaring any "cpp_info.components['foo'].libs" the system, frameworks etc are not
             # linked to the imported targets and we need to do it to the global target
             set_property(TARGET SDL2::SDL2
-                         APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-                         sdl_SDL2_SDL2_DEPS_TARGET)
+                         PROPERTY INTERFACE_LINK_LIBRARIES
+                         sdl_SDL2_SDL2_DEPS_TARGET
+                         APPEND)
         endif()
 
-        set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_LINK_OPTIONS
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_LINKER_FLAGS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_INCLUDE_DIRS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_LINK_DIRECTORIES
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_LIB_DIRS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_COMPILE_DEFINITIONS_DEBUG}>)
-        set_property(TARGET SDL2::SDL2 APPEND PROPERTY INTERFACE_COMPILE_OPTIONS
-                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_COMPILE_OPTIONS_DEBUG}>)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_LINK_OPTIONS
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_LINKER_FLAGS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_INCLUDE_DIRS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_LINK_DIRECTORIES
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_LIB_DIRS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_COMPILE_DEFINITIONS
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_COMPILE_DEFINITIONS_DEBUG}> APPEND)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_COMPILE_OPTIONS
+                     $<$<CONFIG:Debug>:${sdl_SDL2_SDL2_COMPILE_OPTIONS_DEBUG}> APPEND)
 
     ########## AGGREGATED GLOBAL TARGET WITH THE COMPONENTS #####################
-    set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_LINK_LIBRARIES SDL2::SDL2main)
-    set_property(TARGET SDL2::SDL2main APPEND PROPERTY INTERFACE_LINK_LIBRARIES SDL2::SDL2)
+    set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_LINK_LIBRARIES SDL2::SDL2main APPEND)
+    set_property(TARGET SDL2::SDL2main PROPERTY INTERFACE_LINK_LIBRARIES SDL2::SDL2 APPEND)
 
 ########## For the modules (FindXXX)
 set(sdl_LIBRARIES_DEBUG SDL2::SDL2main)

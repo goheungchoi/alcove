@@ -22,7 +22,7 @@ class AlcoveRecipe(ConanFile):
     self.requires("glm/0.9.9.8")
     self.requires("sdl/2.30.3")
     self.requires("catch2/3.5.0")
-    self.requires("imgui/1.90")
+    self.requires("imgui/1.91.0")
     self.requires("fmt/10.2.1")
 
   def layout(self):
@@ -55,3 +55,10 @@ class AlcoveRecipe(ConanFile):
 # ./res/bindings, imgui_impl_opengl3.cpp -> ../bindings
 # ./res/bindings, imgui_impl_glfw.h -> ../bindings
 # ./res/bindings, imgui_impl_opengl3.h -> ../bindings
+  # def package(self):
+  #   source_path = os.path.join(self.source_folder, "res/bindings") 
+  #   dest_path = os.path.join(self.package_folder, "include/imgui/bindings")
+  #   copy(self, "imgui_impl_sdl2.h", src=source_path, dst=dest_path)
+  #   copy(self, "imgui_impl_sdl2.cpp", src=source_path, dst=dest_path)
+  #   copy(self, "imgui_impl_vulkan.h", src=source_path, dst=dest_path)
+  #   copy(self, "imgui_impl_vulkan.cpp", src=source_path, dst=dest_path)

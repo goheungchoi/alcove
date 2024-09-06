@@ -38,37 +38,16 @@ if(NOT "${POLICY_CMP0091}" STREQUAL NEW)
 endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDebugDLL>")
 
-# Definition of CMAKE_VS_DEBUGGER_ENVIRONMENT
-set(CMAKE_VS_DEBUGGER_ENVIRONMENT "PATH=$<$<CONFIG:Debug>:C:/Users/User/.conan2/p/b/sdl35f7e86dc44ad/p/bin;C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p/bin;C:/Users/User/.conan2/p/b/imguif78e6fbda8812/p/bin;C:/Users/User/.conan2/p/b/fmt02b64086c49fa/p/bin>;%PATH%")
-
-
 message(STATUS "Conan toolchain: C++ Standard 20 with extensions OFF")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+string(APPEND CONAN_CXX_FLAGS " /MP24")
+string(APPEND CONAN_C_FLAGS " /MP24")
 
-string(APPEND CONAN_CXX_FLAGS " /MP32")
-string(APPEND CONAN_C_FLAGS " /MP32")
+# Extra c, cxx, linkflags and defines
 
-# Conan conf flags start: Debug
-# Conan conf flags end
-
-foreach(config IN LISTS CMAKE_CONFIGURATION_TYPES)
-    string(TOUPPER ${config} config)
-    if(DEFINED CONAN_CXX_FLAGS_${config})
-      string(APPEND CMAKE_CXX_FLAGS_${config}_INIT " ${CONAN_CXX_FLAGS_${config}}")
-    endif()
-    if(DEFINED CONAN_C_FLAGS_${config})
-      string(APPEND CMAKE_C_FLAGS_${config}_INIT " ${CONAN_C_FLAGS_${config}}")
-    endif()
-    if(DEFINED CONAN_SHARED_LINKER_FLAGS_${config})
-      string(APPEND CMAKE_SHARED_LINKER_FLAGS_${config}_INIT " ${CONAN_SHARED_LINKER_FLAGS_${config}}")
-    endif()
-    if(DEFINED CONAN_EXE_LINKER_FLAGS_${config})
-      string(APPEND CMAKE_EXE_LINKER_FLAGS_${config}_INIT " ${CONAN_EXE_LINKER_FLAGS_${config}}")
-    endif()
-endforeach()
 
 if(DEFINED CONAN_CXX_FLAGS)
   string(APPEND CMAKE_CXX_FLAGS_INIT " ${CONAN_CXX_FLAGS}")
@@ -83,9 +62,6 @@ if(DEFINED CONAN_EXE_LINKER_FLAGS)
   string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT " ${CONAN_EXE_LINKER_FLAGS}")
 endif()
 
-
-
-
 get_property( _CMAKE_IN_TRY_COMPILE GLOBAL PROPERTY IN_TRY_COMPILE )
 if(_CMAKE_IN_TRY_COMPILE)
     message(STATUS "Running toolchain IN_TRY_COMPILE")
@@ -95,18 +71,17 @@ endif()
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
 
 # Definition of CMAKE_MODULE_PATH
-list(PREPEND CMAKE_MODULE_PATH "C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_MODULE_PATH "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib/cmake/Catch2")
 # the generators folder (where conan generates files, like this toolchain)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # Definition of CMAKE_PREFIX_PATH, CMAKE_XXXXX_PATH
 # The explicitly defined "builddirs" of "host" context dependencies must be in PREFIX_PATH
-list(PREPEND CMAKE_PREFIX_PATH "C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p/lib/cmake/Catch2")
+list(PREPEND CMAKE_PREFIX_PATH "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib/cmake/Catch2")
 # The Conan local "generators" folder, where this toolchain is saved.
 list(PREPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR} )
-list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/User/.conan2/p/b/sdl35f7e86dc44ad/p/lib" "C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p/lib" "C:/Users/User/.conan2/p/b/imguif78e6fbda8812/p/lib" "C:/Users/User/.conan2/p/b/fmt02b64086c49fa/p/lib")
-list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/User/.conan2/p/glmee168c829b0e6/p/include" "C:/Users/User/.conan2/p/b/sdl35f7e86dc44ad/p/include" "C:/Users/User/.conan2/p/b/sdl35f7e86dc44ad/p/include/SDL2" "C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p/include" "C:/Users/User/.conan2/p/b/imguif78e6fbda8812/p/include" "C:/Users/User/.conan2/p/b/fmt02b64086c49fa/p/include")
-set(CONAN_RUNTIME_LIB_DIRS "$<$<CONFIG:Debug>:C:/Users/User/.conan2/p/b/sdl35f7e86dc44ad/p/bin>" "$<$<CONFIG:Debug>:C:/Users/User/.conan2/p/b/catch0c96b6f99973b/p/bin>" "$<$<CONFIG:Debug>:C:/Users/User/.conan2/p/b/imguif78e6fbda8812/p/bin>" "$<$<CONFIG:Debug>:C:/Users/User/.conan2/p/b/fmt02b64086c49fa/p/bin>" )
+list(PREPEND CMAKE_LIBRARY_PATH "C:/Users/ga1ox/.conan2/p/b/sdl78d843de900ef/p/lib" "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/lib" "C:/Users/ga1ox/.conan2/p/b/imgui0ff22e947c79b/p/lib" "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p/lib")
+list(PREPEND CMAKE_INCLUDE_PATH "C:/Users/ga1ox/.conan2/p/glm67cb345896424/p/include" "C:/Users/ga1ox/.conan2/p/b/sdl78d843de900ef/p/include" "C:/Users/ga1ox/.conan2/p/b/sdl78d843de900ef/p/include/SDL2" "C:/Users/ga1ox/.conan2/p/b/catchac1bb3a62a527/p/include" "C:/Users/ga1ox/.conan2/p/b/imgui0ff22e947c79b/p/include" "C:/Users/ga1ox/.conan2/p/b/fmt8b17a52e0b4c3/p/include")
 
 
 
@@ -121,14 +96,6 @@ endif()
 
 message(STATUS "Conan toolchain: Setting BUILD_SHARED_LIBS = OFF")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
-
-set(CMAKE_INSTALL_BINDIR "bin")
-set(CMAKE_INSTALL_SBINDIR "bin")
-set(CMAKE_INSTALL_LIBEXECDIR "bin")
-set(CMAKE_INSTALL_LIBDIR "lib")
-set(CMAKE_INSTALL_INCLUDEDIR "include")
-set(CMAKE_INSTALL_OLDINCLUDEDIR "include")
-
 
 # Variables
 # Variables  per configuration

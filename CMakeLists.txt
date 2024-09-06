@@ -52,14 +52,21 @@ compile_glsl_shaders("${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 
 
 # Conan Provided Packages
+
+# SDL2
 find_package(SDL2 REQUIRED CONFIG)
 cmake_print_variables(SDL2_VERSION)
+# fmt
 find_package(fmt REQUIRED)
 cmake_print_variables(fmt_VERSION)
+# GLM
 find_package(glm REQUIRED)
 cmake_print_variables(glm_VERSION)
+# Dear-imgui
 find_package(imgui REQUIRED)
 cmake_print_variables(imgui_VERSION)
+set(imgui_BACKEND_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui/backends")
+
 
 ######## Testing Option  ########
 

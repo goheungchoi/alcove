@@ -49,7 +49,7 @@ Windows
   - GLM [0.9.9.8]
   - SDL [2.30.3]
   - Catch2 [3.5.0]
-  - imgui [1.90]
+  - imgui [1.91.0]
   - fmt [10.2.1]
 
 ## TODO List

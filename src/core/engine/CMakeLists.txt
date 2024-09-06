@@ -40,7 +40,15 @@ target_link_libraries(
 )
 
 # Add the `engine` library target
-add_library(vk_engine_lib STATIC vk_engine.cpp)
+add_library(
+  vk_engine_lib 
+  STATIC 
+  vk_engine.cpp
+  
+  # Bind Dear-Imgui backends
+  "${imgui_BACKEND_DIR}/imgui_impl_sdl2.cpp"
+  "${imgui_BACKEND_DIR}/imgui_impl_vulkan.cpp"
+)
 
 target_compile_features(vk_engine_lib PRIVATE cxx_std_20)
 target_include_directories(

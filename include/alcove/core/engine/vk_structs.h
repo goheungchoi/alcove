@@ -41,7 +41,7 @@ namespace vkst {
       .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
       .pNext = nullptr,
 
-      .renderArea = VkRect2D{ VkOffset2D{ 0, 0 }, renderExtent };
+      .renderArea = VkRect2D{ VkOffset2D{ 0, 0 }, renderExtent },
       .layerCount = 1,
       .colorAttachmentCount = 1,
       .pColorAttachments = colorAttachment,
