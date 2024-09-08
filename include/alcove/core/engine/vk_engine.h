@@ -83,12 +83,16 @@ private:
 
 /* PIPELINE SETUP */
 public:
-  VkPipeline _gradient_pipeline;
-  VkPipelineLayout _gradient_pipeline_layout;
+  [[deprecated("Use background effects instead.")]] VkPipeline _gradient_pipeline;
+  [[deprecated("Name it common pipeline layout instead.")]] VkPipelineLayout _gradient_pipeline_layout;
 
 private:
   void init_pipelines();
   void init_background_pipelines();
+
+/* COMPUTE PIPELINE EFFECTS */
+std::vector<ComputeEffect> _background_effects;
+int _current_background_effect{ 0 };
 
 /* IMMEDIATE SUBMIT SETUP */
 public:
