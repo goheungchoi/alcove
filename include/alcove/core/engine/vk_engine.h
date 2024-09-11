@@ -86,8 +86,12 @@ public:
   [[deprecated("Use background effects instead.")]] VkPipeline _gradient_pipeline;
   [[deprecated("Name it common pipeline layout instead.")]] VkPipelineLayout _gradient_pipeline_layout;
 
+  VkPipeline _triangle_pipeline;
+  VkPipelineLayout _triangle_pipeline_layout;
+
 private:
   void init_pipelines();
+  void init_triangle_pipeline();
   void init_background_pipelines();
 
 /* COMPUTE PIPELINE EFFECTS */

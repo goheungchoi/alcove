@@ -1094,7 +1094,14 @@ void VulkanEngine::init_descriptors() {
 }
 
 void VulkanEngine::init_pipelines() {
+  init_triangle_pipeline();
   init_background_pipelines();
+}
+
+void VulkanEngine::init_triangle_pipeline() {
+  // Load the vertex shader
+  VkShaderModule triangleVertexShader;
+  if (!vkutil::load_shader_module("../../"))
 }
 
 void VulkanEngine::init_background_pipelines() {

@@ -46,6 +46,9 @@ find_vulkan_extra()
 include("cmake-modules/CompileGLSLShaders.cmake")
 compile_glsl_shaders("${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 
+include("cmake-modules/CopyFilesByExtension.cmake")
+copy_files_by_extension("${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${CMAKE_BINARY_DIR}/shaders" "spv")
+
 #########################################
 #########################################
 #########################################
