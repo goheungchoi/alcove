@@ -44,8 +44,8 @@ public:
    * @brief Set the cull mode in the rasterizer state.
    * Set the front face, and opt for backface culling.
    * 
-   * @param cullMode 
-   * @param frontFace 
+   * @param cullMode Backface culling, none, and etc.
+   * @param frontFace Front face direction clockwise or counter-clockwise
    */
   void set_cull_mode(VkCullModeFlags cullMode, VkFrontFace frontFace);
 

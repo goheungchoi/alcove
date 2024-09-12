@@ -6,5 +6,6 @@ find_package(SDL2)
 find_package(Catch2)
 find_package(imgui)
 find_package(fmt)
+find_package(assimp)
 
-set(CONANDEPS_LEGACY  glm::glm  SDL2::SDL2main  Catch2::Catch2WithMain  imgui::imgui  fmt::fmt )
+set(CONANDEPS_LEGACY  glm::glm  SDL2::SDL2main  Catch2::Catch2WithMain  imgui::imgui  fmt::fmt  assimp::assimp )

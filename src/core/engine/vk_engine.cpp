@@ -72,6 +72,8 @@ void VulkanEngine::init() {
 
     init_imgui();
 
+    init_default_data();
+
   } catch (const std::exception& e) {
     fmt::println("{}", e.what());
   }
@@ -231,13 +233,12 @@ void VulkanEngine::draw() {
     backgroundEffect.pipelineLayout,  // Pipeline layout
     0,                                // The first set index
     1,                                // The number of descriptor sets to be bound
-    &_draw_image_descriptors,         // The descriptor sets
+    &_draw_image_descriptor_set,      // The descriptor sets
     0,                                // The number of dynamic offsets(?)
     nullptr                           // The dynamic offsets
   );
 
   // COMMAND: Push the uniform constants to the compute shader
-
   vkCmdPushConstants(
     cmdBuf, 
     backgroundEffect.pipelineLayout, 
@@ -258,7 +259,7 @@ void VulkanEngine::draw() {
   //   _gradient_pipeline_layout,  // Pipeline layout
   //   0,                          // The first set index
   //   1,                          // The number of descriptor sets to be bound
-  //   &_draw_image_descriptors,   // The descriptor sets
+  //   &_draw_image_descriptor_set,// The descriptor sets
   //   0,                          // The number of dynamic offsets(?)
   //   nullptr                     // The dynamic offsets
   // );
@@ -286,11 +287,71 @@ void VulkanEngine::draw() {
     1                                         // Group count Z
   );
 
-  // COMMAND: Transition the canvas into transfer source optimal layout
+  /* Graphics pipeline drawing */
+  // COMMAND: Translate the canvas into color attachment optimal for graphics pipeline drawing
   vkutil::cmd_transition_image(
     cmdBuf,
     _canvas._image,
     VK_IMAGE_LAYOUT_GENERAL,
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+  );
+
+  // COMMAND: Begin a render pass connected to our draw image
+  VkRenderingAttachmentInfo colorAttachment = vkst::attachment_info(
+    _canvas._image_view,
+    nullptr,
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+  );
+  VkRenderingInfo renderInfo = vkst::rendering_info(_canvas_extent, &colorAttachment, nullptr);
+  vkCmdBeginRendering(cmdBuf, &renderInfo);
+  
+  // COMMAND: Bind the graphics pipeline
+  vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, _triangle_pipeline);
+
+  // COMMAND: Set dynamic viewport
+  VkViewport viewport {
+    .x = 0.f, .y = 0.f,
+    .width = static_cast<float>(_canvas_extent.width),
+    .height = static_cast<float>(_canvas_extent.height),
+    .minDepth = 0.f, .maxDepth = 1.f
+  };
+  vkCmdSetViewport(cmdBuf, 0, 1, &viewport);
+
+  // COMMAND: Set dynamic scissor
+  VkRect2D scissor {
+    .offset = { .x = 0, .y = 0 },
+    .extent = { .width = _canvas_extent.width, .height = _canvas_extent.height }
+  };
+  vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
+
+  // COMMAND: Bind push constants
+  GPUDrawPushConstants pushConstants{
+    .worldMatrix = glm::mat4{ 1.f },
+    .vertexBuffer = rectangle.vertexBufferAddress,
+  };
+  vkCmdPushConstants(
+    cmdBuf, 
+    _triangle_pipeline_layout, 
+    VK_SHADER_STAGE_VERTEX_BIT,
+    0,  // offset
+    sizeof(GPUDrawPushConstants), // size
+    &pushConstants
+  );
+
+  // COMMAND: Bind index buffer
+  vkCmdBindIndexBuffer(cmdBuf, rectangle.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+
+  // COMMAND: Launch a draw command
+  vkCmdDrawIndexed(cmdBuf, 6, 1, 0, 0, 0);
+
+  // COMMAND: Finish the render pass
+  vkCmdEndRendering(cmdBuf);
+
+  // COMMAND: Transition the canvas into transfer source optimal layout
+  vkutil::cmd_transition_image(
+    cmdBuf,
+    _canvas._image,
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
   );
   
@@ -1057,14 +1118,14 @@ void VulkanEngine::init_descriptors() {
   {
     DescriptorLayoutBuilder builder;
     builder.add_binding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-    _draw_image_descriptor_layout = builder.build(
+    _draw_image_descriptor_set_layout = builder.build(
       _device, 
       VK_SHADER_STAGE_COMPUTE_BIT
     );
   }
 
   // Allocate a descriptor set for our draw image
-  _draw_image_descriptors = _global_descriptor_allocator.allocate(_device, _draw_image_descriptor_layout);
+  _draw_image_descriptor_set = _global_descriptor_allocator.allocate(_device, _draw_image_descriptor_set_layout);
 
   // Get the image view from the canvas
   VkDescriptorImageInfo imageInfo{
@@ -1077,7 +1138,7 @@ void VulkanEngine::init_descriptors() {
     .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
     .pNext = nullptr,
 
-    .dstSet = _draw_image_descriptors,
+    .dstSet = _draw_image_descriptor_set,
     .dstBinding = 0,
     .descriptorCount = 1,
     .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
@@ -1089,7 +1150,7 @@ void VulkanEngine::init_descriptors() {
 	_main_deletion_queue.push_function([&]() {
 		_global_descriptor_allocator.destroy_pool(_device);
 
-		vkDestroyDescriptorSetLayout(_device, _draw_image_descriptor_layout, nullptr);
+		vkDestroyDescriptorSetLayout(_device, _draw_image_descriptor_set_layout, nullptr);
 	});
 }
 
@@ -1101,7 +1162,77 @@ void VulkanEngine::init_pipelines() {
 void VulkanEngine::init_triangle_pipeline() {
   // Load the vertex shader
   VkShaderModule triangleVertexShader;
-  if (!vkutil::load_shader_module("../../"))
+  if (!vkutil::load_shader_module("../../shaders/colored_triangle.vert.spv", _device, &triangleVertexShader)) {
+    fmt::println("Error when building the triangle vertex shader!");
+  }
+
+  // Load the fragment shader
+  VkShaderModule triangleFragShader;
+  if (!vkutil::load_shader_module("../../shaders/colored_triangle.frag.spv", _device, &triangleFragShader)) {
+    fmt::println("Error when building the triangle fragment shader!");
+  }
+
+  // Setup the push constant info
+  VkPushConstantRange pushConstantRange{
+    .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+    .offset = 0,
+    .size = sizeof(GPUDrawPushConstants)
+  };
+
+  // Setup pipeline layout info
+  VkPipelineLayoutCreateInfo graphicsPipelineLayoutInfo {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+    .pNext = nullptr,
+    // Bind the push constant range
+    .pushConstantRangeCount = 1,
+    .pPushConstantRanges = &pushConstantRange
+  };
+  VK_CHECK(
+    vkCreatePipelineLayout(
+      _device, 
+      &graphicsPipelineLayoutInfo,
+      nullptr,
+      &_triangle_pipeline_layout
+    )
+  );
+
+  /* Build the pipeline */
+  vkutil::PipelineBuilder pipelineBuilder;
+
+  // Pipeline layout
+  pipelineBuilder._pipeline_layout = _triangle_pipeline_layout;
+  // Connect the vertex shader
+  pipelineBuilder.set_shader(VK_SHADER_STAGE_VERTEX_BIT, triangleVertexShader);
+  // Connect the fragment shader
+  pipelineBuilder.set_shader(VK_SHADER_STAGE_FRAGMENT_BIT, triangleFragShader);
+  // Input topology
+  pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+  // Filled triangles
+  pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+  // No backface culling
+  pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+  // No multisampling
+  pipelineBuilder.set_multisampling_none();
+  // No blending
+  pipelineBuilder.disable_blending();
+  // No depth test
+  pipelineBuilder.disable_depth_test();
+
+  // Connect the image format from the canvas
+  pipelineBuilder.set_color_attachment_format(_canvas._image_format);
+  pipelineBuilder.set_depth_format(VK_FORMAT_UNDEFINED);
+
+  // Build the pipeline
+  _triangle_pipeline = pipelineBuilder.build_pipeline(_device);
+
+  // Clean shader modules
+  vkDestroyShaderModule(_device, triangleVertexShader, nullptr);
+  vkDestroyShaderModule(_device, triangleFragShader, nullptr);
+
+  _main_deletion_queue.push_function([&]() {
+    vkDestroyPipelineLayout(_device, _triangle_pipeline_layout, nullptr);
+    vkDestroyPipeline(_device, _triangle_pipeline, nullptr);
+  });
 }
 
 void VulkanEngine::init_background_pipelines() {
@@ -1111,7 +1242,7 @@ void VulkanEngine::init_background_pipelines() {
     .pNext = nullptr,
 
     .setLayoutCount = 1,
-    .pSetLayouts = &_draw_image_descriptor_layout
+    .pSetLayouts = &_draw_image_descriptor_set_layout
   };
 
   // Push constants
@@ -1227,6 +1358,149 @@ void VulkanEngine::init_background_pipelines() {
   });
 }
 
+GPUBuffer VulkanEngine::create_buffer(
+  std::size_t allocSize, 
+  VkBufferUsageFlags usage, 
+  VmaMemoryUsage memoryUsage) {
+  // Allocate a buffer
+  VkBufferCreateInfo bufferInfo {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    .pNext = nullptr,
+    .size = allocSize,
+    .usage = usage
+  };
+
+  VmaAllocationCreateInfo vmaAllocInfo {
+    .flags = VMA_ALLOCATION_CREATE_MAPPED_BIT,
+    .usage = memoryUsage,
+  };
+
+  GPUBuffer buffer;
+  VK_CHECK(
+    vmaCreateBuffer(
+      _allocator, 
+      &bufferInfo, 
+      &vmaAllocInfo, 
+      &buffer.buffer, 
+      &buffer.allocation,
+      &buffer.info
+    )
+  );
+  return buffer;
+}
+
+void VulkanEngine::destroy_buffer(const GPUBuffer& buffer) {
+  vmaDestroyBuffer(_allocator, buffer.buffer, buffer.allocation);
+}
+
+GPUMeshBuffers VulkanEngine::upload_mesh(std::span<Vertex> vertices, std::span<uint32_t> indices) {
+  // Byte size of the vertex buffer
+  const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
+  // Byte size of the index buffer
+  const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
+
+  // Mesh buffer
+  GPUMeshBuffers mesh;
+
+  // Create a vertex buffer
+  mesh.vertexBuffer = create_buffer(
+    vertexBufferSize,
+    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |  // SSBO (Shader Storage Buffer Object) for vertex pulling
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT |    // Memory copy to this buffer
+    VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,  // Retrieve its device address
+    VMA_MEMORY_USAGE_GPU_ONLY
+  );
+
+  // Find the address of the vertex buffer
+  VkBufferDeviceAddressInfo deviceAddressInfo{
+    .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+    .pNext = nullptr,
+    .buffer = mesh.vertexBuffer.buffer
+  };
+  mesh.vertexBufferAddress = vkGetBufferDeviceAddress(_device, &deviceAddressInfo);
+
+  // Create an index buffer
+  mesh.indexBuffer = create_buffer(
+    indexBufferSize, 
+    VK_BUFFER_USAGE_INDEX_BUFFER_BIT |  // This will be used for indexed draws
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT,   // Memory copy to this buffer
+    VMA_MEMORY_USAGE_GPU_ONLY
+  );
+
+  // Copy memory using a temporal staging buffer
+  GPUBuffer staging = create_buffer(
+    vertexBufferSize + indexBufferSize,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    VMA_MEMORY_USAGE_CPU_ONLY
+  );
+
+  // Retrieve the pointer mapped to the buffer memory
+  void* data = staging.allocation->GetMappedData();
+
+  // Copy vertex buffer
+  memcpy(data, vertices.data(), vertexBufferSize);
+  // Copy index buffer
+  memcpy((uint8_t*)data + vertexBufferSize, indices.data(), indexBufferSize);
+
+  // NOTE: This pattern is not efficient as we are waiting for the GPU commands
+  // to be fully finished before continuing with out CPU side logic.
+  // This should be put on a background thread that solely performs uploads
+  immediate_submit([&](VkCommandBuffer cmdBuf) {
+    // Copy vertices
+    VkBufferCopy vertexCopy{
+      .srcOffset = 0, // Optional
+      .dstOffset = 0, // Optional
+      .size = vertexBufferSize
+    };
+    vkCmdCopyBuffer(cmdBuf, staging.buffer, mesh.vertexBuffer.buffer, 1, &vertexCopy);
+
+    // Copy indices
+    VkBufferCopy indexCopy{
+      .srcOffset = vertexBufferSize,
+      .dstOffset = 0,
+      .size = indexBufferSize
+    };
+    vkCmdCopyBuffer(cmdBuf, staging.buffer, mesh.indexBuffer.buffer, 1, &indexCopy);
+  });
+
+  // Clean up the staging buffer
+  destroy_buffer(staging);
+
+  return mesh;
+}
+
+void VulkanEngine::init_default_data() {
+  std::array<Vertex,4> rect_vertices;
+
+	rect_vertices[0].position = {0.5,-0.5, 0};
+	rect_vertices[1].position = {0.5,0.5, 0};
+	rect_vertices[2].position = {-0.5,-0.5, 0};
+	rect_vertices[3].position = {-0.5,0.5, 0};
+
+	rect_vertices[0].color = {0,0, 0,1};
+	rect_vertices[1].color = { 0.5,0.5,0.5 ,1};
+	rect_vertices[2].color = { 1,0, 0,1 };
+	rect_vertices[3].color = { 0,1, 0,1 };
+
+	std::array<uint32_t,6> rect_indices;
+
+	rect_indices[0] = 0;
+	rect_indices[1] = 1;
+	rect_indices[2] = 2;
+
+	rect_indices[3] = 2;
+	rect_indices[4] = 1;
+	rect_indices[5] = 3;
+
+	rectangle = upload_mesh(rect_vertices, rect_indices);
+
+	// Delete the rectangle data on engine shutdown
+	_main_deletion_queue.push_function([&](){
+		destroy_buffer(rectangle.indexBuffer);
+		destroy_buffer(rectangle.vertexBuffer);
+	});
+}
+
 void VulkanEngine::immediate_submit(
   std::function<void(VkCommandBuffer cmdBuf)>&& function
 ) {
@@ -1276,7 +1550,7 @@ void VulkanEngine::immediate_submit(
   };
 
   // Submit the command buffer to the queue and execute it
-  // _render_fence will now block until the graphic commands finish execution
+  // _render_fence will now block until the commands finish execution
   VK_CHECK(vkQueueSubmit2(_graphics_q._handle, 1, &submitInfo2, _im_fence));
   VK_CHECK(vkWaitForFences(_device, 1, &_im_fence, true, 9999999999));
 }

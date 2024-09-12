@@ -59,3 +59,31 @@ struct ComputeEffect {
 
 	ComputePushConstants data;
 };
+
+// VkBuffer allocated from a Vma allocator
+struct GPUBuffer {
+	VkBuffer buffer;
+	VmaAllocation allocation;
+	VmaAllocationInfo info;
+};
+
+struct Vertex {
+	glm::vec3 position;
+	float uv_x;
+	glm::vec3 normal;
+	float uv_y;
+	glm::vec4 color;
+};
+
+// Holds the resources needed for a mesh
+struct GPUMeshBuffers {
+	GPUBuffer vertexBuffer;
+	GPUBuffer indexBuffer;
+	VkDeviceAddress vertexBufferAddress;
+};
+
+// Push constants for our mesh object draws
+struct GPUDrawPushConstants {
+	glm::mat4 worldMatrix;
+	VkDeviceAddress vertexBuffer;
+};

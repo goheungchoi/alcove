@@ -49,6 +49,9 @@ compile_glsl_shaders("${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 include("cmake-modules/CopyFilesByExtension.cmake")
 copy_files_by_extension("${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${CMAKE_BINARY_DIR}/shaders" "spv")
 
+# Make sure that the copy operation is preceded by the compile operation
+add_dependencies(CopyFileByExtension CompileShader)
+
 #########################################
 #########################################
 #########################################

@@ -75,8 +75,8 @@ public:
 public:
   DescriptorAllocator _global_descriptor_allocator;
 
-  VkDescriptorSet _draw_image_descriptors;
-  VkDescriptorSetLayout _draw_image_descriptor_layout;
+  VkDescriptorSet _draw_image_descriptor_set;
+  VkDescriptorSetLayout _draw_image_descriptor_set_layout;
 
 private:
   void init_descriptors();
@@ -95,8 +95,19 @@ private:
   void init_background_pipelines();
 
 /* COMPUTE PIPELINE EFFECTS */
-std::vector<ComputeEffect> _background_effects;
-int _current_background_effect{ 0 };
+  std::vector<ComputeEffect> _background_effects;
+  int _current_background_effect{ 0 };
+
+/* BUFFER ALLOCATION */
+  GPUBuffer create_buffer(std::size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+  void destroy_buffer(const GPUBuffer& buffer);
+
+/* MESH CREATION */
+  GPUMeshBuffers upload_mesh(std::span<Vertex> vertices, std::span<uint32_t> indices); 
+
+/* DEFAULT MESH DATA */
+  GPUMeshBuffers rectangle;
+  void init_default_data();
 
 /* IMMEDIATE SUBMIT SETUP */
 public:

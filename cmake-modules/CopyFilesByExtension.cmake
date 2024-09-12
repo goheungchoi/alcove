@@ -19,13 +19,13 @@ function(copy_files_by_extension src dst extension)
   endforeach()
 
   add_custom_target(
-    CopyFile
+    CopyFileByExtension
     ALL
     DEPENDS ${COPIED_FILES}
   )
 
   add_custom_command(
-    TARGET CopyFile
+    TARGET CopyFileByExtension
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${dst}
   )

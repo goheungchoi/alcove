@@ -39,6 +39,25 @@ target_link_libraries(
   general Vulkan::Vulkan  # general means debug & release mode
 )
 
+# Add the `loader` library target
+add_library(vk_loader_lib STATIC vk_loader.cpp)
+
+target_compile_features(vk_loader_lib PRIVATE cxx_std_20)
+target_include_directories(
+  vk_loader_lib
+  PRIVATE
+  ${Alcove_INCLUDE_DIR}
+  ${Vulkan_INCLUDE_DIRS}
+  ${vulkan-memory-allocator_INCLUDE_DIRS}
+  ${fmt_INCLUDE_DIRS}
+  ${glm_INCLUDE_DIRS}
+)
+target_link_libraries(
+  vk_loader_lib 
+  PRIVATE 
+  general Vulkan::Vulkan  # general means debug & release mode
+)
+
 # Add the `engine` library target
 add_library(
   vk_engine_lib 
@@ -73,6 +92,7 @@ target_link_libraries(
   general imgui::imgui
   general vk_descriptors_lib
   general vk_pipelines_lib
+  general vk_loader_lib
 )
 
 ##########################################
