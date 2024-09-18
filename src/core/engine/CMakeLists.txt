@@ -51,11 +51,13 @@ target_include_directories(
   ${vulkan-memory-allocator_INCLUDE_DIRS}
   ${fmt_INCLUDE_DIRS}
   ${glm_INCLUDE_DIRS}
+  ${assimp_INCLUDE_DIRS}
 )
 target_link_libraries(
   vk_loader_lib 
   PRIVATE 
   general Vulkan::Vulkan  # general means debug & release mode
+  general assimp::assimp
 )
 
 # Add the `engine` library target

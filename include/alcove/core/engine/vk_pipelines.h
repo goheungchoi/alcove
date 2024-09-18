@@ -81,6 +81,14 @@ public:
    */
   void disable_depth_test();
 
+  /**
+   * @brief Enable the depth testing
+   * 
+   * @param depthWriteEnable 
+   * @param op 
+   */
+  void enable_depth_test(bool depthWriteEnable, VkCompareOp op);
+
   void clear();
 
   VkPipeline build_pipeline(VkDevice device);

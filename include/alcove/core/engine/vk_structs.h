@@ -4,7 +4,7 @@
 
 namespace vkst {
 
-  VkRenderingAttachmentInfo attachment_info(
+  inline VkRenderingAttachmentInfo attachment_info(
     VkImageView view,
     VkClearValue* clear,
     VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
@@ -32,7 +32,32 @@ namespace vkst {
     return colorAttachment;
   }
 
-  VkRenderingInfo rendering_info(
+  inline VkRenderingAttachmentInfo depth_attachment_info(
+    VkImageView view,
+    VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+  ) {
+    VkRenderingAttachmentInfo depthAttachment {
+      .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+      .pNext = nullptr,
+
+      .imageView = view,
+      .imageLayout = layout,
+      
+      // Clear the depth value with 0.f, as we are going to use depth 0 
+      // as the "far" value, and 1 as the "near" value
+      .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+      .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+      .clearValue = {
+        .depthStencil = {
+          .depth = 0.f
+        }
+      }
+    };
+
+    return depthAttachment;
+  }
+
+  inline VkRenderingInfo rendering_info(
     VkExtent2D renderExtent,
     VkRenderingAttachmentInfo* colorAttachment,
     VkRenderingAttachmentInfo* depthAttachment

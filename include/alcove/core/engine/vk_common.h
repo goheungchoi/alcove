@@ -40,3 +40,5 @@ constexpr void VK_CHECK(VkResult err) {
     }
   } while (0);
 }
+
+using uint = unsigned int;

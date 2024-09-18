@@ -157,6 +157,18 @@ void vkutil::PipelineBuilder::disable_depth_test() {
   _depth_stencil.maxDepthBounds = 1.f;
 }
 
+void vkutil::PipelineBuilder::enable_depth_test(bool depthWriteEnable, VkCompareOp op) {
+  _depth_stencil.depthTestEnable = VK_TRUE;
+  _depth_stencil.depthWriteEnable = depthWriteEnable;
+  _depth_stencil.depthCompareOp = op;
+  _depth_stencil.depthBoundsTestEnable = VK_FALSE;
+  _depth_stencil.stencilTestEnable = VK_FALSE;
+  _depth_stencil.front = {};
+  _depth_stencil.back = {};
+  _depth_stencil.minDepthBounds = 0.f;
+  _depth_stencil.maxDepthBounds = 1.f;
+}
+
 VkPipeline vkutil::PipelineBuilder::build_pipeline(VkDevice device) {
   // Make viewport stage from our stored viewport and scissor
   // As we are using dynamic viewport state, 

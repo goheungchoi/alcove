@@ -72,7 +72,9 @@ cmake_print_variables(glm_VERSION)
 find_package(imgui REQUIRED)
 cmake_print_variables(imgui_VERSION)
 set(imgui_BACKEND_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui/backends")
-
+# Assimp
+find_package(assimp REQUIRED)
+cmake_print_variables(assimp_VERSION)
 
 ######## Testing Option  ########
 

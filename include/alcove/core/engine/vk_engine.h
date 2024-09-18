@@ -5,6 +5,7 @@
 // Includes all the common types to be used throughout the engine.
 #include <core/engine/vk_types.h>
 #include <core/engine/vk_descriptors.h>
+#include <core/engine/vk_loader.h>
 
 class VulkanEngine {
 public:
@@ -53,6 +54,7 @@ public:
   VkFormat        _swapchain_image_format;
 
 	Canvas _canvas;
+  Canvas _depth;
   VkExtent2D _canvas_extent;
 
   std::vector<VkImage> _swapchain_images;
@@ -103,10 +105,13 @@ private:
   void destroy_buffer(const GPUBuffer& buffer);
 
 /* MESH CREATION */
+public:
   GPUMeshBuffers upload_mesh(std::span<Vertex> vertices, std::span<uint32_t> indices); 
 
 /* DEFAULT MESH DATA */
+private:
   GPUMeshBuffers rectangle;
+  std::vector<std::shared_ptr<MeshAsset>> _test_meshes;
   void init_default_data();
 
 /* IMMEDIATE SUBMIT SETUP */
