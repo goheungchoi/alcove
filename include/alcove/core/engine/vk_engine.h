@@ -12,6 +12,7 @@ public:
   bool _isInitialized{ false }; // Check if the engine is initialized
   int _frameNumber{ 0 };        // A frame number integer
   bool stop_rendering{ false }; 
+  bool resize_requested{ false };
   VkExtent2D _windowExtent{ 1700, 900 };  // The pixel size of the window to be opened
 
   struct SDL_Window* _window{ nullptr };  // Forward-declared SDL_Window to be attached
@@ -56,6 +57,7 @@ public:
 	Canvas _canvas;
   Canvas _depth;
   VkExtent2D _canvas_extent;
+  float _render_scale{ 1.f };
 
   std::vector<VkImage> _swapchain_images;
   std::vector<VkImageView> _swapchain_image_views;
@@ -64,6 +66,7 @@ public:
 private:
   void create_swapchain(uint32_t width, uint32_t height);
   void destroy_swapchain();
+  void resize_swapchain();
 
 public:
 	static constexpr std::size_t FRAME_OVERLAP{ 2 };

@@ -82,7 +82,7 @@ void DescriptorAllocator::init_pool(
   if (totalDescriptorCount > maxSets) {
     throw std::invalid_argument("DescriptorAllocator: Pool ratios are invalid!");
   }
- #endif
+#endif
 
   VkDescriptorPoolCreateInfo poolInfo {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
@@ -126,3 +126,69 @@ VkDescriptorSet DescriptorAllocator::allocate(
 
   return descSet;
 }
+
+void GrowableDescriptorAllocator::init_pool(
+  VkDevice device, 
+  uint32_t initialSets,
+  std::span<PoolSizeRatio> poolRatios) {
+
+}
+void GrowableDescriptorAllocator::clear_descriptors(VkDevice device) {
+
+}
+void GrowableDescriptorAllocator::destroy_pool(VkDevice device) {
+
+}
+
+VkDescriptorSet GrowableDescriptorAllocator::allocate(
+  VkDevice device, 
+  VkDescriptorSetLayout layout) {
+
+}
+
+VkDescriptorPool GrowableDescriptorAllocator::get_pool(VkDevice device) {
+  VkDescriptorPool availablePool;
+  if (readyPools.size() != 0) {
+    availablePool = readyPools.back();
+    readyPools.pop_back();
+  } else {
+    // Create a new pool
+    availablePool = create_pool(device, setsPerPool, ratios);
+
+    setsPerPool = setsPerPool * 1.5;
+    if (setsPerPool > 4092) {
+      setsPerPool = 4092;
+    } 
+  }
+
+  return availablePool;
+}
+VkDescriptorPool GrowableDescriptorAllocator::create_pool(
+  VkDevice device, 
+  uint32_t setCount, 
+  std::span<PoolSizeRatio> poolRatios) {
+  std::vector<VkDescriptorPoolSize> poolSizes;
+  for (PoolSizeRatio ratio : poolRatios) {
+    VkDescriptorPoolSize poolSize {
+      .type = ratio.type,
+      .descriptorCount = uint32_t(ratio.ratio * setCount)
+    };
+    poolSizes.push_back(poolSize);
+  }
+
+  VkDescriptorPoolCreateInfo poolInfo {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+    .pNext = nullptr,
+
+    .flags = 0,
+    .maxSets = setCount,
+    .poolSizeCount = (uint32_t)poolSizes.size(),
+    .pPoolSizes = poolSizes.data()
+  };
+
+  VkDescriptorPool newPool;
+  vkCreateDescriptorPool(device, &poolInfo, nullptr, &newPool);
+  return newPool;
+}
+
+

@@ -61,6 +61,10 @@ public:
    */
   void disable_blending();
 
+  void enable_blending_additive();
+
+  void enable_blending_alphablend();
+
   /**
    * @brief Set the color attachment format object.
    * 

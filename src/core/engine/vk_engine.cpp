@@ -44,7 +44,10 @@ void VulkanEngine::init() {
   ///// Initialize SDL and create a window with it.
   SDL_Init(SDL_INIT_VIDEO);
 
-  SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_VULKAN);
+  SDL_WindowFlags window_flags = (SDL_WindowFlags) (
+    SDL_WINDOW_VULKAN | // Window for Vulkan
+    SDL_WINDOW_RESIZABLE  // Window is resizable (must recreate a swapchain)
+  );
 
   _window = SDL_CreateWindow(   // Create a window and store on the `_window` member var
     "Alcove",
@@ -154,16 +157,31 @@ void VulkanEngine::draw() {
 
   // Request an image from the swapchain.
   uint32_t swapchainImageIndex;
-  VK_CHECK(
-    vkAcquireNextImageKHR(
-      _device, 
-      _swapchain, 
-      1'000'000'000, 
-      get_current_frame()._swapchain_semaphore,  // Signal when successfully acquires an image
-      nullptr, 
-      &swapchainImageIndex
-    )
+  // VK_CHECK(
+  //   vkAcquireNextImageKHR(
+  //     _device, 
+  //     _swapchain, 
+  //     1'000'000'000, 
+  //     get_current_frame()._swapchain_semaphore,  // Signal when successfully acquires an image
+  //     nullptr, 
+  //     &swapchainImageIndex
+  //   )
+  // );
+
+  // Handle the window resize.
+  VkResult e = vkAcquireNextImageKHR(
+    _device, 
+    _swapchain, 
+    1'000'000'000, 
+    get_current_frame()._swapchain_semaphore,  // Signal when successfully acquires an image
+    nullptr, 
+    &swapchainImageIndex
   );
+  if (e == VK_ERROR_OUT_OF_DATE_KHR) {
+    // Stop rendering and rebuild the swapchain
+    resize_requested = true;
+    return;
+  }
 
   /* Begin Recording Commands */
 
@@ -175,8 +193,11 @@ void VulkanEngine::draw() {
   VK_CHECK(vkResetCommandBuffer(cmdBuf, 0));
 
   // Set the canvas 2D extent
-  _canvas_extent.width = _canvas._extent.width;
-  _canvas_extent.height = _canvas._extent.height;
+  // _canvas_extent.width = _canvas._extent.width;
+  // _canvas_extent.height = _canvas._extent.height;
+  // Calculate the draw extent
+  _canvas_extent.width = std::min(_swapchain_extent.width, _canvas._extent.width) * _render_scale;
+  _canvas_extent.height = std::min(_swapchain_extent.height, _canvas._extent.height) * _render_scale;
 
   // Begin the command buffer recording
   VkCommandBufferBeginInfo cmdBufBeginInfo {
@@ -521,13 +542,21 @@ void VulkanEngine::draw() {
     
     .pImageIndices = &swapchainImageIndex,
   };
+  // VK_CHECK(
+  //   vkQueuePresentKHR(
+	// 		_present_q._handle,
+  //     &presentInfo
+  //   )
+  // );
 
-  VK_CHECK(
-    vkQueuePresentKHR(
-			_present_q._handle,
-      &presentInfo
-    )
+  // Handle window resize
+  VkResult presentResult = vkQueuePresentKHR(
+    _present_q._handle,
+    &presentInfo
   );
+  if (presentResult == VK_ERROR_OUT_OF_DATE_KHR) {
+    resize_requested = true;
+  }
 
   // Increase the number of frames drawn
   _frameNumber++;
@@ -559,6 +588,7 @@ void VulkanEngine::run() {
     }
 
     // Update the state
+    //
 
     // Draw the current frame
     //// do not draw if we are minimized
@@ -568,12 +598,19 @@ void VulkanEngine::run() {
       continue;
     }
 
+    // Resize swapchain when requested
+    if (resize_requested) {
+      resize_swapchain();
+    }
+
     // imgui new frame
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
     if (ImGui::Begin("background")) {
+
+      ImGui::SliderFloat("Render Scale", &_render_scale, 0.3f, 1.f);
 			
 			ComputeEffect& selected = _background_effects[_current_background_effect];
 		
@@ -1229,6 +1266,21 @@ void VulkanEngine::destroy_swapchain() {
     vkDestroyImageView(_device, _image_view, nullptr);
 }
 
+void VulkanEngine::resize_swapchain() {
+  vkDeviceWaitIdle(_device);
+  
+  destroy_swapchain();
+
+  int w, h;
+  SDL_GetWindowSize(_window, &w, &h);
+  _windowExtent.width = w;
+  _windowExtent.height = h;
+
+  create_swapchain(_windowExtent.width, _windowExtent.height);
+
+  resize_requested = false;
+}
+
 void VulkanEngine::init_descriptors() {
   // Create a descriptor pool that can hold 10 sets with 1 image each.
   std::vector<DescriptorAllocator::PoolSizeRatio> sizes = {
@@ -1341,7 +1393,9 @@ void VulkanEngine::init_triangle_pipeline() {
   // No multisampling
   pipelineBuilder.set_multisampling_none();
   // No blending
-  pipelineBuilder.disable_blending();
+  //pipelineBuilder.disable_blending();
+  // Enable blending
+  pipelineBuilder.enable_blending_additive();
   // Enable depth test
   //pipelineBuilder.disable_depth_test();
   pipelineBuilder.enable_depth_test(true, VK_COMPARE_OP_GREATER_OR_EQUAL);

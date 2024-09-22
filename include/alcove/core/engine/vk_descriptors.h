@@ -64,9 +64,9 @@ struct DescriptorAllocator {
   /**
    * @brief Initialize a descriptor pool to allocate descriptor sets.
    * 
-   * @param device 
-   * @param maxSets 
-   * @param poolRatios 
+   * @param device The GPU device
+   * @param maxSets The number of max sets
+   * @param poolRatios The ratio of the types of descriptor pools
    */
   void init_pool(
     VkDevice device, 
@@ -90,3 +90,72 @@ struct DescriptorAllocator {
     VkDescriptorSetLayout layout
   );
 };
+
+/**
+ * @brief Manages the allocation and lifecycle of descriptor sets 
+ * from a descriptor pool. This one is useful when we don't know what
+ * descriptor sets will be needed when loading arbitrary object files.
+ * 
+ */
+class GrowableDescriptorAllocator {
+  struct PoolSizeRatio {
+    // The type of the descriptor that the allocator will contain
+    VkDescriptorType type; 
+    // The ratio of this type of descriptors in the pool
+    // e.g., For an pool size ratio of uniform buffers,
+    //  ```
+    //  PoolSizeRatio uniformBufferRatio{
+    //    .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    //    .ratio = 0.8
+    //  };
+    //  ```
+    //  , if maxSets is 10, then, the descriptor allocator can
+    // contain up to 8 uniform buffers.
+    float ratio;
+  };
+
+  // The array of pool size ratios for reallocation of pools
+  std::vector<PoolSizeRatio> ratios;
+  // The descriptor pools that have no empty space
+  std::vector<VkDescriptorPool> fullPools;
+  // The descriptor pools that can still be used
+  std::vector<VkDescriptorPool> readyPools;
+  // How many descriptor sets we allocate per pool
+  uint32_t setsPerPool;
+
+public:
+  /**
+   * @brief Initialize a descriptor pool to allocate descriptor sets.
+   * 
+   * @param device The GPU device
+   * @param initialSets The number of initial sets
+   * @param poolRatios The ratio of the types of descriptor pools
+   */
+  void init_pool(
+    VkDevice device, 
+    uint32_t initialSets,
+    std::span<PoolSizeRatio> poolRatios
+  );
+  void clear_descriptors(VkDevice device);
+  void destroy_pool(VkDevice device);
+
+  /**
+   * @brief Allocate a descriptor set from the descriptor
+   * pool in this allocator.
+   * 
+   * @param device 
+   * @param layout The descriptor set layout that contains information about
+   * what data the descriptor set holds.
+   * @return VkDescriptorSet 
+   */
+  VkDescriptorSet allocate(
+    VkDevice device, 
+    VkDescriptorSetLayout layout
+  );
+
+private:
+  // Pick up a pool from the ready pools, or create a new one if none is available.
+  VkDescriptorPool get_pool(VkDevice device);
+  VkDescriptorPool create_pool(VkDevice device, uint32_t setCount, std::span<PoolSizeRatio> poolRatios);
+};
+
