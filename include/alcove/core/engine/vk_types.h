@@ -32,9 +32,10 @@ struct FrameData {
   VkFence _render_fence;  // Wait for the draw commands of this frame 
 													// to be finished
 	DeletionQueue _local_deletion_queue;
+	GrowableDescriptorAllocator _frame_descriptor_allocator;
 };
 
-struct Canvas {
+struct GPUImage {
 	VmaAllocation _allocation;
 	VkExtent3D _extent;
 	VkFormat _image_format;
@@ -86,4 +87,32 @@ struct GPUMeshBuffers {
 struct GPUDrawPushConstants {
 	glm::mat4 worldMatrix;
 	VkDeviceAddress vertexBuffer;
+};
+
+
+struct GPUSceneData {
+	glm::mat4 view;
+	glm::mat4 proj;
+	glm::mat4 viewProj;
+	glm::vec4 ambientColor;
+	glm::vec4 sunlightDir;	// w for sun power
+	glm::vec4 sunlightColor;
+}
+
+// Material
+enum class MaterialPass : uint8_t {
+	Opaque,
+	Transparent,
+	Other
+};
+
+struct MaterialPipeline {
+	VkPipeline pipeline;
+	VkPipelineLayout layout;
+};
+
+struct MaterialInstance {
+	MaterialPipeline* pipeline;
+	VkDescriptorSet materialSet;
+	MaterialPass passType;
 };

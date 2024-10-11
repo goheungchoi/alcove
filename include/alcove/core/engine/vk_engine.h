@@ -7,6 +7,46 @@
 #include <core/engine/vk_descriptors.h>
 #include <core/engine/vk_loader.h>
 
+struct GLTFMetallic_Roughness {
+  MaterialPipeline opaquePipeline;
+  MaterialPipeline transparentPipeline;
+  
+  VkDescriptorSetLayout materialLayout;
+
+  struct MaterialConstants {
+    glm::vec4 colorFactors;
+    glm::vec4 metalRoughFactors;
+    glm::vec4 extra[14];  // paddings  
+
+    // In vulkan, when you want to bind a uniform buffer, 
+    // it needs to meet a minimum requirement for its alignment. 
+    // 256 bytes is a good default alignment for this 
+    // which all the gpus we target meet, 
+    // so we are adding those vec4s to pad the structure to 256 bytes.
+  };
+
+  struct MaterialResources {
+    GPUImage colorImage;
+    VkSampler colorSampler;
+    GPUImage metalRoughImage;
+    VkSampler metalRoughSampler;
+    VkBuffer dataBuffer;
+    uint32_t dataBufferOffset;
+  };
+
+  DescriptorWriter writer;
+
+  void build_pipelines(class VulkanEngine* engine);
+  void clear_resources(VkDevice device);
+
+  MaterialInstance write_material(
+    VkDevice device, 
+    MaterialPass pass, 
+    const MaterialResources& resources, 
+    DescriptorAllocatorGrowable& descriptorAllocator
+  );
+}
+
 class VulkanEngine {
 public:
   bool _isInitialized{ false }; // Check if the engine is initialized
@@ -54,8 +94,8 @@ public:
   VkSwapchainKHR  _swapchain;
   VkFormat        _swapchain_image_format;
 
-	Canvas _canvas;
-  Canvas _depth;
+	GPUImage _canvas;
+  GPUImage _depth;
   VkExtent2D _canvas_extent;
   float _render_scale{ 1.f };
 
@@ -107,6 +147,11 @@ private:
   GPUBuffer create_buffer(std::size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
   void destroy_buffer(const GPUBuffer& buffer);
 
+/* IMAGE ALLOCATION */
+  GPUImage create_image(VkExtent3D extent, VkFormat format, VkImageUsageFlags usage, bool mipmap = false);
+  GPUImage create_image(void* data, VkExtent3D extent, VkFormat format, VkImageUsageFlags usage, bool mipmap = false);
+  void destroy_image(const GPUImage& img);
+
 /* MESH CREATION */
 public:
   GPUMeshBuffers upload_mesh(std::span<Vertex> vertices, std::span<uint32_t> indices); 
@@ -116,6 +161,12 @@ private:
   GPUMeshBuffers rectangle;
   std::vector<std::shared_ptr<MeshAsset>> _test_meshes;
   void init_default_data();
+
+/* SCENE DATA */
+private:
+  GPUSceneData _scene_data;
+  VkDescriptorSetLayout _gpu_scene_data_descriptor_set_layout;
+
 
 /* IMMEDIATE SUBMIT SETUP */
 public:

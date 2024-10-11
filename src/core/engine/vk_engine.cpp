@@ -144,6 +144,7 @@ void VulkanEngine::draw() {
   );
 
 	get_current_frame()._local_deletion_queue.flush();
+  get_current_frame()._frame_descriptor_allocator.clear_descriptors(_device);
 
   // After the fence is terminated,
   // reset the fence to re-use in the next frame
@@ -336,7 +337,7 @@ void VulkanEngine::draw() {
   // COMMAND: Begin a render pass connected to our draw image
   VkRenderingAttachmentInfo colorAttachment = vkst::attachment_info(
     _canvas._image_view,
-    nullptr,
+    std::nullopt,
     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
   );
   VkRenderingAttachmentInfo depthAttachment = vkst::depth_attachment_info(
@@ -346,6 +347,37 @@ void VulkanEngine::draw() {
 
   VkRenderingInfo renderInfo = vkst::rendering_info(_canvas_extent, &colorAttachment, &depthAttachment);
   vkCmdBeginRendering(cmdBuf, &renderInfo);
+
+  // Allocate a new uniform buffer for the scene data
+  GPUBuffer gpuSceneDataBuffer = create_buffer(
+    sizeof(GPUSceneData),
+    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    VMA_MEMORY_USAGE_CPU_TO_GPU
+  );
+  // Add it to the deletion queue of this frame so it gets deleted once its been used
+  get_current_frame()._local_deletion_queue.push_function(
+    [=, this]() {
+      destroy_buffer(gpuSceneDataBuffer);
+    }
+  );
+  // Write the buffer
+  memcpy(gpuSceneDataBuffer.info.pMappedData, _scene_data, sizeof(GPUSceneData));
+  // Create a descriptor set that binds the buffer and update it
+  VkDescriptorSet globalDescriptor = get_current_frame()._frame_descriptor_allocator.allocate(
+    _device,
+    _gpu_scene_data_descriptor_set_layout
+  );
+  { // Update the global descriptor
+    DescriptorWriter writer;
+    writer.write_buffer(
+      0,
+      gpuSceneDataBuffer.buffer,
+      sizeof(GPUSceneData),
+      0,
+      VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+    );
+    writer.update_set(_device, globalDescriptor);
+  }
   
   // COMMAND: Bind the graphics pipeline
   vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, _triangle_pipeline);
@@ -863,8 +895,8 @@ if constexpr (debug_t::value) setupDebugMessenger();
 void VulkanEngine::init_swapchain() {
   create_swapchain(_windowExtent.width, _windowExtent.height);
 
-  // Create Canvas
-  // Canvas will take care of drawing frames and 
+  // Create GPUImage
+  // GPUImage will take care of drawing frames and 
   // transfer it into the swapchain image.
   
   // Image extent to be passed
@@ -907,7 +939,7 @@ void VulkanEngine::init_swapchain() {
     .requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
   };
 
-  // Allocate gpu memory and create canvas
+  // Allocate gpu memory and create a canvas
   vmaCreateImage(
     _allocator, 
     &canvasInfo, 
@@ -1344,6 +1376,35 @@ void VulkanEngine::init_descriptors() {
 
 		vkDestroyDescriptorSetLayout(_device, _draw_image_descriptor_set_layout, nullptr);
 	});
+
+  // Allocate the frame descriptors
+  for (int i=0; i<FRAME_OVERLAP; ++i) {
+    // Create a descriptor pool
+    std::vector<PoolSizeRatio> framePoolSize = {
+      { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3 },
+      { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3 },
+      { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3 },
+      { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4 }
+    };
+
+    _frames[i]._frame_descriptor_allocator = GrowableDescriptorAllocator{};
+    _frames[i]._frame_descriptor_allocator.init_pool(_device, 1000, framePoolSize);
+
+    _main_deletion_queue.push_function([&, i]() {
+      _frames[i]._frame_descriptor_allocator.destroy_pools(_device);
+    })
+  }
+
+  // Scene data descriptor layout
+  {
+    DescriptorLayoutBuilder builder;
+    builder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    _gpu_scene_data_descriptor_set_layout = builder.build(
+      _device,
+      VK_SHADER_STAGE_VERTEX_BIT |
+      VK_SHADER_STAGE_FRAGMENT_BIT
+    );
+  }
 }
 
 void VulkanEngine::init_pipelines() {
@@ -1589,6 +1650,148 @@ void VulkanEngine::destroy_buffer(const GPUBuffer& buffer) {
   vmaDestroyBuffer(_allocator, buffer.buffer, buffer.allocation);
 }
 
+GPUImage VulkanEngine::create_image(
+  VkExtent3D extent, 
+  VkFormat format, 
+  VkImageUsageFlags usage, 
+  bool mipmap) {
+  
+  GPUImage img;
+  img._extent = extent;
+  img._image_format = format;
+
+  VkImageCreateInfo imgInfo = vkst::image_create_info(format, extent, usage);
+  if (mipmap) {
+    imgInfo.mipLevels = static_cast<uint32_t>(
+      std::floor(
+        std::log2(
+          std::max(
+            extent.width, 
+            extent.height
+          )
+        )
+      ) + 1
+    );
+  }
+
+  // Allocate an image on the dedicated GPU memory
+  VmaAllocationCreateInfo allocInfo {
+    .usage = VMA_MEMORY_USAGE_GPU_ONLY,
+    .requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+  };
+
+  VK_CHECK(
+    vmaCreateImage(
+      _allocator, 
+      &imgInfo, 
+      &allocInfo, 
+      &img._image, 
+      img._allocation, 
+      nullptr
+    )
+  );
+
+  // If the format is a depth format, 
+  // we will need to have it use the correct aspect flag
+  VkImageAspectFlags aspectFlag = 
+    (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ? 
+    VK_IMAGE_ASPECT_DEPTH_BIT : 
+    VK_IMAGE_ASPECT_COLOR_BIT;
+
+  // Build an image view for the image
+  VkImageViewCreateInfo viewInfo = vkst::image_view_create_info(
+    format,
+    img._image,
+    aspectFlag
+  );
+  viewInfo.subresourceRange.levelCount = imgInfo.mipLevels;
+
+  VK_CHECK(
+    vkCreateImageView(
+      _device,
+      &viewInfo,
+      nullptr,
+      &img._image_view
+    )
+  );
+
+  return img;
+}
+
+GPUImage VulkanEngine::create_image(
+  void* data, 
+  VkExtent3D extent, 
+  VkFormat format, 
+  VkImageUsageFlags usage, 
+  bool mipmap) {
+  
+  // Create a staging buffer
+  // We assume that the image is in the 8-bit RGBA format
+  std::size_t dataSize = extent.width * extent.height * extent.depth * 4U;
+  GPUBuffer uploadBuffer = create_buffer(
+    dataSize,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    VMA_MEMORY_USAGE_CPU_TO_GPU
+  );
+
+  // Copy the image data to the staging buffer
+  memcpy(uploadBuffer.info.pMappedData, data, dataSize);
+
+  // Create an image
+  GPUImage img = create_image(
+    extent, 
+    format, 
+    usage | 
+    VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+    VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+    mipmap
+  );
+
+  immediate_submit([&](VkCommandBuffer cmdBuf) {
+    vkutil::cmd_transition_image(
+      cmdBuf,
+      img._image,
+      VK_IMAGE_LAYOUT_UNDEFINED,
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+    );
+
+    VkBufferImageCopy copyRegion{
+      .bufferOffset = 0,
+      .bufferRowLength = 0,
+      .bufferImageHeight = 0,
+
+      .imageSubresource = {
+        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .mipLevel = 0,
+        .baseArrayLayer = 0,
+        .layerCount = 1
+      },
+      .imageExtent = extent
+    };
+
+    // Copy the staging buffer into the image
+    vkCmdCopyBufferToImage(
+      cmdBuf,
+      uploadBuffer.buffer,
+      img._image,
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+      1,
+      copyRegion
+    );
+
+    vkutil::cmd_transition_image(
+      cmdBuf,
+      img._image,
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    );
+  });
+
+  destroy_buffer(uploadBuffer);
+  return img;
+}
+
+
 GPUMeshBuffers VulkanEngine::upload_mesh(std::span<Vertex> vertices, std::span<uint32_t> indices) {
   // Byte size of the vertex buffer
   const size_t vertexBufferSize = vertices.size() * sizeof(Vertex);
@@ -1663,6 +1866,11 @@ GPUMeshBuffers VulkanEngine::upload_mesh(std::span<Vertex> vertices, std::span<u
   destroy_buffer(staging);
 
   return mesh;
+}
+
+void destroy_image(const GPUImage& img) {
+  vkDestroyImageView(_device, img._image_view, nullptr);
+  vmaDestroyImage(_allocator, img._image, img._allocation);
 }
 
 void VulkanEngine::init_default_data() {
@@ -1820,7 +2028,7 @@ void VulkanEngine::init_imgui()
 }
 
 void VulkanEngine::draw_imgui(VkCommandBuffer cmdBuf, VkImageView targetImageView) {
-  VkRenderingAttachmentInfo colorAttachment = vkst::attachment_info(targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+  VkRenderingAttachmentInfo colorAttachment = vkst::attachment_info(targetImageView, std::nullopt, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
   VkRenderingInfo renderInfo = vkst::rendering_info(_swapchain_extent, &colorAttachment, nullptr);
 

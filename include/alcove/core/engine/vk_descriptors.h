@@ -37,13 +37,7 @@ struct DescriptorLayoutBuilder {
   );
 };
 
-/**
- * @brief Manages the allocation and lifecycle of descriptor sets 
- * from a descriptor pool.
- * 
- */
-struct DescriptorAllocator {
-  struct PoolSizeRatio {
+struct PoolSizeRatio {
     // The type of the descriptor that the allocator will contain
     VkDescriptorType type; 
     // The ratio of this type of descriptors in the pool
@@ -58,6 +52,13 @@ struct DescriptorAllocator {
     // contain up to 8 uniform buffers.
     float ratio;
   };
+
+/**
+ * @brief Manages the allocation and lifecycle of descriptor sets 
+ * from a descriptor pool.
+ * 
+ */
+struct DescriptorAllocator {
 
   VkDescriptorPool pool;
 
@@ -98,22 +99,6 @@ struct DescriptorAllocator {
  * 
  */
 class GrowableDescriptorAllocator {
-  struct PoolSizeRatio {
-    // The type of the descriptor that the allocator will contain
-    VkDescriptorType type; 
-    // The ratio of this type of descriptors in the pool
-    // e.g., For an pool size ratio of uniform buffers,
-    //  ```
-    //  PoolSizeRatio uniformBufferRatio{
-    //    .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-    //    .ratio = 0.8
-    //  };
-    //  ```
-    //  , if maxSets is 10, then, the descriptor allocator can
-    // contain up to 8 uniform buffers.
-    float ratio;
-  };
-
   // The array of pool size ratios for reallocation of pools
   std::vector<PoolSizeRatio> ratios;
   // The descriptor pools that have no empty space
@@ -124,7 +109,7 @@ class GrowableDescriptorAllocator {
   uint32_t setsPerPool;
 
   // Grow rate of pools
-  static constexpr float GROW_RATE{ 1.5f };
+  static constexpr float GROWTH_RATE{ 1.5f };
   // Max number of sets per pool
   static constexpr unsigned int MAX_DESCRIPTOR_SETS_PER_POOL{ 4092u };
 

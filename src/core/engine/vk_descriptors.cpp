@@ -139,7 +139,7 @@ void GrowableDescriptorAllocator::init_pool(
   readyPools.push_back(newPool);
 
   // The pool size of the next allocation
-  setsPerPool = initialSets * GROW_RATE; 
+  setsPerPool = initialSets * GROWTH_RATE; 
 
 }
 void GrowableDescriptorAllocator::clear_descriptors(VkDevice device) {
@@ -218,7 +218,7 @@ VkDescriptorPool GrowableDescriptorAllocator::get_pool(VkDevice device) {
     // Create a new pool
     availablePool = create_pool(device, setsPerPool, ratios);
     // Increase the number of sets per pool
-    setsPerPool = setsPerPool * GROW_RATE;
+    setsPerPool = setsPerPool * GROWTH_RATE;
     // Fix the max number of sets per pool
     if (setsPerPool > MAX_DESCRIPTOR_SETS_PER_POOL) {
       setsPerPool = MAX_DESCRIPTOR_SETS_PER_POOL;
