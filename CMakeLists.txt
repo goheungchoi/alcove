@@ -10,6 +10,8 @@ include(CMakePrintHelpers)
 ############### Config ##################
 set(Alcove_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(Alcove_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/alcove")
+# stb header path
+set(stb_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/stb")
 
 cmake_print_variables(Alcove_SOURCE_DIR)
 cmake_print_variables(Alcove_INCLUDE_DIR)
@@ -36,6 +38,11 @@ find_package(Vulkan REQUIRED
   SPIRV-Tools
 )
 
+# Include NVTT
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
+find_package(NVTT REQUIRED)
+cmake_print_variables(NVTT_FOUND)
+
 #########################################
 #########################################
 #########################################
@@ -59,15 +66,15 @@ add_dependencies(CopyFileByExtension CompileShader)
 
 # Conan Provided Packages
 
+# GLM
+find_package(glm REQUIRED)
+cmake_print_variables(glm_VERSION)
 # SDL2
 find_package(SDL2 REQUIRED CONFIG)
 cmake_print_variables(SDL2_VERSION)
 # fmt
 find_package(fmt REQUIRED)
 cmake_print_variables(fmt_VERSION)
-# GLM
-find_package(glm REQUIRED)
-cmake_print_variables(glm_VERSION)
 # Dear-imgui
 find_package(imgui REQUIRED)
 cmake_print_variables(imgui_VERSION)
@@ -75,6 +82,16 @@ set(imgui_BACKEND_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui/backends")
 # Assimp
 find_package(assimp REQUIRED)
 cmake_print_variables(assimp_VERSION)
+# nlorman
+find_package(nlohmann_json REQUIRED)
+cmake_print_variables(nlohmann_json_VERSION)
+# stduuid
+find_package(stduuid REQUIRED)
+cmake_print_variables(stduuid_VERSION)
+# Khronos texture library tool
+find_package(Ktx REQUIRED)
+cmake_print_variables(Ktx_VERSION)
+
 
 ######## Testing Option  ########
 

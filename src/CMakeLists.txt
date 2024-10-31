@@ -22,8 +22,11 @@ target_include_directories(${LIBRARY_NAME} PUBLIC ${LIBRARY_INCLUDES})
 ##########################################
 ###### Add Subdirectories ################
 ##########################################
+add_subdirectory(asset-importer)
 add_subdirectory(core)
-
+add_subdirectory(engine)
+add_subdirectory(renderer)
+add_subdirectory(resource-manager)
 
 ##########################################
 ##########################################

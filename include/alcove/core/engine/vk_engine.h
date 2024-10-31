@@ -43,9 +43,9 @@ struct GLTFMetallic_Roughness {
     VkDevice device, 
     MaterialPass pass, 
     const MaterialResources& resources, 
-    DescriptorAllocatorGrowable& descriptorAllocator
+    GrowableDescriptorAllocator& descriptorAllocator
   );
-}
+};
 
 class VulkanEngine {
 public:

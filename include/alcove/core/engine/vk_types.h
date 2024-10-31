@@ -1,6 +1,7 @@
 #pragma once
 
 #include <core/engine/vk_common.h>
+#include <core/engine/vk_descriptors.h>
 
 // TODO: Need to optimize DeletionQueue for mass deletion cases.
 //			 Arrays of vk handles and delete them by looping through arrays.
@@ -97,7 +98,7 @@ struct GPUSceneData {
 	glm::vec4 ambientColor;
 	glm::vec4 sunlightDir;	// w for sun power
 	glm::vec4 sunlightColor;
-}
+};
 
 // Material
 enum class MaterialPass : uint8_t {

@@ -157,7 +157,7 @@ void GrowableDescriptorAllocator::clear_descriptors(VkDevice device) {
   }
   fullPools.clear();
 }
-void GrowableDescriptorAllocator::destroy_pool(VkDevice device) {
+void GrowableDescriptorAllocator::destroy_pools(VkDevice device) {
   // Clear readyPools
   for (auto pool : readyPools) {
     vkDestroyDescriptorPool(device, pool, nullptr);
@@ -257,7 +257,7 @@ VkDescriptorPool GrowableDescriptorAllocator::create_pool(
 }
 
 void DescriptorWriter::write_image(
-  int binding, 
+  uint32_t binding, 
   VkImageView image, 
   VkSampler sampler, 
   VkImageLayout layout, 
@@ -288,7 +288,7 @@ void DescriptorWriter::write_image(
 
 
 void DescriptorWriter::write_buffer(
-  int binding, 
+  uint32_t binding, 
   VkBuffer buffer, 
   std::size_t size, 
   std::size_t offset, 

@@ -25,6 +25,9 @@ class AlcoveRecipe(ConanFile):
     self.requires("imgui/1.91.0")
     self.requires("fmt/10.2.1")
     self.requires("assimp/5.4.2")
+    self.requires("nlohmann_json/3.11.3")
+    self.requires("stduuid/1.2.3")
+    self.requires("ktx/4.3.2")
 
   def layout(self):
     self.folders.source = "src"

@@ -1,5 +1,5 @@
 // vk_engine.cpp
-#include "core/engine/vk_engine.h"
+#include <core/engine/vk_engine.h>
 
 #include <SDL.h>        // The main SDL library data for opening a window and input
 #include <SDL_vulkan.h> // Vulkan-specific flags and functionality for opening a Vulkan-compatible window
@@ -173,7 +173,7 @@ void VulkanEngine::draw() {
   VkResult e = vkAcquireNextImageKHR(
     _device, 
     _swapchain, 
-    1'000'000'000, 
+    1'000'000'000,  // 1 sec = 1'000'000'000 ns
     get_current_frame()._swapchain_semaphore,  // Signal when successfully acquires an image
     nullptr, 
     &swapchainImageIndex
@@ -361,7 +361,7 @@ void VulkanEngine::draw() {
     }
   );
   // Write the buffer
-  memcpy(gpuSceneDataBuffer.info.pMappedData, _scene_data, sizeof(GPUSceneData));
+  memcpy(gpuSceneDataBuffer.info.pMappedData, &_scene_data, sizeof(GPUSceneData));
   // Create a descriptor set that binds the buffer and update it
   VkDescriptorSet globalDescriptor = get_current_frame()._frame_descriptor_allocator.allocate(
     _device,
@@ -425,8 +425,8 @@ void VulkanEngine::draw() {
   glm::mat4 projection = glm::perspective(
     glm::radians(70.f),
     (float)_canvas_extent.width / (float)_canvas_extent.height,
-    10000.f,
-    0.1f
+    0.1f,
+    10000.f
   );
   // Invert the Y direction on the projection matrix,
   // So that the rendering works more similar to openGL and GLTF axis.
@@ -662,6 +662,12 @@ void VulkanEngine::run() {
 			ImGui::SliderFloat("x", &g_camPos.x, -5, 5);
 			ImGui::SliderFloat("y", &g_camPos.y, -5, 5);
 			ImGui::SliderFloat("z", &g_camPos.z, -5, 5);
+		} ImGui::End();
+
+    if (ImGui::Begin("extents")) {
+			ImGui::Text("Swapchain: %u, %u", _swapchain_extent.width, _swapchain_extent.height);
+      ImGui::Text("Frame Buffer: %u, %u", _canvas._extent.width, _canvas._extent.height);
+      ImGui::Text("Canvas: %u, %u", _canvas_extent.width, _canvas_extent.height);
 		} ImGui::End();
 
     // Make imgui calculate internal draw structures
@@ -1315,7 +1321,7 @@ void VulkanEngine::resize_swapchain() {
 
 void VulkanEngine::init_descriptors() {
   // Create a descriptor pool that can hold 10 sets with 1 image each.
-  std::vector<DescriptorAllocator::PoolSizeRatio> sizes = {
+  std::vector<PoolSizeRatio> sizes = {
     {
       VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, // Descriptor type to store an image
       1
@@ -1392,7 +1398,7 @@ void VulkanEngine::init_descriptors() {
 
     _main_deletion_queue.push_function([&, i]() {
       _frames[i]._frame_descriptor_allocator.destroy_pools(_device);
-    })
+    });
   }
 
   // Scene data descriptor layout
@@ -1686,7 +1692,7 @@ GPUImage VulkanEngine::create_image(
       &imgInfo, 
       &allocInfo, 
       &img._image, 
-      img._allocation, 
+      &img._allocation, 
       nullptr
     )
   );
@@ -1776,7 +1782,7 @@ GPUImage VulkanEngine::create_image(
       img._image,
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
       1,
-      copyRegion
+      &copyRegion
     );
 
     vkutil::cmd_transition_image(
@@ -1868,7 +1874,7 @@ GPUMeshBuffers VulkanEngine::upload_mesh(std::span<Vertex> vertices, std::span<u
   return mesh;
 }
 
-void destroy_image(const GPUImage& img) {
+void VulkanEngine::destroy_image(const GPUImage& img) {
   vkDestroyImageView(_device, img._image_view, nullptr);
   vmaDestroyImage(_allocator, img._image, img._allocation);
 }

@@ -38,20 +38,20 @@ struct DescriptorLayoutBuilder {
 };
 
 struct PoolSizeRatio {
-    // The type of the descriptor that the allocator will contain
-    VkDescriptorType type; 
-    // The ratio of this type of descriptors in the pool
-    // e.g., For an pool size ratio of uniform buffers,
-    //  ```
-    //  PoolSizeRatio uniformBufferRatio{
-    //    .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-    //    .ratio = 0.8
-    //  };
-    //  ```
-    //  , if maxSets is 10, then, the descriptor allocator can
-    // contain up to 8 uniform buffers.
-    float ratio;
-  };
+  // The type of the descriptor that the allocator will contain
+  VkDescriptorType type; 
+  // The ratio of this type of descriptors in the pool
+  // e.g., For an pool size ratio of uniform buffers,
+  //  ```
+  //  PoolSizeRatio uniformBufferRatio{
+  //    .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+  //    .ratio = 0.8
+  //  };
+  //  ```
+  //  , if maxSets is 10, then, the descriptor allocator can
+  // contain up to 8 uniform buffers.
+  float ratio;
+};
 
 /**
  * @brief Manages the allocation and lifecycle of descriptor sets 
@@ -127,7 +127,7 @@ public:
     std::span<PoolSizeRatio> poolRatios
   );
   void clear_descriptors(VkDevice device);
-  void destroy_pool(VkDevice device);
+  void destroy_pools(VkDevice device);
 
   /**
    * @brief Allocate a descriptor set from the descriptor
@@ -141,7 +141,7 @@ public:
   VkDescriptorSet allocate(
     VkDevice device, 
     VkDescriptorSetLayout layout,
-    void* pNext
+    void* pNext = nullptr
   );
 
 private:
@@ -172,7 +172,7 @@ public:
    * VK_DESCRIPTOR_TYPE_STORAGE_IMAGE was used back in chapter 2, it does not need sampler, and its used to allow compute shaders to directly access pixel data.
    * In both the write_image and write_buffer functions, we are being overly generic. This is done for simplicity, but if you want, you can add new ones like write_sampler() where it has VK_DESCRIPTOR_TYPE_SAMPLER and sets imageview and layout to null, and other similar abstractions.
    */
-  void write_image(int binding, VkImageView image, VkSampler sampler, VkImageLayout layout, VkDescriptorType type);
+  void write_image(uint32_t binding, VkImageView image, VkSampler sampler, VkImageLayout layout, VkDescriptorType type);
   /**
    * @brief 
    * 
@@ -186,7 +186,7 @@ public:
    * VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
    * VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC
    */
-  void write_buffer(int binding, VkBuffer buffer, std::size_t size, std::size_t offset, VkDescriptorType type);
+  void write_buffer(uint32_t binding, VkBuffer buffer, std::size_t size, std::size_t offset, VkDescriptorType type);
 
   void clear();
   void update_set(VkDevice device, VkDescriptorSet set);

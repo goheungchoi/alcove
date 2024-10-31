@@ -16,9 +16,9 @@ namespace vkst {
       .imageType = VK_IMAGE_TYPE_2D,
 
       .format = format,
-      .extent = extet,
+      .extent = extent,
 
-      .mipLevel = 1,  // The number of LOD (Levels of detail) available for minified sampling of the image
+      .mipLevels = 1,  // The number of LOD (Levels of detail) available for minified sampling of the image
       .arrayLayers = 1, // The number of layers in the image
 
       // Needs for MSAA (Multisampling anti-aliasing).
@@ -28,7 +28,7 @@ namespace vkst {
 
       // More efficient memory access then linear tiling
       .tiling = VK_IMAGE_TILING_OPTIMAL,
-      .usage = usage
+      .usage = usage,
 
       // The initialLayout must be either VK_IMAGE_LAYOUT_UNDEFINED or 
       // VK_IMAGE_LAYOUT_PREINITIALIZED. If it is VK_IMAGE_LAYOUT_PREINITIALIZED, 
@@ -41,7 +41,7 @@ namespace vkst {
       // any image subresources must be transitioned to another layout 
       // before they are accessed by the device.
       .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED
-    } 
+    };
     return info;
   }
 
@@ -50,18 +50,18 @@ namespace vkst {
     VkImage image, 
     VkImageAspectFlags aspectMask) {
     VkImageViewCreateInfo info {
-      .sType = CK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+      .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
       .pNext = nullptr,
 
-      .viewType = VK_IMAGE_VIEW_TYPE_2D,
       .image = image,
+      .viewType = VK_IMAGE_VIEW_TYPE_2D,
       .format = format,
       .subresourceRange = {
+        .aspectMask = aspectMask,
         .baseMipLevel = 0,
         .levelCount = 1,
         .baseArrayLayer = 0,
         .layerCount = 1,
-        .aspectMask = aspectMask
       }
     };
     return info;
