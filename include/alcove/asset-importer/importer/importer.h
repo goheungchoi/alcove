@@ -27,16 +27,18 @@ struct BaseImportSetting {
  */
 class IImporter {
 public:
-  virtual void Import(std::filesystem::path path) = 0;
+  virtual void Import(const char* path) = 0;
 };
 
 class BaseImporter : public IImporter {
 protected:
   AssetType _type;
+  UUID _uuid;
   char _name[MAX_NAME_LENGHT];
   char _path[MAX_PATH_LENGHT];
-
+  char _exportPath[MAX_PATH_LENGHT];
 public:
-  BaseImporter(const BaseImportSetting* setting);
-
+  BaseImporter(AssetType type, const BaseImportSetting* setting);
+  const char* GetName() { return _name; };
+  const char* GetPath() { return _path; };
 };

@@ -1,6 +1,7 @@
 #pragma once
 
-// Uncompressed image options
+namespace Tex {
+  // Uncompressed image options
 enum class ValueType {
   UINT8,
   SINT8,
@@ -52,7 +53,7 @@ enum class MipMapFilter {
   Max
 };
 
-struct CompressSettings {
+struct CompressOptions {
   CompressionFormat format{ CompressionFormat::BC7 };
   CompressionQuality quality{ CompressionQuality::Normal };
   ColorSpace colorSpace{ ColorSpace::sRGB };
@@ -64,3 +65,6 @@ struct CompressSettings {
   bool isCubeMap{ false };  // TODO: Support cube map
   bool useGPU{ true };
 };
+
+}
+

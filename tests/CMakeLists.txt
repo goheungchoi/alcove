@@ -16,4 +16,5 @@ if(BUILD_TESTING)
 
   # Add Subdirectories
   # add_subdirectory(core)
+  add_subdirectory(asset-importer)
 endif()

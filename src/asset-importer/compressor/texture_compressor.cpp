@@ -8,8 +8,8 @@
 
 #include "ktx.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+// #define STB_IMAGE_IMPLEMENTATION
+// #include "stb_image.h"
 
 static nvtt::Format ToNVTTFormat(CompressionFormat format) {
   nvtt::Format res;
@@ -205,38 +205,37 @@ struct TextureCompressor::Private {
   void* _out;
 };
 
-TextureCompressor::TextureCompressor() {
-  _m = new Private{};
-}
+// TextureCompressor::TextureCompressor() {
+//   _m = new Private{};
+// }
 
-TextureCompressor::~TextureCompressor() {
-  free(_m->_image);
-  free(_m->_out);
-  delete _m;
-}
+// TextureCompressor::~TextureCompressor() {
+//   free(_m->_image);
+//   free(_m->_out);
+//   delete _m;
+// }
 
-bool TextureCompressor::Load(const char* filename, ValueType type, int channels) {
-  _m->_requiredChannels = channels;
-  _m->_valueType = type;
-  _m->_image = stbi_load(
-    filename, 
-    &(_m->_imgWidth), 
-    &(_m->_imgHeight), 
-    &(_m->_channelsInFile), 
-    _m->_requiredChannels
-  );
+// bool TextureCompressor::Load(const char* filename, ValueType type, int channels) {
+//   _m->_requiredChannels = channels;
+//   _m->_valueType = type;
+//   _m->_image = stbi_load(
+//     filename, 
+//     &(_m->_imgWidth), 
+//     &(_m->_imgHeight), 
+//     &(_m->_channelsInFile), 
+//     _m->_requiredChannels
+//   );
 
-  // TODO: Test if the image size is correct!
-  unsigned long long numChannels = _m->_requiredChannels == 0 ? _m->_channelsInFile : _m->_requiredChannels;
-  _m->_imgSize = _m->_imgWidth * _m->_imgHeight * numChannels;
+//   // TODO: Test if the image size is correct!
+//   unsigned long long numChannels = _m->_requiredChannels == 0 ? _m->_channelsInFile : _m->_requiredChannels;
+//   _m->_imgSize = _m->_imgWidth * _m->_imgHeight * numChannels;
 
-  if (!_m->_image) return false;
+//   if (!_m->_image) return false;
   
-  return true;
-}
+//   return true;
+// }
 
-bool TextureCompressor::Compress(const char* filename, const CompressSettings* settings) {
-  if (!_m->_image) return false;
+bool TextureCompressor::Compress(const char* filename, const char* exportPath, const CompressOptions* settings) {
 
   nvtt::Format format = ToNVTTFormat(settings->format);
   nvtt::Quality quality = ToNVTTQuality(settings->quality);
@@ -267,7 +266,9 @@ bool TextureCompressor::Compress(const char* filename, const CompressSettings* s
   // return nvtt::nvtt_encode(inputBuffer, _m->_out, encodeSettings);
 
   nvtt::Surface image;
-  image.loadFromMemory(_m->_image, _m->_imgSize);
+  if (!image.load(filename)) {
+    return false;
+  }
   image.setAlphaMode(alphaMode);
   image.setNormalMap(isNormalMap);
 
@@ -276,17 +277,18 @@ bool TextureCompressor::Compress(const char* filename, const CompressSettings* s
   nvtt::CompressionOptions options;
   options.setFormat(format);
   options.setQuality(quality);
-  
+
   nvtt::OutputOptions output;
-  output.setFileName(filename);
+  output.setFileName(exportPath);
   output.setContainer(nvtt::Container_DDS10);
 
   // MipMap generation stage
   const int numMipMaps = [&] () {
     if (settings->enableMipMap) {
+      const int count = image.countMipmaps();
       int num = settings->numMipMaps;
-      if (num < 0 || image.countMipmaps() < num) {
-        return image.countMipmaps();
+      if (num <= 0 || count < num) {
+        return count;
       } else {
         return num;
       }
@@ -334,9 +336,9 @@ bool TextureCompressor::Compress(const char* filename, const CompressSettings* s
   return true;
 }
 
-bool TextureCompressor::Export(const char *path) {
-  if (!_m->_out) return false;
-  // TODO: KTX2 image exportion?
+// bool TextureCompressor::Export(const char *path) {
+//   if (!_m->_out) return false;
+//   // TODO: KTX2 image exportion?
 
-  return false;
-}
+//   return false;
+// }

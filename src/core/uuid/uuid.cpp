@@ -4,8 +4,6 @@
 
 using namespace uuids;
 
-static uuid empty;
-
 class UUIDRandomGenerator {
   std::random_device rd;
   std::mt19937 generator;

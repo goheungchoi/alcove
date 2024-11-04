@@ -1,6 +1,8 @@
 #pragma once
 
-#include "asset-importer/compressor/compression_types.h"
+#include "asset-importer/compressor/texture_options.h"
+
+using namespace Tex;
 
 /**
  * @brief Compress image files into BC6 or BC7 formats
@@ -16,14 +18,9 @@ class TextureCompressor {
   TextureCompressor& operator=(const TextureCompressor&) = delete;
 
 public:
-  TextureCompressor();
-  ~TextureCompressor();
+  TextureCompressor() = default;
 
-  bool Load(const char* filename, ValueType type = ValueType::UINT8, int channels = 4);
-
-  bool Compress(const char* filename, const CompressSettings* settings);
-
-  bool Export(const char* path);
+  bool Compress(const char* filename, const char* exportPath, const CompressOptions* settings);
 
 private:
   struct Private;

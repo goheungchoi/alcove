@@ -104,7 +104,9 @@ else()
   set(IS_ROOT_PROJECT FALSE)
 endif()
 
-if (IS_ROOT_PROJECT) 
+if (IS_ROOT_PROJECT)
+  add_compile_definitions(PROJECT_DIR=${PROJECT_SOURCE_DIR})
+  
   include(CTest)
 endif()
 
