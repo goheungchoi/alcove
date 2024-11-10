@@ -7,22 +7,29 @@ TextureImporter::TextureImporter(const TextureImportSetting* setting)
   _setting{*setting} {}
 
 // TODO: Write .meta file?
-void TextureImporter::Import(const char* _) {
-  std::string tmp{ _path };
-  std::size_t first = tmp.find_last_of('/') + 1;
-  std::size_t last = tmp.find_last_of('.');
+void TextureImporter::Import(const char* importDir) {
+  // Make a file directory named with the first two letters of UUID
+  char cuuid[36];
+  UUIDToString(_uuid, cuuid);
+  std::string str_uuid(cuuid, 36);
+  std::string exportDir = importDir + str_uuid.substr(0, 2);
+  std::filesystem::create_directory(exportDir);
 
-  std::string stem = tmp.substr(first, last - first);
+  std::string exportPath = exportDir + "/" + str_uuid;
+  strcpy(_exportPath, exportPath.c_str());
 
-  // TODO: Make a file directory named with the first two letters of UUID
-  std::string exportPath = "lib/texture/";
-  exportPath += stem + ".dds";
-
+  ImageData data{  
+    _setting.colorSpace, 
+    _setting.valueType, 
+    _setting.alphaMode
+  };
   TextureCompressor compressor;
-
-  if (!compressor.Compress(_path, exportPath.c_str(), &_setting.options)) {
+  if (!compressor.CompressKTX2(_path, _exportPath, &data, &_setting.options)) {
     // TODO: error message
     throw std::exception("TextureCompressor: Compression failed!");
   }
+
+  // Write .meta
+
 }
 

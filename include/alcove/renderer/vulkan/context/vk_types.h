@@ -2,7 +2,7 @@
 
 #include "renderer/vulkan/context/vk_common.h"
 
-namespace VkType {
+namespace Vk {
 
 struct Queue {
   VkQueue handle;

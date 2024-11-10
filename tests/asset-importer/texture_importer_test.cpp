@@ -12,13 +12,11 @@ TextureImportSetting CreateTextureImportSetting(const char* name, const char* pa
   TextureImportSetting setting = {};
   strncpy(setting.name, name, MAX_NAME_LENGHT);
   strncpy(setting.path, path, MAX_PATH_LENGHT);
-
+  setting.colorSpace = Tex::ColorSpace::sRGB;
   setting.valueType = Tex::ValueType::UINT8;
-  setting.channels = 4;
+  setting.alphaMode = Tex::AlphaMode::Opaque;
   setting.options.format = Tex::CompressionFormat::BC7;
   setting.options.quality = Tex::CompressionQuality::Normal;
-  setting.options.colorSpace = Tex::ColorSpace::sRGB;
-  setting.options.alphaMode = Tex::AlphaMode::Opaque;
   setting.options.enableMipMap = false;
   setting.options.numMipMaps = 1;
   setting.options.mipMapFilter = Tex::MipMapFilter::Box;
@@ -49,10 +47,8 @@ TEST_CASE("TextureImporter Compression and MipMap Options", "[TextureImporter]")
   setting.options.quality = Tex::CompressionQuality::Normal;
 
   TextureImporter importer(&setting);
-  importer.Import("");
+  importer.Import("lib/texture/");
 
-  std::string exportPath = "lib/texture/";
-  exportPath += "test_pic.dds";
-  REQUIRE(std::filesystem::exists(exportPath));
+  REQUIRE(std::filesystem::exists(importer.GetExportPath()));
 }
 

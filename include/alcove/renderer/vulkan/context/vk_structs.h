@@ -76,4 +76,61 @@ namespace VkStruct {
     return info;
   }
 
+  inline VkRenderingAttachmentInfo ColorAttachmentInfo(VkImageView view) {
+    VkRenderingAttachmentInfo colorAttachment{
+      .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+      .pNext = nullptr,
+
+      .imageView = view,
+      .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+
+      .loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+
+      .storeOp = VK_ATTACHMENT_STORE_OP_STORE
+    };
+
+    return colorAttachment;
+  }
+
+  inline VkRenderingAttachmentInfo DepthAttachmentInfo(VkImageView view) {
+    VkRenderingAttachmentInfo depthAttachment{
+      .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+      .pNext = nullptr,
+
+      .imageView = view,
+      .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+
+      .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+
+      .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+
+      .clearValue = {
+        .depthStencil = {
+          .depth = 0.f
+        }
+      }
+    };
+
+    return depthAttachment;
+  }
+
+  inline VkRenderingInfo RenderingInfo(
+    VkExtent2D renderExtent,
+    VkRenderingAttachmentInfo* colorAttachment,
+    VkRenderingAttachmentInfo* depthAttachment) {
+    VkRenderingInfo renderingInfo {
+      .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+      .pNext = nullptr,
+
+      .renderArea = VkRect2D{ VkOffset2D{ 0, 0 }, renderExtent },
+      .layerCount = 1,
+      .colorAttachmentCount = 1,
+      .pColorAttachments = colorAttachment,
+      .pDepthAttachment = depthAttachment,
+      .pStencilAttachment = nullptr
+    };
+
+    return renderingInfo;
+  }
+
 }

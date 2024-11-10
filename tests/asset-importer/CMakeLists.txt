@@ -19,3 +19,11 @@ add_test(
   NAME texture_importer_test
   COMMAND texture_importer_test
 )
+
+##########################################
+###### Add Subdirectories ################
+##########################################
+add_subdirectory(compressor)
+
+##########################################
+##########################################

@@ -6,6 +6,7 @@ target_include_directories(texture_compressor_lib
   ${Alcove_INCLUDE_DIR}
   ${NVTT_INCLUDE_DIRS}
   ${stb_INCLUDE_DIR}
+  ${ktx_INCLUDE_DIR}
 )
 target_link_libraries(texture_compressor_lib
   PRIVATE

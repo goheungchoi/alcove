@@ -1,4 +1,4 @@
-#include "core/uuid.h"
+#include "core/uuid/uuid.h"
 
 #include <uuid.h>
 
@@ -60,7 +60,7 @@ void UUIDToString(const UUID& id, char* outString) {
   std::span sp(idd.byte);
   std::string s{ to_string(uuid(sp)) };
 
-  std::span out(outString, 16);
+  std::span<char, 36> out(outString, 36);
   std::copy(s.begin(), s.end(), out.begin());
 }
 

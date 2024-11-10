@@ -1,12 +1,16 @@
 #pragma once
 
+#include "resource-manager/resource_cache.h"
+
 class ResourceManager {
+  
+
 
 public:
 
-  void Load();
+  Handle Load(const char* path);
 
-  void Unload();
+  void Unload(Handle handle);
 
 };
 

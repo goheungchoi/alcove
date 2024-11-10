@@ -5,8 +5,9 @@
 #include "asset-importer/compressor/texture_options.h"
 
 struct TextureImportSetting : public BaseImportSetting {
+  Tex::ColorSpace colorSpace;
   Tex::ValueType valueType;
-  int channels;
+  Tex::AlphaMode alphaMode;
   Tex::CompressOptions options;
 };
 

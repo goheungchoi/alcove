@@ -12,6 +12,7 @@ set(Alcove_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(Alcove_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/alcove")
 # stb header path
 set(stb_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/stb")
+set(ktx_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/ktx")
 
 cmake_print_variables(Alcove_SOURCE_DIR)
 cmake_print_variables(Alcove_INCLUDE_DIR)

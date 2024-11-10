@@ -5,6 +5,10 @@
 class VkRenderDevice;
 
 class VkRenderer final : public IRenderer {
+  
+  // TODO: VkTexture data and handle bind map
+  // std::unordered_map<Handle, VkTextureData> _textureHandleBind;
+  
   VkRenderDevice* _device{nullptr};
 
 public:
@@ -15,12 +19,20 @@ public:
 
   void ResizeScreen(unsigned int width, unsigned int height) override;
 
+  void BeginFrame() override;
+
   void BeginDraw() override;
 
   void EndDraw() override;
 
-  bool LoadModelFromFile(const char* path) override;
+  void EndFrame() override;
 
-  bool LoadTextureFromFile(const char* path) override;
+  void BindPipeline() override;
+
+  void BindResource() override;
+
+  bool CreateMesh(const char* path) override;
+
+  bool CreateTexture(const char* path) override;
 };
 

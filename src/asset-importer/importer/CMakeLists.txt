@@ -1,3 +1,12 @@
+# importer_lib
+add_library(importer_lib STATIC importer.cpp)
+target_compile_features(importer_lib PRIVATE cxx_std_20)
+target_include_directories(importer_lib PRIVATE ${Alcove_INCLUDE_DIR})
+target_link_libraries(importer_lib PUBLIC 
+  general uuid_lib
+  general nlohmann_json::nlohmann_json  
+)
+
 # texture_importer_lib
 add_library(texture_importer_lib STATIC texture_importer.cpp)
 target_compile_features(texture_importer_lib PRIVATE cxx_std_20)

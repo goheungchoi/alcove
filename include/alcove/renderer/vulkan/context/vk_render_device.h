@@ -19,8 +19,8 @@ class VkRenderDevice {
   VulkanInstance            _instance;
   VkPhysicalDevice          _gpu;     // GPU chosen as the default device
   VkDevice                  _device;          // Vulkan device for commands
-  VkType::Queue							_graphicsQueue;		// Device graphics queue struct
-  VkType::Queue							_presentQueue;		// Device presentation queue struct
+  Vk::Queue							_graphicsQueue;		// Device graphics queue struct
+  Vk::Queue							_presentQueue;		// Device presentation queue struct
   VkSurfaceKHR              _surface;         // Vulkan window surface
 
   VmaAllocator _allocator;
@@ -47,5 +47,14 @@ private:
   
   void CreateVmaAllocator();
   void DestroyVmaAllocator();
+
+private:
+
+  Vk::Image CreateImage(
+    VkExtent3D size,
+    VkFormat format,
+    VkImageUsageFlags usage,
+    bool mipmap
+  );
 
 };

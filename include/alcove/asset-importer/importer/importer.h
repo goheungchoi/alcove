@@ -39,6 +39,9 @@ protected:
   char _exportPath[MAX_PATH_LENGHT];
 public:
   BaseImporter(AssetType type, const BaseImportSetting* setting);
-  const char* GetName() { return _name; };
-  const char* GetPath() { return _path; };
+  AssetType GetAssetType() const { return _type; }
+  UUID GetUUID() const { return _uuid; }
+  const char* GetName() const { return _name; }
+  const char* GetPath() const { return _path; }
+  const char* GetExportPath() const { return _exportPath; }
 };
