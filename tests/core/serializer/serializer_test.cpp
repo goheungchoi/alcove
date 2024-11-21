@@ -10,9 +10,9 @@ using json = nlohmann::json;
 #include <string>
 #include <iostream>
 
-class TestSerializer : public Serializer {
+class TestSerializer : public JSONSerializer {
 public:
-    TestSerializer() : Serializer() {}
+    TestSerializer() : JSONSerializer() {}
 };
 
 TEST_CASE("Serializer: Set and Get Simple Data", "[serializer]") {
@@ -72,6 +72,8 @@ TEST_CASE("Serializer: Mixed Nested Data", "[serializer]") {
         serializer.SetData("user.name.last", "Doe");
         serializer.SetData("user.age", 30);
         serializer.SetArray("user.tags", {"admin", "editor", "user"});
+        serializer.SetArray("user.occupancy", {"user", 2, "my"});
+
         serializer.SetData("user.address.city", "New York");
         serializer.SetData("user.address.zip", 10001);
         
@@ -80,7 +82,7 @@ TEST_CASE("Serializer: Mixed Nested Data", "[serializer]") {
         const char* result = serializer.GetJSONString();
         REQUIRE(result != nullptr);
 
-        std::string expected = json::parse(R"({"user":{"name":{"first":"John","last":"Doe"},"age":30,"tags":["admin","editor","user"],"address":{"city":"New York","zip":10001},"is_active":true}})").dump();
+        std::string expected = json::parse(R"({"user":{"name":{"first":"John","last":"Doe"},"age":30,"tags":["admin","editor","user"],"occupancy":["user",2,"my"],"address":{"city":"New York","zip":10001},"is_active":true}})").dump();
         REQUIRE(std::string(result) == expected);
     }
 }

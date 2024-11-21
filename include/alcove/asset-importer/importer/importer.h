@@ -13,7 +13,7 @@
  * @brief 
  * 
  */
-class IImporter : public Serializer {
+class IImporter : public JSONSerializer {
 public:
   virtual void Import() = 0;
 };
