@@ -4,7 +4,9 @@ out/
 .vscode/
 extern/**
 .vs/
-__pycache__
+
+__pycache__/
+__pycache__/**
 
 generators
 generators/**
