@@ -7,7 +7,7 @@ struct ImageData {
   bool isCubeMap{ false };  // TODO: Support cube map
 
   TextureColorSpace colorSpace;
-  TextureValueType type;
+  TextureValueType valueType;
   TextureAlphaMode alphaMode;
   
   // Supported only when isCubeMap is true

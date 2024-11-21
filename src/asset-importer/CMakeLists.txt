@@ -1,4 +1,3 @@
-
 # asset_importer_lib
 add_library(asset_importer_lib STATIC asset_importer.cpp)
 target_compile_features(asset_importer_lib PRIVATE cxx_std_20)

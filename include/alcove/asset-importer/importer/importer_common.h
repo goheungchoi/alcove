@@ -17,6 +17,7 @@
 #include <filesystem>
 
 #include "core/uuid/uuid.h"
+#include "core/types/numeric_types.h"
 
 constexpr size_t MAX_NAME_LENGHT{ 64 };
 constexpr size_t MAX_PATH_LENGHT{ 256 };

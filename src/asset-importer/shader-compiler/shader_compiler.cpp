@@ -6,7 +6,9 @@
 #include <sstream>
 #include <fstream>
 
-static shaderc_spirv_version GetShaderTar
+static shaderc_spirv_version GetSPIRV(ShaderCompileTarget spv) {
+  return static_cast<shaderc_spirv_version>(spv);
+}
 
 static shaderc_env_version GetShaderClientVersion(ShaderClientTarget client, const char* version) {
   std::string v(version);
@@ -18,20 +20,19 @@ static shaderc_env_version GetShaderClientVersion(ShaderClientTarget client, con
     std::string minor;
     std::getline(ss, minor, '.');
 
-    u32 majorVersionNum{ std::stoi(major) };
-    u32 minorVersionNum{ std::stoi(minor) };
+    u32 majorVersionNum{ std::stoul(major) };
+    u32 minorVersionNum{ std::stoul(minor) };
 
     if (majorVersionNum == 1) {
-      switch (minorVersionNum)
-      {
-      case 0:
-        return shaderc_env_version_vulkan_1_0;
-      case 1:
-        return shaderc_env_version_vulkan_1_1;
-      case 2:
-        return shaderc_env_version_vulkan_1_2;
-      case 3:
-        return shaderc_env_version_vulkan_1_3;
+      switch (minorVersionNum) {
+        case 0:
+          return shaderc_env_version_vulkan_1_0;
+        case 1:
+          return shaderc_env_version_vulkan_1_1;
+        case 2:
+          return shaderc_env_version_vulkan_1_2;
+        case 3:
+          return shaderc_env_version_vulkan_1_3;
       }
     }
 
@@ -90,6 +91,6 @@ static bool ReadFile(const char* filepath, size_t* outSize, u8** outData) {
 bool CompileShaders(const ShaderCompileOption* option) {
 
 
-
+  return false;
 }
 

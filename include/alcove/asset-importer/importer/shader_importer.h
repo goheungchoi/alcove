@@ -2,14 +2,23 @@
 
 #include "asset-importer/importer/importer.h"
 
-struct ShaderImportSetting : public BaseImportSetting {
-  
-};
-
 class ShaderImporter : public BaseImporter {
-  ShaderImportSetting _setting;
-public:
-  ShaderImporter(const ShaderImportSetting* setting);
+  uncopyable(ShaderImporter);
 
-  void Import(const char* path) override;
+  ShaderImportData _importData;
+
+public:
+
+  ShaderImporter();
+
+private:
+
+  bool SetImportData_Impl(const BaseImportData* data) override;
+
+  bool ProcessImportData_Impl() override;
+
+  bool GenerateMetaData_Impl() override;
+
+  bool Import_Impl() override;
+
 };

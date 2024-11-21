@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <vector>
 
-#include <nvtt/nvtt.h>
+#include <nvtt.h>
 
 #include <ktx.h>
 #include "vkformat_enum.h"
@@ -503,7 +503,7 @@ bool TextureCompressor::CompressKTX2(
   // bool isNormalMap = settings->isNormalMap;
   // nvtt::MipmapFilter filter = ToNVTTMipMapFilter(settings->mipMapFilter);
   // bool shouldGammaCorrect = data->colorSpace == ColorSpace::sRGB;
-  const bool isFloat{ IsFloatType(data->type) };
+  const bool isFloat{ IsFloatType(data->valueType) };
   // Check if the texture compression is in default mode
   if (requiredChannels) {
     if (requiredChannels < 0) {
@@ -516,9 +516,9 @@ bool TextureCompressor::CompressKTX2(
     // Find the proper format for the texture
     switch (channels) {
       case 1: {
-        if (data->type == TextureValueType::UINT8)
+        if (data->valueType == TextureValueType::UINT8)
           format = nvtt::Format_BC4;
-        else if (data->type == TextureValueType::SINT8)
+        else if (data->valueType == TextureValueType::SINT8)
           format = nvtt::Format_BC4S;
         else  // HDR with 1 channel should not be compressed
           format = nvtt::Format_RGBA;
@@ -526,9 +526,9 @@ bool TextureCompressor::CompressKTX2(
       }
       break;
       case 2: {
-        if (data->type == TextureValueType::UINT8)
+        if (data->valueType == TextureValueType::UINT8)
           format = nvtt::Format_BC5;
-        else if (data->type == TextureValueType::SINT8)
+        else if (data->valueType == TextureValueType::SINT8)
           format = nvtt::Format_BC5S;
         else  // HDR with 2 channels should not be compressed
           format = nvtt::Format_RGBA;
@@ -568,7 +568,7 @@ bool TextureCompressor::CompressKTX2(
     }
 
     // HDR loading
-    if (data->type == TextureValueType::FLOAT16) {
+    if (data->valueType == TextureValueType::FLOAT16) {
       inputFormat = nvtt::InputFormat_RGBA_16F;
       image = stbi_load_16(filename, &width, &height, &channels, 4);
     } else {
@@ -582,7 +582,7 @@ bool TextureCompressor::CompressKTX2(
     }
   } else {
     // LDR loading
-    if (data->type == TextureValueType::UINT8)
+    if (data->valueType == TextureValueType::UINT8)
       inputFormat = nvtt::InputFormat_BGRA_8UB;
     else
       inputFormat = nvtt::InputFormat_BGRA_8SB;
@@ -596,7 +596,7 @@ bool TextureCompressor::CompressKTX2(
     return false;
   }
 
-  nvtt::ValueType type = ToNVTTValueType(data->type);
+  nvtt::ValueType type = ToNVTTValueType(data->valueType);
   
   nvtt::AlphaMode alphaMode = ToNVTTAlphaMode(data->alphaMode);
   bool isNormalMap = data->isNormalMap;

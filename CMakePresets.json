@@ -25,8 +25,8 @@
                 "value": "x64",
                 "strategy": "external"
             },
-            "toolchainFile": "${workspaceFolder}\\cmake\\conan_toolchain.cmake",
-            "binaryDir": "${workspaceFolder}\\out"
+            "toolchainFile": "${workspaceFolder}\\generators\\conan_toolchain.cmake",
+            "binaryDir": "${workspaceFolder}\\build"
         }
     ],
     "buildPresets": [

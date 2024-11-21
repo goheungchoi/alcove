@@ -4,26 +4,33 @@
 
 find_path(NVTT_INCLUDE_DIR 
   NAMES nvtt.h nvtt_lowlevel.h nvtt_wrapper.h
-  HINTS
-    "/usr/local/include"
-    "/usr/include"
-    "${CMAKE_CURRENT_LIST_DIR}/../include"
-    "$ENV{NVTT_DIR}/include"
-    "C:/Program Files/NVIDIA Corporation/NVIDIA Texture Tools/include"
-    "C:/Program Files (x86)/NVIDIA Corporation/NVIDIA Texture Tools/include"
+  PATHS
+  "/usr/local/"
+  "/usr/"
+  "$ENV{NVTT_DIR}/"
+  "C:/Program Files/NVIDIA Corporation/NVIDIA Texture Tools/"
+  "C:/Program Files (x86)/NVIDIA Corporation/NVIDIA Texture Tools/"
+  "${CMAKE_CURRENT_SOURCE_DIR}/"
+  PATH_SUFFIXES include include/nvtt
 )
 
+cmake_print_variables(NVTT_INCLUDE_DIR)
+
 find_library(NVTT_LIBRARY
-  NAMES nvtt30205 nvtt nvtt*
-  HINTS
+  NAMES nvtt30205.dll nvtt30205.lib nvtt.dll nvtt*.dll nvtt*.lib libnvtt.so.*
+  PATHS
     "/usr/local/lib"
     "/usr/lib"
-    "${CMAKE_CURRENT_LIST_DIR}/../lib"
-    "$ENV{NVTT_DIR}/lib"
-    "C:/Program Files/NVIDIA Corporation/NVIDIA Texture Tools/lib"
-    "C:/Program Files (x86)/NVIDIA Corporation/NVIDIA Texture Tools/lib"
+    "$ENV{NVTT_DIR}"
+    "C:/Program Files/NVIDIA Corporation/NVIDIA Texture Tools"
+    "C:/Program Files/NVIDIA Corporation/NVIDIA Texture Tools"
+    "C:/Program Files (x86)/NVIDIA Corporation/NVIDIA Texture Tools"
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/nvtt"
     NO_DEFAULT_PATH
+  PATH_SUFFIXES lib
 )
+
+cmake_print_variables(NVTT_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NVTT DEFAULT_MSG NVTT_LIBRARY NVTT_INCLUDE_DIR)

@@ -46,7 +46,7 @@ class AlcoveRecipe(ConanFile):
     deps.set_property("*", "cmake_find_mode", "both")
     deps.generate()
     tc = CMakeToolchain(self)
-    tc.user_presets_path = "ConanPresets.json"
+    tc.user_presets_path = os.path.join(self.folders.generators, "ConanPresets.json")
     tc.generate()
     benv = VirtualBuildEnv(self)
     benv.generate()

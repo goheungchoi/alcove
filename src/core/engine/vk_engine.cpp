@@ -16,6 +16,7 @@
 #define VMA_IMPLEMENTATION	// Activate the VMA implementation.
 #include <vk_mem_alloc.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include <chrono>

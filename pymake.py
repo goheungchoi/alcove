@@ -10,7 +10,7 @@ from python.file_organizer import clean_generator_dir, organize_generator_dir
 
 # Constants
 GENERATOR = "Unix Makefiles"
-CMAKE_CONFIG = f"-S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -G{GENERATOR} -DCMAKE_TOOLCHAIN_FILE=cmake/conan_toolchain.cmake"
+CMAKE_CONFIG = f"-S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -G{GENERATOR} -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake"
 
 def run_cmd(command:str, dir=None):
   try:
@@ -58,7 +58,7 @@ def conan_release():
 ##### Config Targets #############
 ##################################
 def config_msvc():
-  run_cmd(f"cmake -S . -B build -G \"Visual Studio 17 2022\" -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_TOOLCHAIN_FILE=cmake/conan_toolchain.cmake")
+  run_cmd(f"cmake -S . -B build -G \"Visual Studio 17 2022\" -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake")
 
 def config_test():
   run_cmd(f"cmake {CMAKE_CONFIG} -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON")

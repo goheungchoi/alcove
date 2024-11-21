@@ -1,9 +1,10 @@
 #pragma once
 
-#include "core/types/macros.h"
-#include "core/types/constants.h"
 #include "core/uuid/uuid.h"
+#include "core/types/constants.h"
 #include "core/types/handle.h"
+
+#include "core/utils/macros.h"
 
 #include <vector>
 

@@ -1,10 +1,14 @@
 #include "asset-importer/importer/shader_importer.h"
 
-ShaderImporter::ShaderImporter(const ShaderImportSetting *setting)
-: BaseImporter(AssetType::Shader, setting),
-  _setting{*setting} {}
+ShaderImporter::ShaderImporter()
+: BaseImporter(AssetType::Shader), _importData{} {}
 
-
-void ShaderImporter::Import(const char *path)
-{
+bool ShaderImporter::SetImportData_Impl(const BaseImportData* data) {
+  return false;
 }
+
+bool ShaderImporter::ProcessImportData_Impl() { return false; }
+
+bool ShaderImporter::GenerateMetaData_Impl() { return false; }
+
+bool ShaderImporter::Import_Impl() { return false; }

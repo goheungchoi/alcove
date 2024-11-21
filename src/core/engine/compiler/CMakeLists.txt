@@ -10,7 +10,7 @@ target_include_directories(
 )
 target_link_libraries(
   shader_compiler_lib 
-  PRIVATE 
+  PUBLIC 
   ${Vulkan_LIBRARIES}
   Vulkan::Vulkan
   Vulkan::glslang

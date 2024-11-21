@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/types/numeric_types.h"
-#include "core/types/magic_num.h"
-#include "core/types/macros.h"
 #include "core/types/constants.h"
+
+#include "core/utils/magic_num.h"
 
 constexpr u32 SHADER_TYPE_HEADER_MAGIC_NUM = MAGIC('H','E','A','D');
 constexpr u32 SHADER_TYPE_VERTEX_MAGIC_NUM = MAGIC('V','E','R','T');

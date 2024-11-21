@@ -7,30 +7,40 @@
 
 #include "asset-importer/importer/texture_importer.h"
 
-// Fixture for setting up a TextureImportSetting
-TextureImportSetting CreateTextureImportSetting(const char* name, const char* path) {
-  TextureImportSetting setting = {};
-  strncpy(setting.name, name, MAX_NAME_LENGHT);
-  strncpy(setting.path, path, MAX_PATH_LENGHT);
-  setting.colorSpace = TextureColorSpace::sRGB;
-  setting.valueType = TextureValueType::UINT8;
-  setting.alphaMode = TextureAlphaMode::Opaque;
-  setting.format = TextureCompressionFormat::BC7;
-  setting.quality = TextureCompressionQuality::Normal;
-  setting.enableMipMap = false;
-  setting.numMipMaps = 1;
-  setting.mipMapFilter = TextureMipMapFilter::Box;
-  setting.useGPU = true;
+// Fixture for setting up a TextureImportData
+TextureImportData CreateTextureImportSetting() {
+  TextureImportData data{};
+  data.colorSpace = TextureColorSpace::sRGB;
+  data.valueType = TextureValueType::UINT8;
+  data.alphaMode = TextureAlphaMode::Opaque;
+  data.format = TextureCompressionFormat::BC7;
+  data.quality = TextureCompressionQuality::Normal;
+  data.enableMipMap = false;
+  data.numMipMaps = 1;
+  data.mipMapFilter = TextureMipMapFilter::Box;
+  data.useGPU = true;
   
-  return setting;
+  return data;
 }
 
 TEST_CASE("TextureImporter Initialization", "[TextureImporter]") {
   std::filesystem::current_path( xstr(PROJECT_DIR) );
   
-  TextureImportSetting setting = CreateTextureImportSetting("TestTexture", "assets/texture/test_pic.png");
-  TextureImporter importer(&setting);
+  
+  TextureImportData data{ CreateTextureImportSetting() };
+  
+  BaseImportData baseData{
+    .type = ImportDataStructType::SHADER_IMPORT_DATA_STRUCT,
+    .pNext = &data,
 
+    .name = "TestTexture",
+    .path = "assets/texture/test_pic.png",
+    .exportDir = "lib/resources"
+  };
+  
+  TextureImporter importer;
+  importer.SetImportData(&baseData).ProcessImportData();
+    
   REQUIRE(std::string(importer.GetName()) == "TestTexture");
   REQUIRE(std::string(importer.GetPath()) == "assets/texture/test_pic.png");
 }
@@ -38,14 +48,23 @@ TEST_CASE("TextureImporter Initialization", "[TextureImporter]") {
 TEST_CASE("TextureImporter Compression and MipMap Options", "[TextureImporter]") {
   std::filesystem::current_path( xstr(PROJECT_DIR) );
   
-  TextureImportSetting setting = CreateTextureImportSetting("TestTexture", "assets/texture/test_pic.png");
-  setting.enableMipMap = true;
-  setting.numMipMaps = 6;
-  setting.format = TextureCompressionFormat::BC7;
-  setting.quality = TextureCompressionQuality::Normal;
+  TextureImportData data{ CreateTextureImportSetting() };
+  data.enableMipMap = true;
+  data.numMipMaps = 6;
+  data.format = TextureCompressionFormat::BC7;
+  data.quality = TextureCompressionQuality::Normal;
+  
+  BaseImportData baseData{
+    .type = ImportDataStructType::SHADER_IMPORT_DATA_STRUCT,
+    .pNext = &data,
 
-  TextureImporter importer(&setting);
-  importer.Import("lib/texture/");
+    .name = "TestTexture",
+    .path = "assets/texture/test_pic.png",
+    .exportDir = "lib/resources"
+  };
+
+  TextureImporter importer;
+  importer.SetImportData(&baseData).ProcessImportData().Import();
 
   REQUIRE(std::filesystem::exists(importer.GetExportPath()));
 }

@@ -26,6 +26,7 @@ list(PREPEND CMAKE_PREFIX_PATH
 list(PREPEND CMAKE_MODULE_PATH 
 	"$ENV{VULKAN_SDK}/Lib/cmake"
 	"$ENV{VULKAN_SDK}/Lib/cmake/glslang"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules"
 )
 cmake_print_variables(CMAKE_MODULE_PATH)
 #########################################
@@ -41,7 +42,6 @@ find_package(Vulkan REQUIRED
 )
 
 # Include NVTT
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules")
 find_package(NVTT REQUIRED)
 cmake_print_variables(NVTT_FOUND)
 
@@ -80,7 +80,9 @@ cmake_print_variables(fmt_VERSION)
 # Dear-imgui
 find_package(imgui REQUIRED)
 cmake_print_variables(imgui_VERSION)
-set(imgui_BACKEND_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui/backends")
+set(imgui_BACKEND_DIR 
+  "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui/backends"
+)
 # Assimp
 find_package(assimp REQUIRED)
 cmake_print_variables(assimp_VERSION)
@@ -109,6 +111,7 @@ endif()
 if (IS_ROOT_PROJECT)
   add_compile_definitions(
     PROJECT_DIR=${PROJECT_SOURCE_DIR}
+    ASSET_DIR=${PROJECT_SOURCE_DIR}/assets
     RESOURCE_DIR=${PROJECT_SOURCE_DIR}/lib/resources
   )
   

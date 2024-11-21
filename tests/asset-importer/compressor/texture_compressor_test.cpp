@@ -13,7 +13,7 @@
 #define xstr(a) str(a)
 #define str(a) #a
 
-struct TextureImportSetting {
+struct TextureImportData {
   char name[MAX_NAME_LENGHT];
   char path[MAX_PATH_LENGHT];
 
@@ -41,8 +41,8 @@ struct TextureImportSetting {
 };
 
 // Fixture for setting up a TextureImportSetting
-TextureImportSetting CreateTextureImportSetting(const char* name, const char* path) {
-  TextureImportSetting setting = {};
+TextureImportData CreateTextureImportSetting(const char* name, const char* path) {
+  TextureImportData setting = {};
   strncpy(setting.name, name, MAX_NAME_LENGHT);
   strncpy(setting.path, path, MAX_PATH_LENGHT);
   setting.colorSpace = TextureColorSpace::sRGB;
@@ -69,7 +69,7 @@ TEST_CASE("Texture Compression", "[TextureCompressor]") {
   char _path[MAX_PATH_LENGHT];
   char _exportPath[MAX_PATH_LENGHT];
 
-  TextureImportSetting _setting = CreateTextureImportSetting("TestTexture", ASSET_PATH);
+  TextureImportData _setting = CreateTextureImportSetting("TestTexture", ASSET_PATH);
   _uuid = GenerateUUID_v5(ASSET_PATH);
   strcpy(_name, "TestTexture");
   strcpy(_path, "assets/texture/test_pic.png");
