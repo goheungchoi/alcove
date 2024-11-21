@@ -45,14 +45,14 @@ def clean():
 ##### Conan Install Command ######
 ##################################
 def conan_debug():
-  clean_generator_dir(current_workspace_directory=os.getcwd())
+  # clean_generator_dir(current_workspace_directory=os.getcwd())
   run_cmd(f"conan install conanfile.py --build=missing --profile=debug")
-  organize_generator_dir(current_workspace_directory=os.getcwd())
+  # organize_generator_dir(current_workspace_directory=os.getcwd())
 
 def conan_release():
-  clean_generator_dir(current_workspace_directory=os.getcwd())
+  # clean_generator_dir(current_workspace_directory=os.getcwd())
   run_cmd(f"conan install conanfile.py --build=missing --profile=release")
-  organize_generator_dir(current_workspace_directory=os.getcwd())
+  # organize_generator_dir(current_workspace_directory=os.getcwd())
 
 ##################################
 ##### Config Targets #############

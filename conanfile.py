@@ -32,7 +32,7 @@ class AlcoveRecipe(ConanFile):
   def layout(self):
     self.folders.source = "src"
     self.folders.build = "build"
-    self.folders.generators = "cmake"
+    self.folders.generators = "generators"
     self.folders.root = "."
 
     # CPP_INFO Directories

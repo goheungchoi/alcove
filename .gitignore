@@ -4,3 +4,10 @@ out/
 .vscode/
 extern/**
 .vs/
+__pycache__
+
+generators
+generators/**
+
+Testing
+Testing/**
