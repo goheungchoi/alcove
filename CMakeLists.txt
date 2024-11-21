@@ -37,6 +37,7 @@ find_package(Vulkan REQUIRED
   glslangValidator
   glslang 
   SPIRV-Tools
+  shaderc_combined
 )
 
 # Include NVTT
@@ -106,7 +107,10 @@ else()
 endif()
 
 if (IS_ROOT_PROJECT)
-  add_compile_definitions(PROJECT_DIR=${PROJECT_SOURCE_DIR})
+  add_compile_definitions(
+    PROJECT_DIR=${PROJECT_SOURCE_DIR}
+    RESOURCE_DIR=${PROJECT_SOURCE_DIR}/lib/resources
+  )
   
   include(CTest)
 endif()

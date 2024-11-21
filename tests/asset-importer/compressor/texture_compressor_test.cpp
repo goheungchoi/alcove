@@ -4,8 +4,9 @@
 
 #include <filesystem>
 #include <iostream>
+#include <algorithm>
 
-#include "asset-importer/compressor/texture_compressor.h"
+#include "asset-importer/texture-compressor/texture_compressor.h"
 
 #include "asset-importer/importer/importer_common.h"
 
@@ -15,10 +16,28 @@
 struct TextureImportSetting {
   char name[MAX_NAME_LENGHT];
   char path[MAX_PATH_LENGHT];
-  Tex::ColorSpace colorSpace;
-  Tex::ValueType valueType;
-  Tex::AlphaMode alphaMode;
-  Tex::CompressOptions options;
+
+  bool isNormalMap;
+  bool isCubeMap; 
+
+  TextureColorSpace colorSpace;
+  TextureValueType valueType;
+  TextureAlphaMode alphaMode;
+
+  // Supported only when isCubeMap is true
+  TextureCubeLayout cubeLayout;
+
+  // Compression options
+  TextureCompressionFormat format;
+  TextureCompressionQuality quality;
+
+  // Mipmap settings
+  bool enableMipMap;
+  int numMipMaps{ 1 };  // if the value < 0 or > max, set to max
+  TextureMipMapFilter mipMapFilter{ TextureMipMapFilter::Box };
+
+  // Use GPU
+  bool useGPU{ true };
 };
 
 // Fixture for setting up a TextureImportSetting
@@ -26,21 +45,20 @@ TextureImportSetting CreateTextureImportSetting(const char* name, const char* pa
   TextureImportSetting setting = {};
   strncpy(setting.name, name, MAX_NAME_LENGHT);
   strncpy(setting.path, path, MAX_PATH_LENGHT);
-  setting.colorSpace = Tex::ColorSpace::sRGB;
-  setting.valueType = Tex::ValueType::UINT8;
-  setting.alphaMode = Tex::AlphaMode::Opaque;
-  setting.options.format = Tex::CompressionFormat::BC7;
-  setting.options.quality = Tex::CompressionQuality::Normal;
-  setting.options.enableMipMap = false;
-  setting.options.numMipMaps = 1;
-  setting.options.mipMapFilter = Tex::MipMapFilter::Box;
-  setting.options.isNormalMap = false;
-  setting.options.isCubeMap = false;
-  setting.options.useGPU = true;
+  setting.colorSpace = TextureColorSpace::sRGB;
+  setting.valueType = TextureValueType::UINT8;
+  setting.alphaMode = TextureAlphaMode::Opaque;
+  setting.format = TextureCompressionFormat::BC7;
+  setting.quality = TextureCompressionQuality::Normal;
+  setting.enableMipMap = false;
+  setting.numMipMaps = 1;
+  setting.mipMapFilter = TextureMipMapFilter::Box;
+  setting.useGPU = true;
   
   return setting;
 }
 
+constexpr const char* ASSET_PATH{"assets/texture/test_pic.png"};
 constexpr const char* IMPORT_DIR{ "lib/resources/" };
 
 TEST_CASE("Texture Compression", "[TextureCompressor]") {
@@ -51,13 +69,15 @@ TEST_CASE("Texture Compression", "[TextureCompressor]") {
   char _path[MAX_PATH_LENGHT];
   char _exportPath[MAX_PATH_LENGHT];
 
-  TextureImportSetting _setting = CreateTextureImportSetting("TestTexture", "assets/texture/test_pic.png");
+  TextureImportSetting _setting = CreateTextureImportSetting("TestTexture", ASSET_PATH);
+  _uuid = GenerateUUID_v5(ASSET_PATH);
   strcpy(_name, "TestTexture");
   strcpy(_path, "assets/texture/test_pic.png");
   // Make a file directory named with the first two letters of UUID
-  char cuuid[36];
+  char cuuid[32];
   UUIDToString(_uuid, cuuid);
-  std::string str_uuid(cuuid, 36);
+  std::string str_uuid(cuuid, 32);
+
   std::string exportDir = IMPORT_DIR + str_uuid.substr(0, 2);
   std::filesystem::create_directory(exportDir);
 
@@ -65,11 +85,25 @@ TEST_CASE("Texture Compression", "[TextureCompressor]") {
   strcpy(_exportPath, exportPath.c_str());
 
   ImageData data{  
+    false, false,
     _setting.colorSpace, 
     _setting.valueType, 
     _setting.alphaMode
   };
+
+  CompressOptions options{
+    .format = _setting.format,
+    .quality = _setting.quality,
+
+    // Mipmap settings
+    .enableMipMap = _setting.enableMipMap,
+    .numMipMaps = _setting.numMipMaps,
+    .mipMapFilter = _setting.mipMapFilter,
+
+    // Use GPU
+    .useGPU = _setting.useGPU
+  };
   TextureCompressor compressor;
-  REQUIRE(compressor.CompressKTX2(_path, _exportPath, &data, &_setting.options));
+  REQUIRE(compressor.CompressKTX2(_path, _exportPath, &data, &options));
 }
 

@@ -11,8 +11,9 @@ target_link_libraries(asset_importer_lib PRIVATE
 ##########################################
 ###### Add Subdirectories ################
 ##########################################
-add_subdirectory(compressor)
 add_subdirectory(importer)
+add_subdirectory(shader-compiler)
+add_subdirectory(texture-compressor)
 
 ##########################################
 ##########################################

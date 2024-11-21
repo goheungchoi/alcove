@@ -59,8 +59,12 @@ void UUIDToString(const UUID& id, char* outString) {
   UUID& idd = const_cast<UUID&>(id);
   std::span sp(idd.byte);
   std::string s{ to_string(uuid(sp)) };
+  auto it = std::remove_if(s.begin(), s.end(), 
+    [](char c) { return c == '-'; }
+  );
+  s.erase(it, s.end());
 
-  std::span<char, 36> out(outString, 36);
+  std::span<char, 32> out(outString, 32);
   std::copy(s.begin(), s.end(), out.begin());
 }
 
@@ -79,3 +83,9 @@ bool StringToUUID(const char* str, UUID* outId) {
 UUID::UUID(const unsigned char *data) {
   memcpy(byte, data, 16);
 }
+
+bool UUID::operator==(const UUID &other) const {
+  return memcmp(byte, other.byte, 16) == 0;
+}
+
+

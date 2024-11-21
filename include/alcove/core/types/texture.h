@@ -2,43 +2,31 @@
 
 #include "core/types/resource.h"
 
-enum class TextureValueType {
-  UINT8,
-  SINT8,
-  FLOAT16,
-  FLOAT32
-};
+#include "core/types/texture_enums.h"
 
-enum class TextureAlphaMode {
-  Opaque,
-  Transparent
-};
-
-enum class TextureFormat {
-  UNDEFINED,
-  BC1,
-  BC1A,
-  BC2,
-  BC3,
-  BC4,
-  BC5,
-  BC6U,
-  BC6S,
-  BC7
+struct MipmapData {
+  u32 level;
+  u32 size;
+  std::vector<u8> data;
 };
 
 struct Texture : public ResourceBase {
-  bool _sRGB;
+  bool sRGB;
+  bool isCubeMap;
 
-  TextureAlphaMode _alphaMode;
+  TextureAlphaMode alphaMode;
 
-  uint32_t _width;
-  uint32_t _height;
+  uint32_t width;
+  uint32_t height;
 
-  TextureValueType _componentType;
-  TextureFormat _format;
+  TextureValueType valueType;
+  TextureFormat format;
 
-  uint32_t _mipLevels;
-  uint32_t _arrayLevels;
+  uint32_t mipLevels;
+  uint32_t arrayLayers;
+
+  std::vector<MipmapData> mipmaps;
 };
+
+
 

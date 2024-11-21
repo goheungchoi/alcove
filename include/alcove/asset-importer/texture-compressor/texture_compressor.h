@@ -1,8 +1,33 @@
 #pragma once
 
-#include "asset-importer/compressor/texture_options.h"
+#include "core/types/texture_enums.h"
 
-using namespace Tex;
+struct ImageData {
+  bool isNormalMap{ false };
+  bool isCubeMap{ false };  // TODO: Support cube map
+
+  TextureColorSpace colorSpace;
+  TextureValueType type;
+  TextureAlphaMode alphaMode;
+  
+  // Supported only when isCubeMap is true
+  TextureCubeLayout cubeLayout;
+};
+
+struct CompressOptions {
+  // TODO: Adjust format based on the channel.
+  // Or, recommended settings.
+  TextureCompressionFormat format;
+  TextureCompressionQuality quality;
+
+  // Mipmap settings
+  bool enableMipMap;
+  int numMipMaps{ 1 };  // if the value < 0 or > max, set to max
+  TextureMipMapFilter mipMapFilter{ TextureMipMapFilter::Box };
+
+  // Use GPU
+  bool useGPU{ true };
+};
 
 /**
  * @brief Compress image files into BC6 or BC7 formats
@@ -37,5 +62,7 @@ public:
   bool Compress(const char* filename, const char* exportPath, const ImageData* data, const CompressOptions* settings);
 
   bool CompressKTX2(const char* filename, const char* exportPath, const ImageData* data, const CompressOptions* settings);
+
+  bool CompressCube(const char* filename, const char* exportPath, const ImageData* data, const CompressOptions* settings);
 
 };

@@ -1,4 +1,4 @@
-#include "asset-importer/compressor/texture_compressor.h"
+#include "asset-importer/texture-compressor/texture_compressor.h"
 
 #include <iostream>
 #include <fstream>
@@ -9,50 +9,51 @@
 
 #include <ktx.h>
 #include "vkformat_enum.h"
+#include "ktx_texture_keys.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-static int GetRequiredNumChannels(CompressionFormat format) {
+static int GetRequiredNumChannels(TextureCompressionFormat format) {
   int res;
   switch (format) {
-    case CompressionFormat::BC1:
+    case TextureCompressionFormat::BC1:
       res = 3;
       break;
-    case CompressionFormat::BC1a:
+    case TextureCompressionFormat::BC1a:
       res = 4;
       break;
-    case CompressionFormat::BC2:
+    case TextureCompressionFormat::BC2:
       res = 4;
       break;
-    case CompressionFormat::BC3:
+    case TextureCompressionFormat::BC3:
       res = 4;
       break;
-    case CompressionFormat::BC3n:
+    case TextureCompressionFormat::BC3n:
       res = 4;
       break;
-    case CompressionFormat::BC4:
+    case TextureCompressionFormat::BC4:
       res = 1;
       break;
-    case CompressionFormat::BC4S:
+    case TextureCompressionFormat::BC4S:
       res = 1;
       break;
-    case CompressionFormat::BC5:
+    case TextureCompressionFormat::BC5:
       res = 2;
       break;
-    case CompressionFormat::BC5S:
+    case TextureCompressionFormat::BC5S:
       res = 2;
       break;
-    case CompressionFormat::BC6U:
+    case TextureCompressionFormat::BC6U:
       res = 3;
       break;
-    case CompressionFormat::BC6S:
+    case TextureCompressionFormat::BC6S:
       res = 3;
       break;
-    case CompressionFormat::BC7:
+    case TextureCompressionFormat::BC7:
       res = 4;
       break;
-    case CompressionFormat::Uncompressed:
+    case TextureCompressionFormat::Uncompressed:
       res = -1;
       break;
     default:
@@ -61,54 +62,54 @@ static int GetRequiredNumChannels(CompressionFormat format) {
   return res;
 }
 
-static bool IsFloatType(ValueType type) {
-  if (type == ValueType::FLOAT16 || type == ValueType::FLOAT32)
+static bool IsFloatType(TextureValueType type) {
+  if (type == TextureValueType::FLOAT16 || type == TextureValueType::FLOAT32)
     return true;
   else
     return false;
 }
 
-static nvtt::Format ToNVTTFormat(CompressionFormat format) {
+static nvtt::Format ToNVTTFormat(TextureCompressionFormat format) {
   nvtt::Format res;
 
   switch (format) {
-    case CompressionFormat::BC1:
+    case TextureCompressionFormat::BC1:
       res = nvtt::Format::Format_BC1;
       break;
-    case CompressionFormat::BC1a:
+    case TextureCompressionFormat::BC1a:
       res = nvtt::Format::Format_BC1a;
       break;
-    case CompressionFormat::BC2:
+    case TextureCompressionFormat::BC2:
       res = nvtt::Format::Format_BC2;
       break;
-    case CompressionFormat::BC3:
+    case TextureCompressionFormat::BC3:
       res = nvtt::Format::Format_BC3;
       break;
-    case CompressionFormat::BC3n:
+    case TextureCompressionFormat::BC3n:
       res = nvtt::Format::Format_BC3n;
       break;
-    case CompressionFormat::BC4:
+    case TextureCompressionFormat::BC4:
       res = nvtt::Format::Format_BC4;
       break;
-    case CompressionFormat::BC4S:
+    case TextureCompressionFormat::BC4S:
       res = nvtt::Format::Format_BC4S;
       break;
-    case CompressionFormat::BC5:
+    case TextureCompressionFormat::BC5:
       res = nvtt::Format::Format_BC5;
       break;
-    case CompressionFormat::BC5S:
+    case TextureCompressionFormat::BC5S:
       res = nvtt::Format::Format_BC5S;
       break;
-    case CompressionFormat::BC6U:
+    case TextureCompressionFormat::BC6U:
       res = nvtt::Format::Format_BC6U;
       break;
-    case CompressionFormat::BC6S:
+    case TextureCompressionFormat::BC6S:
       res = nvtt::Format::Format_BC6S;
       break;
-    case CompressionFormat::BC7:
+    case TextureCompressionFormat::BC7:
       res = nvtt::Format::Format_BC7;
       break;
-    case CompressionFormat::Uncompressed:
+    case TextureCompressionFormat::Uncompressed:
       res = nvtt::Format::Format_RGBA;
       break;
   }
@@ -116,20 +117,20 @@ static nvtt::Format ToNVTTFormat(CompressionFormat format) {
   return res;
 }
 
-static nvtt::ValueType ToNVTTValueType(ValueType type) {
+static nvtt::ValueType ToNVTTValueType(TextureValueType type) {
   nvtt::ValueType res;
 
   switch (type) {
-    case ValueType::UINT8:
+    case TextureValueType::UINT8:
       res = nvtt::ValueType::UINT8;
       break;
-    case ValueType::SINT8:
+    case TextureValueType::SINT8:
       res = nvtt::ValueType::SINT8;
       break;
-    case ValueType::FLOAT16:
+    case TextureValueType::FLOAT16:
       res = nvtt::ValueType::FLOAT16;
       break;
-    case ValueType::FLOAT32:
+    case TextureValueType::FLOAT32:
       res = nvtt::ValueType::FLOAT32;
       break;
   }
@@ -137,20 +138,20 @@ static nvtt::ValueType ToNVTTValueType(ValueType type) {
   return res;
 }
 
-static nvtt::Quality ToNVTTQuality(CompressionQuality quality) {
+static nvtt::Quality ToNVTTQuality(TextureCompressionQuality quality) {
   nvtt::Quality res;
 
   switch (quality) {
-    case CompressionQuality::Fast:
+    case TextureCompressionQuality::Fast:
       res = nvtt::Quality::Quality_Fastest;
       break;
-    case CompressionQuality::Normal:
+    case TextureCompressionQuality::Normal:
       res = nvtt::Quality::Quality_Normal;
       break;
-    case CompressionQuality::Medium:
+    case TextureCompressionQuality::Medium:
       res = nvtt::Quality::Quality_Production;
       break;
-    case CompressionQuality::Highest:
+    case TextureCompressionQuality::Highest:
       res = nvtt::Quality::Quality_Highest;
       break;
   }
@@ -158,14 +159,14 @@ static nvtt::Quality ToNVTTQuality(CompressionQuality quality) {
   return res;
 }
 
-static nvtt::AlphaMode ToNVTTAlphaMode(AlphaMode mode) {
+static nvtt::AlphaMode ToNVTTAlphaMode(TextureAlphaMode mode) {
   nvtt::AlphaMode res;
 
   switch (mode) {
-    case AlphaMode::Opaque:
+    case TextureAlphaMode::Opaque:
       res = nvtt::AlphaMode::AlphaMode_None;
       break;
-    case AlphaMode::Transparent:
+    case TextureAlphaMode::Transparent:
       res = nvtt::AlphaMode::AlphaMode_Transparency;
       break;
   }
@@ -173,26 +174,26 @@ static nvtt::AlphaMode ToNVTTAlphaMode(AlphaMode mode) {
   return res;
 }
 
-static nvtt::MipmapFilter ToNVTTMipMapFilter(MipMapFilter filter) {
+static nvtt::MipmapFilter ToNVTTMipMapFilter(TextureMipMapFilter filter) {
   nvtt::MipmapFilter res;
 
   switch (filter) {
-    case MipMapFilter::Box:
+    case TextureMipMapFilter::Box:
       res = nvtt::MipmapFilter::MipmapFilter_Box;
       break;
-    case MipMapFilter::Triangle:
+    case TextureMipMapFilter::Triangle:
       res = nvtt::MipmapFilter::MipmapFilter_Triangle;
       break;
-    case MipMapFilter::Kaiser:
+    case TextureMipMapFilter::Kaiser:
       res = nvtt::MipmapFilter::MipmapFilter_Kaiser;
       break;
-    case MipMapFilter::Mitchell:
+    case TextureMipMapFilter::Mitchell:
       res = nvtt::MipmapFilter::MipmapFilter_Mitchell;
       break;
-    case MipMapFilter::Min:
+    case TextureMipMapFilter::Min:
       res = nvtt::MipmapFilter::MipmapFilter_Min;
       break;
-    case MipMapFilter::Max:
+    case TextureMipMapFilter::Max:
       res = nvtt::MipmapFilter::MipmapFilter_Max;
       break;
   }
@@ -200,44 +201,44 @@ static nvtt::MipmapFilter ToNVTTMipMapFilter(MipMapFilter filter) {
   return res;
 }
 
-static int BytesPerTile(CompressionFormat format) {
+static int BytesPerTile(TextureCompressionFormat format) {
   int res;
 
   switch (format) {
-    case CompressionFormat::BC1:
+    case TextureCompressionFormat::BC1:
       res = 8;
       break;
-    case CompressionFormat::BC1a:
+    case TextureCompressionFormat::BC1a:
       res = 8;
       break;
-    case CompressionFormat::BC2:
+    case TextureCompressionFormat::BC2:
       res = 16;
       break;
-    case CompressionFormat::BC3:
+    case TextureCompressionFormat::BC3:
       res = 16;
       break;
-    case CompressionFormat::BC3n:
+    case TextureCompressionFormat::BC3n:
       res = 16;
       break;
-    case CompressionFormat::BC4:
+    case TextureCompressionFormat::BC4:
       res = 8;
       break;
-    case CompressionFormat::BC4S:
+    case TextureCompressionFormat::BC4S:
       res = 8;
       break;
-    case CompressionFormat::BC5:
+    case TextureCompressionFormat::BC5:
       res = 16;
       break;
-    case CompressionFormat::BC5S:
+    case TextureCompressionFormat::BC5S:
       res = 16;
       break;
-    case CompressionFormat::BC6U:
+    case TextureCompressionFormat::BC6U:
       res = 16;
       break;
-    case CompressionFormat::BC6S:
+    case TextureCompressionFormat::BC6S:
       res = 16;
       break;
-    case CompressionFormat::BC7:
+    case TextureCompressionFormat::BC7:
       res = 16;
       break;
   }
@@ -249,10 +250,10 @@ static VkFormat GetVkFormat(int channels, nvtt::ValueType type, nvtt::Format for
   if (format == nvtt::Format_RGBA) {  // No compression
     if (channels == 1) {
       switch (type){
-        case nvtt::UINT8:
-          return VK_FORMAT_R8_UINT;
-        case nvtt::SINT8:
-          return VK_FORMAT_R8_SINT;
+        // case nvtt::UINT8:
+        //   return VK_FORMAT_R8_UINT;
+        // case nvtt::SINT8:
+        //   return VK_FORMAT_R8_SINT;
         case nvtt::FLOAT16:
           return VK_FORMAT_R16_SFLOAT;
         case nvtt::FLOAT32:
@@ -260,32 +261,32 @@ static VkFormat GetVkFormat(int channels, nvtt::ValueType type, nvtt::Format for
       }
     } else if (channels == 2) {
       switch (type){
-        case nvtt::UINT8:
-          return VK_FORMAT_R8G8_UINT;
-        case nvtt::SINT8:
-          return VK_FORMAT_R8G8_SINT;
+        // case nvtt::UINT8:
+        //   return VK_FORMAT_R8G8_UINT;
+        // case nvtt::SINT8:
+        //   return VK_FORMAT_R8G8_SINT;
         case nvtt::FLOAT16:
           return VK_FORMAT_R16G16_SFLOAT;
         case nvtt::FLOAT32:
           return VK_FORMAT_R32G32_SFLOAT;
       }
     } else if (channels == 3) {
-      switch (type){
-        case nvtt::UINT8:
-          return VK_FORMAT_R8G8B8_UINT;
-        case nvtt::SINT8:
-          return VK_FORMAT_R8G8B8_SINT;
-        case nvtt::FLOAT16:
-          return VK_FORMAT_R16G16B16_SFLOAT;
-        case nvtt::FLOAT32:
-          return VK_FORMAT_R32G32B32_SFLOAT;
-      }
+      // switch (type){
+      //   case nvtt::UINT8:
+      //     return VK_FORMAT_R8G8B8_UINT;
+      //   case nvtt::SINT8:
+      //     return VK_FORMAT_R8G8B8_SINT;
+      //   case nvtt::FLOAT16:
+      //     return VK_FORMAT_R16G16B16_SFLOAT;
+      //   case nvtt::FLOAT32:
+      //     return VK_FORMAT_R32G32B32_SFLOAT;
+      // }
     } else {
       switch (type){
-        case nvtt::UINT8:
-          return VK_FORMAT_R8G8B8A8_UINT;
-        case nvtt::SINT8:
-          return VK_FORMAT_R8G8B8A8_SINT;
+        // case nvtt::UINT8:
+        //   return VK_FORMAT_R8G8B8A8_UINT;
+        // case nvtt::SINT8:
+        //   return VK_FORMAT_R8G8B8A8_SINT;
         case nvtt::FLOAT16:
           return VK_FORMAT_R16G16B16A16_SFLOAT;
         case nvtt::FLOAT32:
@@ -301,8 +302,9 @@ static VkFormat GetVkFormat(int channels, nvtt::ValueType type, nvtt::Format for
       case nvtt::Format_BC2:
         return VK_FORMAT_BC2_SRGB_BLOCK;
       case nvtt::Format_BC3:
-      case nvtt::Format_BC3n:
         return VK_FORMAT_BC3_SRGB_BLOCK;
+      case nvtt::Format_BC3n:
+        return VK_FORMAT_BC3_UNORM_BLOCK;
       case nvtt::Format_BC4:
         return VK_FORMAT_BC4_UNORM_BLOCK;
       case nvtt::Format_BC4S:
@@ -381,9 +383,9 @@ bool TextureCompressor::Compress(
   nvtt::Format format = ToNVTTFormat(settings->format);
   nvtt::Quality quality = ToNVTTQuality(settings->quality);
   nvtt::AlphaMode alphaMode = ToNVTTAlphaMode(data->alphaMode);
-  bool isNormalMap = settings->isNormalMap;
+  bool isNormalMap = data->isNormalMap;
   nvtt::MipmapFilter filter = ToNVTTMipMapFilter(settings->mipMapFilter);
-  bool shouldGammaCorrect = data->colorSpace == ColorSpace::sRGB;
+  bool shouldGammaCorrect = data->colorSpace == TextureColorSpace::sRGB;
 
   // nvtt::RefImage imgInput;
   // imgInput.data = _m->_image;
@@ -514,9 +516,9 @@ bool TextureCompressor::CompressKTX2(
     // Find the proper format for the texture
     switch (channels) {
       case 1: {
-        if (data->type == ValueType::UINT8)
+        if (data->type == TextureValueType::UINT8)
           format = nvtt::Format_BC4;
-        else if (data->type == ValueType::SINT8)
+        else if (data->type == TextureValueType::SINT8)
           format = nvtt::Format_BC4S;
         else  // HDR with 1 channel should not be compressed
           format = nvtt::Format_RGBA;
@@ -524,9 +526,9 @@ bool TextureCompressor::CompressKTX2(
       }
       break;
       case 2: {
-        if (data->type == ValueType::UINT8)
+        if (data->type == TextureValueType::UINT8)
           format = nvtt::Format_BC5;
-        else if (data->type == ValueType::SINT8)
+        else if (data->type == TextureValueType::SINT8)
           format = nvtt::Format_BC5S;
         else  // HDR with 2 channels should not be compressed
           format = nvtt::Format_RGBA;
@@ -566,7 +568,7 @@ bool TextureCompressor::CompressKTX2(
     }
 
     // HDR loading
-    if (data->type == ValueType::FLOAT16) {
+    if (data->type == TextureValueType::FLOAT16) {
       inputFormat = nvtt::InputFormat_RGBA_16F;
       image = stbi_load_16(filename, &width, &height, &channels, 4);
     } else {
@@ -580,7 +582,7 @@ bool TextureCompressor::CompressKTX2(
     }
   } else {
     // LDR loading
-    if (data->type == ValueType::UINT8)
+    if (data->type == TextureValueType::UINT8)
       inputFormat = nvtt::InputFormat_BGRA_8UB;
     else
       inputFormat = nvtt::InputFormat_BGRA_8SB;
@@ -597,7 +599,7 @@ bool TextureCompressor::CompressKTX2(
   nvtt::ValueType type = ToNVTTValueType(data->type);
   
   nvtt::AlphaMode alphaMode = ToNVTTAlphaMode(data->alphaMode);
-  bool isNormalMap = settings->isNormalMap;
+  bool isNormalMap = data->isNormalMap;
   
   nvtt::Surface surface;
   if (!surface.setImage(inputFormat, width, height, 1, image)) {
@@ -684,7 +686,7 @@ bool TextureCompressor::CompressKTX2(
   } ();
 
   nvtt::MipmapFilter filter{ ToNVTTMipMapFilter(settings->mipMapFilter) };
-  bool shouldGammaCorrect{ data->colorSpace == ColorSpace::sRGB };
+  bool isSRGB{ data->colorSpace == TextureColorSpace::sRGB };
   for (int mip = 0; mip < numMipMaps; ++mip) {
     if (!context.compress(surface, 0, mip, options, output)) {
       printf("texture compression failed\n");
@@ -694,13 +696,16 @@ bool TextureCompressor::CompressKTX2(
     if (mip == numMipMaps - 1) break;
 
     // Prepare the next mip
-    if (shouldGammaCorrect) {
-      surface.toLinearFromSrgb();
-    }
-    if (alphaMode) {
+    if (isSRGB) {
       // https://github.com/nvpro-samples/nvtt_samples/blob/main/mipmap/main.cpp
       // Convert to linear premultiplied alpha. Note that toLinearFromSrgb()
       // will clamp HDR images; consider e.g. toLinear(2.2f) instead.
+      if (isFloat)
+        surface.toLinear(2.2);
+      else
+        surface.toLinearFromSrgb();
+    }
+    if (alphaMode) {
       surface.premultiplyAlpha();
     }
 
@@ -714,7 +719,7 @@ bool TextureCompressor::CompressKTX2(
     if (alphaMode) {
       surface.demultiplyAlpha();
     }
-    if (shouldGammaCorrect) {
+    if (isSRGB) {
       surface.toSrgb();
     }
   }
@@ -759,6 +764,13 @@ bool TextureCompressor::CompressKTX2(
       return false;
     }
   }
+
+  ktxHashList_AddKVPair(&texture->kvDataHead, KTX_KEY_IS_SRGB, sizeof(bool), &isSRGB);
+  ktxHashList_AddKVPair(&texture->kvDataHead, KTX_KEY_IS_CUBE_MAP, sizeof(bool), &data->isCubeMap);
+
+  ktxHashList_AddKVPair(&texture->kvDataHead, KTX_KEY_ALPHA_MODE, sizeof(int), &alphaMode);
+
+  ktxHashList_AddKVPair(&texture->kvDataHead, KTX_KEY_VALUE_TYPE, sizeof(int), &type);
 
   result = ktxTexture_WriteToNamedFile(ktxTexture(texture), exportPath);
   if (result != KTX_SUCCESS) {

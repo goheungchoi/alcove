@@ -23,3 +23,12 @@ constexpr size_t MAX_PATH_LENGHT{ 256 };
 
 #define xstr(a) str(a)
 #define str(a) #a
+
+namespace std {
+  inline void strip(std::string& str, char target = ' ') {
+    auto it = std::remove_if(str.begin(), str.end(), 
+      [target](char c) { return c == target; }
+    );
+    str.erase(it, str.end());
+  }
+}
