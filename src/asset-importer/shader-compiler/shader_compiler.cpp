@@ -4,7 +4,6 @@
 
 #include <string>
 #include <sstream>
-#include <fstream>
 
 static shaderc_spirv_version GetSPIRV(ShaderCompileTarget spv) {
   return static_cast<shaderc_spirv_version>(spv);
@@ -44,51 +43,9 @@ static shaderc_env_version GetShaderClientVersion(ShaderClientTarget client, con
   return shaderc_env_version::shaderc_env_version_vulkan_1_0;
 }
 
-/**
- * @brief Read the binary data of a file. outData must be freed after use.
- * 
- * @param filepath 
- * @param outSize 
- * @param outData 
- * @return true 
- * @return false 
- */
-static bool ReadFile(const char* filepath, size_t* outSize, u8** outData) {
-  // Open the file with the cursor at the end
-  std::ifstream file(filepath, std::ios::ate | std::ios::binary);
-
-  if (!file.is_open()) {
-    return false;
-  }
-
-  // The location of the cursor tells the size of 
-  // the file in bytes
-  std::size_t filesize = static_cast<std::size_t>(file.tellg());
-
-  // Return the size of the file
-  *outSize = filesize;
-  
-  if (outData) {
-    // Allocate memory space for the byte data
-    u8* data = (u8*) malloc(filesize);
-    
-    // Place the fie cursor at the beginning
-    file.seekg(0);
-
-    // Load the entire file into the buffer
-    file.read((char*)data, filesize);
-
-    *outData = data;
-  }
-
-  // Close the file
-  file.close();
-
-  // Return true
-  return true;
-}
-
 bool CompileShaders(const ShaderCompileOption* option) {
+
+
 
 
   return false;

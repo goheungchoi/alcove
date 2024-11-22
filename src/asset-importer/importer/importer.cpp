@@ -44,8 +44,7 @@ BaseImporter& BaseImporter::ProcessImportData() {
 }
 
 BaseImporter& BaseImporter::GenerateMetaData() { 
-  
-
+  GenerateMetaData_Impl();
   return *this;
 }
 
@@ -53,5 +52,56 @@ void BaseImporter::Import() {
   // Create the export directory
   std::filesystem::create_directory(_fullExportDir);
 
+  // Import process implementation
   Import_Impl();
+}
+
+void BaseImporter::Serialize() {
+  // Asset type
+  char assetType[MAX_NAME_LENGHT];
+  switch (_type)
+  {
+  case AssetType::Shader:
+    strncpy(assetType, "Shader", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Model:
+    strncpy(assetType, "Model", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Mesh:
+    strncpy(assetType, "Mesh", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Material:
+    strncpy(assetType, "Material", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Texture:
+    strncpy(assetType, "Texture", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Animator:
+    strncpy(assetType, "Animator", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Animation:
+    strncpy(assetType, "Animation", MAX_NAME_LENGHT);
+    break;
+  case AssetType::Audio:
+    strncpy(assetType, "Audio", MAX_NAME_LENGHT);
+    break;
+  default:
+    strncpy(assetType, "Unknown", MAX_NAME_LENGHT);
+    break;
+  }
+  SetData("asset_type", assetType);
+  
+  // UUID
+  char strUUID[33]; strUUID[32] = '\0';
+  UUIDToString(_uuid, strUUID);
+  SetData("uuid", strUUID);
+
+  // Name
+  SetData("name", _name);
+
+  // Path
+  SetData("path", _path);
+  
+  // Export path
+  SetData("export_path", _fullExportPath);
 }

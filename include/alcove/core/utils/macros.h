@@ -11,4 +11,5 @@
   classname(classname&&) = delete;  \
   classname& operator=(classname&&) = delete
 
-
+#define using_as_super(superclass) \
+  using Super = superclass

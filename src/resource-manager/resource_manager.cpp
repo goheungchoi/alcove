@@ -8,18 +8,19 @@ struct __Private__ {
 
 };
 
-static bool isInitialized{ false };
-static ResourceManager _rm{};
-static __Private__ _m;
+static __Private__& _m() {
+  static __Private__ _m;
+  return _m;
+}
 
 static Handle LoadTexture(const char *path, TextureType textureType)
 {
-  return _m.texturePool.Load(path, (void*) &textureType);;
+  return _m().texturePool.Load(path, (void*) &textureType);;
 }
 
 static void UnloadTexture(Handle& handle)
 {
-  _m.texturePool.Unload(handle);
+  _m().texturePool.Unload(handle);
 }
 
 static ResourceType GetResourceType(const Handle& handle) {
@@ -58,7 +59,7 @@ static bool IsValidHandle(const Handle& handle) {
     case AL_HANDLE_MATERIAL:
       return false;
     case AL_HANDLE_TEXTURE:
-      return _m.texturePool.IsValidHandle(handle);
+      return _m().texturePool.IsValidHandle(handle);
     case AL_HANDLE_ANIMATOR:
       return false;
     case AL_HANDLE_ANIMATION:
@@ -74,15 +75,13 @@ static void UnloadAll() {
 }
 
 const ResourceManager* GetResourceManager() {
-  if (!isInitialized) {
-    _rm.LoadTexture = LoadTexture;
-    _rm.UnloadTexture = UnloadTexture;
-    _rm.GetResourceType = GetResourceType;
-    _rm.IsValidHandle = IsValidHandle;
-    _rm.UnloadAll = UnloadAll;
-
-    isInitialized = true;
-  }
+  static ResourceManager _rm{
+    .LoadTexture = LoadTexture,
+    .UnloadTexture = UnloadTexture,
+    .GetResourceType = GetResourceType,
+    .IsValidHandle = IsValidHandle,
+    .UnloadAll = UnloadAll,
+  };
 
   return &_rm;
 }

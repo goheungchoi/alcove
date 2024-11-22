@@ -126,8 +126,9 @@ void JSONSerializer::AppendData(const char* nestedKey, const char* value) {
   _m->get_nested_key(nestedKey).push_back(value);
 }
 
-const char* JSONSerializer::GetJSONString() { 
+const char* JSONSerializer::GetJSONString(const int indent, int* outSize) { 
   static std::string jsonString;
-  jsonString = _m->j.dump(); // Serialize JSON object to a string
+  jsonString = _m->j.dump(indent); // Serialize JSON object to a string
+  if (outSize) *outSize = jsonString.size() + 1;
   return jsonString.c_str();
 }

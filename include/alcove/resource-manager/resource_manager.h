@@ -11,6 +11,7 @@ struct ResourceManager {
   bool (*IsValidHandle) (const Handle& handle);
 
   void (*UnloadAll) ();
+
 };
 
 const ResourceManager* GetResourceManager();

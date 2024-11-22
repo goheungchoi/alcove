@@ -14,6 +14,7 @@ target_include_directories(shader_importer_lib PRIVATE ${Alcove_INCLUDE_DIR})
 target_link_libraries(shader_importer_lib 
   PRIVATE 
   general importer_lib
+  general io_util_lib
 )
 
 # texture_importer_lib

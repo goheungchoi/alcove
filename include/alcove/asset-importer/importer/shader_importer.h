@@ -3,6 +3,8 @@
 #include "asset-importer/importer/importer.h"
 
 class ShaderImporter : public BaseImporter {
+  using_as_super(BaseImporter);
+  
   uncopyable(ShaderImporter);
 
   ShaderImportData _importData;

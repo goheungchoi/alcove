@@ -9,7 +9,7 @@ class JSONSerializer {
   using JSONValue = std::variant<nullptr_t, bool, char, short, int, long, long long, unsigned char,
     unsigned int, unsigned long, unsigned long long, float, double, const char*>;
 
-public:
+protected:
 
   JSONSerializer();
   virtual ~JSONSerializer();
@@ -60,5 +60,9 @@ public:
   void AppendData(const char* nestedKey, const double value);
   void AppendData(const char* nestedKey, const char* value);
 
-  const char* GetJSONString();
+public:
+
+  const char* GetJSONString(const int indent = -1, int* outSize = nullptr);
+
+  virtual void Serialize() = 0;
 };

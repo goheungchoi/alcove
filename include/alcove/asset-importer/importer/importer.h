@@ -13,7 +13,7 @@
  * @brief 
  * 
  */
-class IImporter : public JSONSerializer {
+class IImporter : protected JSONSerializer {
 public:
   virtual void Import() = 0;
 };
@@ -50,6 +50,10 @@ public:
   BaseImporter& GenerateMetaData();
 
   void Import() override final;
+  
+protected:
+
+  virtual void Serialize() override;
 
 private:
 

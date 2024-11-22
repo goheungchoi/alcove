@@ -5,6 +5,8 @@
 #include "asset-importer/texture-compressor/texture_compressor.h"
 
 class TextureImporter : public BaseImporter {
+  using_as_super(BaseImporter);
+
   uncopyable(TextureImporter);
 
   TextureImportData _importData;
@@ -15,6 +17,10 @@ class TextureImporter : public BaseImporter {
 public:
 
   TextureImporter();
+
+protected:
+
+  void Serialize() override;
 
 private:
 

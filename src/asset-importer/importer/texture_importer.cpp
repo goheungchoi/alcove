@@ -54,3 +54,46 @@ bool TextureImporter::Import_Impl() {
 
   return true;
 }
+
+void TextureImporter::Serialize() {
+  Super::Serialize();
+
+  SetData("image.is_normal", _data.isNormalMap);
+  SetData("image.is_cube", _data.isCubeMap);
+
+  // Color space
+  char colorSpace[MAX_NAME_LENGHT];
+  switch (_data.colorSpace)
+  {
+  case TextureColorSpace::sRGB:
+    strncpy(colorSpace, "sRGB", MAX_NAME_LENGHT);
+    break;
+  case TextureColorSpace::Non_Color:
+    strncpy(colorSpace, "Non_Color", MAX_NAME_LENGHT);
+    break;
+  case TextureColorSpace::Linear:
+    strncpy(colorSpace, "Linear", MAX_NAME_LENGHT);
+    break;
+  case TextureColorSpace::XYZ:
+    strncpy(colorSpace, "XYZ", MAX_NAME_LENGHT);
+    break;
+  }
+  SetData("image.color_space", colorSpace);
+
+  // Alpha mode
+  char alphaMode[MAX_NAME_LENGHT];
+  switch (_data.alphaMode)
+  {
+  case TextureAlphaMode::Opaque:
+    strncpy(alphaMode, "Opaque", MAX_NAME_LENGHT);
+    break;
+  case TextureAlphaMode::Transparent:
+    strncpy(alphaMode, "Transparent", MAX_NAME_LENGHT);
+    break;
+  }
+  SetData("image.alpha_mode", alphaMode);
+
+  // TODO: Serialize the rest of the data
+  
+
+}
