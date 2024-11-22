@@ -2,7 +2,7 @@
 
 #include "core/types/shader_types.h"
 
-struct ShaderCompileOption {
+struct ShaderCompileOptions {
   size_t numShaders;
   const ShaderInfo* shaderInfos;
 
@@ -12,14 +12,7 @@ struct ShaderCompileOption {
   const char* flags;
 
   bool parallel;
+  size_t numThreads;
 };
 
-bool CompileShaders(const ShaderCompileOption* option);
-
-class ShaderCompiler {
-  
-public:
-
-
-
-};
+bool CompileShaders(const ShaderCompileOptions* option);

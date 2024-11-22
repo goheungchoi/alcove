@@ -91,7 +91,7 @@ TEST_CASE("Texture Compression", "[TextureCompressor]") {
     _setting.alphaMode
   };
 
-  CompressOptions options{
+  CompressionOptions options{
     .format = _setting.format,
     .quality = _setting.quality,
 

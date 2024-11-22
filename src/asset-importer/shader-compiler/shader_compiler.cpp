@@ -43,10 +43,26 @@ static shaderc_env_version GetShaderClientVersion(ShaderClientTarget client, con
   return shaderc_env_version::shaderc_env_version_vulkan_1_0;
 }
 
-bool CompileShaders(const ShaderCompileOption* option) {
+static bool CompileShaderTask(const ShaderInfo* info) {
+  return false;
+};
 
+bool CompileShaders(const ShaderCompileOptions* option) {
+  
+  // SpvCompilationResult CompileGlslToSpv(const char* source_text,
+  //                                       size_t source_text_size,
+  //                                       shaderc_shader_kind shader_kind,
+  //                                       const char* input_file_name,
+  //                                       const char* entry_point_name,
+  //                                       const CompileOptions& options)
+  
+  
 
+  shaderc::Compiler compiler;
 
+  shaderc::CompileOptions options;
+
+  // compiler.CompileGlslToSpv()
 
   return false;
 }

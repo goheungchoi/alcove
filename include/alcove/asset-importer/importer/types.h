@@ -2,6 +2,7 @@
 
 #include "asset-importer/importer/importer_common.h"
 
+#include "core/types/shader_types.h"
 #include "core/types/texture_enums.h"
 
 enum class ImportDataStructType {
@@ -45,21 +46,20 @@ struct TextureImportData {
   bool useGPU{ true };
 };
 
-// struct ShaderCompileOption {
-//   size_t numShaders;
-//   const ShaderInfo* shaderInfos;
-
-//   char outdir[MAX_PATH_LENGHT];
-
-//   size_t numFlags;
-//   const char* flags;
-
-//   bool parallel;
-// };
-
 struct ShaderImportData {
+  ShaderLanguage lang;
+  const char* langVersion;
+  ShaderType type;
 
+  ShaderCompileTarget spv;
 
+  ShaderClientTarget client;
+  const char* clientVersion;
+
+  size_t numDefines;
+  ShaderDefine* defines;
+
+  const char* entryName;
 };
 
 struct ModelImportData {

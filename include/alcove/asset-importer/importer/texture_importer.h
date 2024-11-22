@@ -9,10 +9,13 @@ class TextureImporter : public BaseImporter {
 
   uncopyable(TextureImporter);
 
+  // Input import data
   TextureImportData _importData;
 
+  // Processed image data
   ImageData _data;
-  CompressOptions _options;
+  // Processed compression options
+  CompressionOptions _options;
 
 public:
 

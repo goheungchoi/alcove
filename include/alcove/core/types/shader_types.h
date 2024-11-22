@@ -107,6 +107,8 @@ struct ShaderDefine {
 struct ShaderInfo {
   char name[MAX_NAME_LENGHT];
   char path[MAX_PATH_LENGHT];
+  
+  char outc[MAX_NAME_LENGHT];
 
   ShaderLanguage lang;
   const char* langVersion;

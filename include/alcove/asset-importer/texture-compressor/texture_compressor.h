@@ -14,7 +14,7 @@ struct ImageData {
   TextureCubeLayout cubeLayout;
 };
 
-struct CompressOptions {
+struct CompressionOptions {
   // TODO: Adjust format based on the channel.
   // Or, recommended settings.
   TextureCompressionFormat format;
@@ -59,10 +59,10 @@ class TextureCompressor {
 public:
   TextureCompressor() = default;
 
-  bool Compress(const char* filename, const char* exportPath, const ImageData* data, const CompressOptions* settings);
+  bool Compress(const char* filename, const char* exportPath, const ImageData* data, const CompressionOptions* settings);
 
-  bool CompressKTX2(const char* filename, const char* exportPath, const ImageData* data, const CompressOptions* settings);
+  bool CompressKTX2(const char* filename, const char* exportPath, const ImageData* data, const CompressionOptions* settings);
 
-  bool CompressCube(const char* filename, const char* exportPath, const ImageData* data, const CompressOptions* settings);
+  bool CompressCube(const char* filename, const char* exportPath, const ImageData* data, const CompressionOptions* settings);
 
 };

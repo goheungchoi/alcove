@@ -378,7 +378,7 @@ bool TextureCompressor::Compress(
   const char* filename, 
   const char* exportPath, 
   const ImageData* data,
-  const CompressOptions* settings) {
+  const CompressionOptions* settings) {
 
   nvtt::Format format = ToNVTTFormat(settings->format);
   nvtt::Quality quality = ToNVTTQuality(settings->quality);
@@ -483,7 +483,7 @@ bool TextureCompressor::CompressKTX2(
   const char *filename, 
   const char *exportPath, 
   const ImageData* data,
-  const CompressOptions *settings) {
+  const CompressionOptions *settings) {
   const void* image;
   int width, height, channels, ok;
   // Check if the file is a valid texture

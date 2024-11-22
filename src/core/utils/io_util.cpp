@@ -11,7 +11,7 @@
  * @return true 
  * @return false 
  */
-bool al::read_file(const char* filepath, unsigned long* outSize, void** outData) {
+bool al::read_file(const char* filepath, unsigned long long* outSize, void** outData) {
   // Open the file with the cursor at the end
   std::ifstream file(filepath, std::ios::ate | std::ios::binary);
 
@@ -21,7 +21,7 @@ bool al::read_file(const char* filepath, unsigned long* outSize, void** outData)
 
   // The location of the cursor tells the size of 
   // the file in bytes
-  unsigned long filesize = static_cast<unsigned long>(file.tellg());
+  unsigned long long filesize = static_cast<unsigned long long>(file.tellg());
 
   // Return the size of the file
   *outSize = filesize;
